@@ -252,7 +252,7 @@ export default function SemuaKunjungan() {
                       key={i.toString()}
                     >
                       <td className="h-[56.5px]">
-                        <p className="mx-auto h-[32px] w-32 rounded bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-[32px] w-36 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <p className="mx-auto h-[32px] w-16 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
@@ -289,7 +289,7 @@ export default function SemuaKunjungan() {
                       key={i.toString()}
                     >
                       <td className="border-b border-slate-200 py-2 dark:border-gray-700">
-                        <p className="mx-auto w-32 rounded-sm bg-slate-700 py-2 text-center text-xs font-medium tracking-wider text-slate-100">
+                        <p className="mx-auto w-36 rounded-sm bg-slate-700 py-2 text-center text-xs font-medium tracking-wider text-slate-100">
                           {data.kodebooking}
                         </p>
                       </td>

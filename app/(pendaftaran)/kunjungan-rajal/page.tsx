@@ -567,7 +567,7 @@ export default function KunjunganRajal() {
                         </div>
                       </td>
                       <td>
-                        <p className="mx-auto h-[32px] w-28 rounded bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-[32px] w-36 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <div className="flex flex-col gap-1">
@@ -643,7 +643,7 @@ export default function KunjunganRajal() {
                         </div>
                       </td>
                       <td className="border-b border-slate-200 py-2 dark:border-gray-700">
-                        <p className="mx-auto w-28 rounded-sm bg-slate-800 py-2 text-center text-xs font-medium tracking-wider text-slate-100">
+                        <p className="mx-auto w-36 rounded-sm bg-slate-800 py-2 text-center text-xs font-medium tracking-wider text-slate-100">
                           {data.id_kunjungan}
                         </p>
                       </td>
