@@ -43,6 +43,7 @@ import {
   HasilTransaksiBarang,
   Jenis,
   KFAPOA,
+  StokBarangDepo,
   TransaksiBarang,
   TransaksiBarangSchema,
   TransaksiBarangTSchema,
@@ -637,12 +638,15 @@ const PemasukanDialog = ({
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
   const [isMutating, setIsMutating] = useState<boolean>(false);
-  const [listObat, setListObat] = useState<KFAPOA[]>();
+  const [listObat, setListObat] = useState<(KFAPOA | StokBarangDepo)[]>();
 
   const loadObat = async () => {
     try {
       setIsMutating(true);
-      const url = new URL(`${APIURL}/rs/kfa/poa`);
+      const url =
+        watch("id_jenis") === 6 && !!watch("id_ref")
+          ? new URL(`${APIURL}/rs/farmasi/stok/depo/${watch("id_ref")}`)
+          : new URL(`${APIURL}/rs/kfa/poa`);
       const params = {
         page: meta.page,
         perPage: meta.perPage,
@@ -1295,6 +1299,15 @@ const PemasukanDialog = ({
                               </td>
                             </tr>
                           ))}
+                          {!watch("detail") || watch("detail")?.length === 0 ? (
+                            <tr>
+                              <td colSpan={8}>
+                                <p className="px-4 py-2 text-center">
+                                  Belum ada barang
+                                </p>
+                              </td>
+                            </tr>
+                          ) : null}
                         </tbody>
                       </table>
                     </div>
@@ -1413,6 +1426,11 @@ const PemasukanDialog = ({
                             <Th>
                               <ThDiv>Kadaluarsa</ThDiv>
                             </Th>
+                            {watch("id_jenis") === 6 && !!watch("id_ref") ? (
+                              <Th>
+                                <ThDiv>Stok</ThDiv>
+                              </Th>
+                            ) : null}
                             <Th>
                               <ThDiv>Jumlah</ThDiv>
                             </Th>
@@ -1443,6 +1461,12 @@ const PemasukanDialog = ({
                                     className="pointer-events-none w-32 py-1.5 text-xs opacity-50"
                                   />
                                 </td>
+                                {watch("id_jenis") === 6 &&
+                                !!watch("id_ref") ? (
+                                  <td>
+                                    <p className="h-5 w-8 rounded bg-slate-200 dark:bg-slate-400"></p>
+                                  </td>
+                                ) : null}
                                 <td className="text-center">
                                   <Input className="pointer-events-none w-20 py-1.5 opacity-50" />
                                 </td>
@@ -1538,6 +1562,26 @@ const PemasukanDialog = ({
                                     disabled={obat?.id_poa !== data.id}
                                   />
                                 </td>
+                                {watch("id_jenis") === 6 &&
+                                !!watch("id_ref") ? (
+                                  <td
+                                    className="cursor-pointer border-b border-slate-200 p-2 text-center dark:border-gray-700"
+                                    onClick={() =>
+                                      obat?.id_poa === data.id
+                                        ? setObat(null)
+                                        : setObat({
+                                            id_poa: data.id,
+                                            nama: data.nama,
+                                            batch: "",
+                                            harga: 0,
+                                            jumlah: 1,
+                                            kadaluarsa: "",
+                                          })
+                                    }
+                                  >
+                                    <p>{"stok" in data && data.stok}</p>
+                                  </td>
+                                ) : null}
                                 <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
                                   <Input
                                     type="number"
@@ -1549,9 +1593,15 @@ const PemasukanDialog = ({
                                         : ""
                                     }
                                     onChange={(e) => {
+                                      const stok =
+                                        "stok" in data ? data.stok : 0;
+                                      const jumlah =
+                                        parseInt(e.target.value) > stok
+                                          ? stok
+                                          : parseInt(e.target.value);
                                       setObat({
                                         ...obat!,
-                                        jumlah: parseInt(e.target.value),
+                                        jumlah: jumlah,
                                       });
                                     }}
                                     disabled={obat?.id_poa !== data.id}

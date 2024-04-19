@@ -1174,7 +1174,9 @@ const PesananDialog = ({
                                 {obat.diskon ? obat.diskon + "%" : ""}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
-                                {String(obat.harga)?.replace("Rp", "")}
+                                {parseInt(
+                                  String(obat.harga || 0)?.replace("Rp", "")
+                                ).toLocaleString("id-ID")}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
                                 {obat.jumlah}
@@ -1182,7 +1184,7 @@ const PesananDialog = ({
                               <td className="whitespace-pre-wrap px-4 py-2">
                                 {(
                                   parseInt(
-                                    String(obat.harga)
+                                    String(obat.harga || 0)
                                       ?.replace("Rp", "")
                                       .replace(".", "") || ""
                                   ) * obat.jumlah
@@ -1289,7 +1291,7 @@ const PesananDialog = ({
                       <Button
                         onClick={() => validasiHandler(lihat.data?.id!)}
                         color="green100"
-                        disabled={lihat.data?.status! > 2}
+                        // disabled={lihat.data?.status! > 1}
                       >
                         Validasi
                       </Button>
@@ -1297,7 +1299,7 @@ const PesananDialog = ({
                       <Button
                         onClick={() => accHandler(lihat.data?.id!)}
                         color="green100"
-                        disabled={lihat.data?.status! < 3}
+                        // disabled={lihat.data?.status! > 2}
                       >
                         Setujui
                       </Button>

@@ -842,7 +842,13 @@ const PenjualanDialog = ({
       const post = await fetch(`${APIURL}/rs/farmasi/penjualan`, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          detail: data.detail.map((val) => ({
+            ...val,
+            kadaluarsa: val.kadaluarsa || null,
+          })),
+        }),
       });
       const resp = await post.json();
       if (resp.status !== "Created") throw new Error(resp.message);

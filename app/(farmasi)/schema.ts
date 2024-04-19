@@ -272,3 +272,16 @@ export type DetailPesanan = {
   harga: string | null;
   id_sp: string;
 };
+
+export type StokBarangDepo = {
+  id: number;
+  id_depo: number;
+  id_poa: number;
+  stok: number;
+  nama: string;
+  id_unit: number;
+  aktif: boolean;
+  id_pov: number;
+  merk: string;
+  depo: string;
+};

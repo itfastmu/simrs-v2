@@ -817,6 +817,7 @@ export default function StokOpnameDialog({
                         <Button
                           color="green"
                           disabled={
+                            !watch("so") ||
                             watch("so")?.length === 0 ||
                             watch("so")?.find((val) => val.check === true)
                               ?.check ||
@@ -828,9 +829,10 @@ export default function StokOpnameDialog({
                         </Button>
                         <Button
                           color="green100"
-                          disabled={watch("so")?.every(
-                            (val) => val.check === false
-                          )}
+                          disabled={
+                            !watch("so") ||
+                            watch("so")?.every((val) => val.check === false)
+                          }
                           onClick={submitPartiallyHandler}
                         >
                           Kirim
