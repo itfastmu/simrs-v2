@@ -431,8 +431,6 @@ export default function FormSEP() {
   const selKab = watch("kdKabupaten");
   const [listKab, setListKab] = useState<ReferensiBPJS[]>([]);
   useEffect(() => {
-    console.log("febgtg");
-
     const loadKab = async () => {
       if (!selProp) return;
       const data = await loadDataAlamat("kabupaten", {

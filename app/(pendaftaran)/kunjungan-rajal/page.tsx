@@ -602,6 +602,10 @@ export default function KunjunganRajal() {
                           >
                             SEP
                           </button>
+                          <HiOutlineDocumentText
+                            size="1.5rem"
+                            className="text-slate-200 dark:text-slate-400"
+                          />
                           <TbTrash
                             size="1.5rem"
                             className="text-slate-200 dark:text-slate-400"
@@ -1021,8 +1025,6 @@ const UbahDialog = ({
     handleSubmit,
     setValue,
     watch,
-    reset,
-    trigger,
     control,
     formState: { errors },
   } = useForm<Booking>({
@@ -1107,7 +1109,6 @@ const UbahDialog = ({
 
   const submitHandler: SubmitHandler<Booking> = (data, e) => {
     e?.preventDefault();
-    // console.log("febgtg");
     // console.log(data);
   };
 

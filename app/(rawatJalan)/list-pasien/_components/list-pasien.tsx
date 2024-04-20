@@ -550,7 +550,7 @@ export default function ListPasienAsesmen({
                       </td>
                       <td>
                         <div className="flex flex-nowrap items-center justify-center gap-1">
-                          {user === "Perawat Rajal" ? (
+                          {user === "Perawat Rajal" || user === "Dewa" ? (
                             <IoDocumentTextOutline
                               size="1.5rem"
                               className="text-slate-200 dark:text-slate-400"
@@ -560,7 +560,7 @@ export default function ListPasienAsesmen({
                             size="1.5rem"
                             className="text-slate-200 dark:text-slate-400"
                           />
-                          {user === "Perawat Rajal" ? (
+                          {user === "Perawat Rajal" || user === "Dewa" ? (
                             <>
                               <HiOutlineDocumentAdd
                                 size="1.5rem"
@@ -714,6 +714,7 @@ export default function ListPasienAsesmen({
                                     className="relative"
                                     href={{
                                       pathname: `/asesmen/klinik/${data.id_kunjungan}`,
+                                      // pathname: `/asesmen/klinik/${data.id_kunjungan.includes("/") ? data.id_kunjungan.replace("/", "") : data.id_kunjungan}`,
                                       query: {
                                         id: data.id_pasien,
                                         klinik: data.klinik,

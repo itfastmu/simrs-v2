@@ -163,7 +163,6 @@ export default function AsesmenIGD({
 
   const submitHandler: SubmitHandler<TAsesmenDok> = async (data, e) => {
     e?.preventDefault();
-    console.log("febgtg");
     console.log(data);
   };
 

@@ -773,7 +773,6 @@ const UbahDialog = ({
 
   const submitHandler: SubmitHandler<Booking> = (data, e) => {
     e?.preventDefault();
-    // console.log("febgtg");
     // console.log(data);
   };
 
