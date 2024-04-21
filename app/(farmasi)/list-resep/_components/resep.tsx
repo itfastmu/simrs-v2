@@ -1003,9 +1003,7 @@ export default function ResepDialog({
             </div>
             <div className="flex flex-col items-stretch gap-0.5 border-b border-black p-1 text-xs">
               <div className="flex justify-between">
-                <p>
-                  {etiketCetak.data?.nama} {etiketCetak.data?.kekuatan}
-                </p>
+                <p>{etiketCetak.data?.nama}</p>
                 <p>
                   {etiketCetak.data?.jumlah} {etiketCetak.data?.sediaan}
                 </p>

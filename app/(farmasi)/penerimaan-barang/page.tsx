@@ -70,6 +70,8 @@ export default function PenerimaanBarang() {
   headers.append("Authorization", token as string);
   headers.append("Content-Type", "application/json");
 
+  const [grupId] = useState(parseInt(Cookies.get("grupId")!));
+
   const [tanggal, setTanggal] = useState<Date | string>("");
   const memoizedTanggal = useMemo(
     () => (tanggal instanceof Date ? tanggal?.toLocaleDateString("fr-CA") : ""),
@@ -283,13 +285,15 @@ export default function PenerimaanBarang() {
             </div>
             <div className="flex items-baseline gap-1">
               <div className="flex gap-1">
-                <Button
-                  className="h-fit px-4 py-[7px]"
-                  color="slatesky"
-                  onClick={() => setTambahDialog(true)}
-                >
-                  Tambah
-                </Button>
+                {grupId !== 10 ? (
+                  <Button
+                    className="h-fit px-4 py-[7px]"
+                    color="slatesky"
+                    onClick={() => setTambahDialog(true)}
+                  >
+                    Tambah
+                  </Button>
+                ) : null}
               </div>
               <InputSearch
                 value={cari}

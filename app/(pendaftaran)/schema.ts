@@ -174,6 +174,10 @@ export const SKDPSchema = z.object({
     required_error: "harus dipilih",
     invalid_type_error: "harus dipilih",
   }),
+  id_asuransi: z.number({
+    required_error: "harus dipilih",
+    invalid_type_error: "harus dipilih",
+  }),
   alasan: z.string().nullish(),
   rtl: z.string().nullish(),
 });

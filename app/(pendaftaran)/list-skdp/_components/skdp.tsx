@@ -129,7 +129,6 @@ export default function FormSKDPDialog({
     setValue,
     watch,
     reset,
-    trigger,
     control,
     formState: { errors },
   } = useForm<SKDPSch>({
@@ -176,6 +175,13 @@ export default function FormSKDPDialog({
   }, [klinik, tanggal]);
 
   useEffect(() => {
+    const subscription = watch((value, { name, type }) =>
+      console.log(value, name, type)
+    );
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  useEffect(() => {
     console.log(errors);
   }, [errors]);
 
@@ -199,6 +205,7 @@ export default function FormSKDPDialog({
       setValue("rtl", ubah?.data?.rtl!);
     }
     setValue("id_pasien", ubah?.data?.id_pasien!);
+    setValue("id_asuransi", (ubah?.data as KunjunganRajal)?.id_asuransi!);
     setValue("id_klinik", ubah?.data?.id_klinik!);
     setValue("id_dokter", (ubah?.data as SKDP)?.id_dokter!);
 

@@ -289,7 +289,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
           {
             judul: "Penerimaan Barang",
             href: "/penerimaan-barang",
-            grup: [1, 6],
+            grup: [1, 6, 10],
           },
         ],
       },

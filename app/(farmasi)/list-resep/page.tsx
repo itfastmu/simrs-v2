@@ -924,7 +924,7 @@ const TelaahDialog = ({
               jumlah: nonracik.jumlah,
               batch: null,
               kadaluarsa: null,
-              harga: nonracik.harga,
+              harga: nonracik.harga || 0,
             });
             setValue("obat", [...obat]);
           }
@@ -947,7 +947,7 @@ const TelaahDialog = ({
                   jumlah: detail.jumlah,
                   batch: null,
                   kadaluarsa: null,
-                  harga: detail.harga,
+                  harga: detail.harga || 0,
                 });
                 setValue("obat", [...obat]);
               }

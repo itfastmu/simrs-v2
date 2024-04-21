@@ -1060,14 +1060,20 @@ const PenjualanDialog = ({
                                   : null}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
-                                {(obat.harga || 0).toLocaleString("id-ID")}
+                                {parseInt(
+                                  String(obat.harga || 0)?.replace("Rp", "")
+                                ).toLocaleString("id-ID")}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
                                 {obat.jumlah}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
                                 {(
-                                  (obat.harga || 0) * obat.jumlah
+                                  parseInt(
+                                    String(obat.harga || 0)
+                                      ?.replace("Rp", "")
+                                      .replace(".", "") || ""
+                                  ) * obat.jumlah
                                 ).toLocaleString("id-ID")}
                               </td>
                               <td
