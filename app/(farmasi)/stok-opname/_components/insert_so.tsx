@@ -226,15 +226,16 @@ export default function StokOpnameDialog({
       //       check: false,
       //     })),
       // ]);
-      setValue("so", [
-        ...data.map((val) => ({
+      setValue(
+        "so",
+        data.map((val) => ({
           id_poa: val.id_poa,
           nama: val.nama,
           stok_awal: val.stok,
           jumlah: val.stok,
           check: false,
-        })),
-      ]);
+        })) || []
+      );
     } catch (error) {
       console.error(error);
     }
@@ -306,18 +307,22 @@ export default function StokOpnameDialog({
   ) => {
     try {
       e?.preventDefault();
+      const soPartial = watch("so").filter((val) => val.check);
       const post = await fetch(`${APIURL}/rs/farmasi/insert_so`, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify({ id_so: watch("id_so"), so: watch("so") }),
+        body: JSON.stringify({
+          id_so: watch("id_so"),
+          so: soPartial,
+        }),
       });
       const resp = await post.json();
       if (resp.status !== "Created") throw new Error(resp.message);
       toast.success(resp.message);
-      obatDepoDispatch({ modal: false });
+      // obatDepoDispatch({ modal: false });
       setValue(
         "so",
-        watch("so")?.filter((val) => val.check === false)
+        watch("so")?.filter((val) => !val.check)
       );
       loadData();
     } catch (err) {

@@ -596,7 +596,7 @@ export default function StokObatOpname() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
+                <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
                   <Dialog.Title
                     as="p"
                     className="font-medium leading-6 text-gray-900"
@@ -611,7 +611,7 @@ export default function StokObatOpname() {
                         </p>
                       </div>
                       <div
-                        className={cn("w-full overflow-hidden rounded shadow")}
+                        className={cn("overflow-hiddem w-full rounded shadow")}
                       >
                         <table className="min-w-full text-xs">
                           <thead>

@@ -800,7 +800,6 @@ const PenjualanDialog = ({
         nama: val.nama,
         batch: "",
         kadaluarsa: "",
-        harga: val.nominal || NaN,
         jumlah: val.jumlah,
       }))
     );
@@ -1024,9 +1023,7 @@ const PenjualanDialog = ({
                             <td className="px-4 py-2">Obat</td>
                             <td className="px-4 py-2">Batch</td>
                             <td className="px-4 py-2">Kadaluarsa</td>
-                            <td className="px-4 py-2">Harga</td>
                             <td className="px-4 py-2">Jumlah</td>
-                            <td className="px-4 py-2">Total</td>
                             <td
                               className={cn(
                                 "px-4 py-2 text-center",
@@ -1060,21 +1057,7 @@ const PenjualanDialog = ({
                                   : null}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
-                                {parseInt(
-                                  String(obat.harga || 0)?.replace("Rp", "")
-                                ).toLocaleString("id-ID")}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
                                 {obat.jumlah}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
-                                {(
-                                  parseInt(
-                                    String(obat.harga || 0)
-                                      ?.replace("Rp", "")
-                                      .replace(".", "") || ""
-                                  ) * obat.jumlah
-                                ).toLocaleString("id-ID")}
                               </td>
                               <td
                                 className={cn(
@@ -1337,7 +1320,6 @@ const PenjualanDialog = ({
                                             id_poa: data.id,
                                             nama: data.nama,
                                             batch: "",
-                                            harga: 0,
                                             jumlah: 1,
                                             kadaluarsa: "",
                                           });
@@ -1356,7 +1338,6 @@ const PenjualanDialog = ({
                                           id_poa: data.id,
                                           nama: data.nama,
                                           batch: "",
-                                          harga: 0,
                                           jumlah: 1,
                                           kadaluarsa: "",
                                         })

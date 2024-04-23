@@ -89,7 +89,6 @@ export const TransaksiBarangSchema = z.object({
       nama: z.string(),
       batch: z.string(),
       kadaluarsa: z.string(),
-      harga: z.number().or(z.nan()),
       jumlah: z.number(),
     })
     .array()

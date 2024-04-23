@@ -684,7 +684,7 @@ export default function AsesmenDokter({
             <Dialog
               as="div"
               className="relative z-[1001]"
-              onClose={() => setViewHasilPerawat(false)}
+              onClose={() => false}
             >
               <Transition.Child
                 as={Fragment}

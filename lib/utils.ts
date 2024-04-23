@@ -80,6 +80,53 @@ export const getAgeThn = (strDate: Date) => {
   return year !== 0 ? year + " Tahun" : weeks + " Minggu";
 };
 
+export const hijriyahDate = (date: Date): string => {
+  const hijriMonths = [
+    "Muharram",
+    "Safar",
+    "Rabi' al-Awwal",
+    "Rabi' al-Thani",
+    "Jumada al-Awwal",
+    "Jumada al-Thani",
+    "Rajab",
+    "Sha'ban",
+    "Ramadan",
+    "Shawwal",
+    "Dhu al-Qi'dah",
+    "Dhu al-Hijjah",
+  ];
+
+  const gregorianYear = date.getFullYear();
+  const gregorianMonth = date.getMonth() + 1;
+  const gregorianDay = date.getDate();
+
+  const jd1 = Math.floor((11 * gregorianYear + 3) / 30);
+  const jd2 = Math.floor(
+    gregorianYear * 365 +
+      gregorianYear / 4 -
+      jd1 +
+      Math.floor(gregorianMonth * 30.6) +
+      gregorianDay +
+      1948439 -
+      1
+  );
+
+  const l = jd2 - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  const j = l - 10631 * n + 354;
+  const j1 =
+    Math.floor((10985 - j) / 5316) * Math.floor((50 * j) / 17719) +
+    (j / 5670) * Math.floor((43 * j) / 15238);
+  const j2 = j - Math.floor((30.6001 * j1 * 10631) / 10600);
+  const monthIndex = Math.floor((j2 + 28) / 29.5);
+  const year = Math.floor(29 * monthIndex + j1 - 7200) / 10985;
+
+  const day = j2 - Math.floor(29.5001 * monthIndex - 29);
+
+  const hijriDate = `${day} ${hijriMonths[monthIndex - 1]} ${year} H`;
+  return hijriDate;
+};
+
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };

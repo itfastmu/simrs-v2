@@ -638,15 +638,15 @@ const PemasukanDialog = ({
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
   const [isMutating, setIsMutating] = useState<boolean>(false);
-  const [listObat, setListObat] = useState<(KFAPOA | StokBarangDepo)[]>();
+  const [listObat, setListObat] = useState<(KFAPOA & { stok?: number })[]>();
 
   const loadObat = async () => {
     try {
       setIsMutating(true);
-      const url =
-        watch("id_jenis") === 6 && !!watch("id_ref")
-          ? new URL(`${APIURL}/rs/farmasi/stok/depo/${watch("id_ref")}`)
-          : new URL(`${APIURL}/rs/kfa/poa`);
+      const masuk = watch("id_jenis") === 6 && !!watch("id_ref");
+      const url = masuk
+        ? new URL(`${APIURL}/rs/farmasi/stok/depo/${watch("id_ref")}`)
+        : new URL(`${APIURL}/rs/kfa/poa`);
       const params = {
         page: meta.page,
         perPage: meta.perPage,
@@ -657,7 +657,27 @@ const PemasukanDialog = ({
       const resp = await fetch(url, { method: "GET", headers: headers });
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
-      setListObat(json?.data);
+      setListObat(
+        masuk
+          ? json?.data.map((data: StokBarangDepo) => ({
+              id: data.id_poa,
+              nama: data.nama,
+              id_pov: data.id_pov,
+              merk: data.merk,
+              id_bza: "",
+              numerator: NaN,
+              satuan: "",
+              denominator: NaN,
+              satuan_denom: "",
+              id_sediaan: "",
+              id_hl7: "",
+              nama_hl7: "",
+              nama_indo: "",
+              sediaan: "",
+              stok: data.stok,
+            }))
+          : json?.data
+      );
       metaDispatch({
         type: "setMeta",
         setMeta: {
@@ -827,7 +847,6 @@ const PemasukanDialog = ({
         nama: val.nama,
         batch: "",
         kadaluarsa: "",
-        harga: val.nominal || NaN,
         jumlah: val.jumlah,
       }))
     );
@@ -1170,9 +1189,7 @@ const PemasukanDialog = ({
                             <td className="px-4 py-2">Obat</td>
                             <td className="px-4 py-2">Batch</td>
                             <td className="px-4 py-2">Kadaluarsa</td>
-                            <td className="px-4 py-2">Harga</td>
                             <td className="px-4 py-2">Jumlah</td>
-                            <td className="px-4 py-2">Total</td>
                             <td
                               className={cn(
                                 "px-4 py-2 text-center",
@@ -1206,15 +1223,7 @@ const PemasukanDialog = ({
                                   : null}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
-                                {(obat.harga || 0).toLocaleString("id-ID")}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
                                 {obat.jumlah}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
-                                {(
-                                  (obat.harga || 0) * obat.jumlah
-                                ).toLocaleString("id-ID")}
                               </td>
                               <td
                                 className={cn(
@@ -1500,7 +1509,6 @@ const PemasukanDialog = ({
                                             id_poa: data.id,
                                             nama: data.nama,
                                             batch: "",
-                                            harga: 0,
                                             jumlah: 1,
                                             kadaluarsa: "",
                                           });
@@ -1519,7 +1527,6 @@ const PemasukanDialog = ({
                                           id_poa: data.id,
                                           nama: data.nama,
                                           batch: "",
-                                          harga: 0,
                                           jumlah: 1,
                                           kadaluarsa: "",
                                         })
@@ -1573,7 +1580,6 @@ const PemasukanDialog = ({
                                             id_poa: data.id,
                                             nama: data.nama,
                                             batch: "",
-                                            harga: 0,
                                             jumlah: 1,
                                             kadaluarsa: "",
                                           })
@@ -1593,15 +1599,18 @@ const PemasukanDialog = ({
                                         : ""
                                     }
                                     onChange={(e) => {
-                                      const stok =
-                                        "stok" in data ? data.stok : 0;
+                                      const stok = data.stok || 0;
                                       const jumlah =
                                         parseInt(e.target.value) > stok
                                           ? stok
                                           : parseInt(e.target.value);
                                       setObat({
                                         ...obat!,
-                                        jumlah: jumlah,
+                                        jumlah:
+                                          watch("id_jenis") === 6 &&
+                                          !!watch("id_ref")
+                                            ? jumlah
+                                            : parseInt(e.target.value),
                                       });
                                     }}
                                     disabled={obat?.id_poa !== data.id}
@@ -1613,14 +1622,20 @@ const PemasukanDialog = ({
                         </tbody>
                       </table>
                     </div>
-                    <Pagination
-                      meta={meta}
-                      mutating={isMutating}
-                      setPage={(pageVal: number) => {
-                        metaDispatch({ type: "page", page: pageVal });
-                        tableDivRef.current?.scrollTo(0, 0);
-                      }}
-                    />
+                    <div className="relative">
+                      <p className="absolute -top-2 left-0 text-[10px]/[14px]">
+                        Catatan: Tekan tambah dibawah setelah memilih dan
+                        mengisi detail barang
+                      </p>
+                      <Pagination
+                        meta={meta}
+                        mutating={isMutating}
+                        setPage={(pageVal: number) => {
+                          metaDispatch({ type: "page", page: pageVal });
+                          tableDivRef.current?.scrollTo(0, 0);
+                        }}
+                      />
+                    </div>
                     <div className="mt-2 flex gap-1">
                       <Button
                         className="py-1"
