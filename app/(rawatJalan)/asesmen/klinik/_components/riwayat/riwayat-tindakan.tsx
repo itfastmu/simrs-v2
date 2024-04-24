@@ -166,7 +166,7 @@ export default function RiwayatTindakan({
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="sticky top-0 z-20 bg-slate-100 *:border-r *:border-r-slate-50 *:px-4 *:py-2 *:text-center dark:bg-gray-700 xl:-top-[1px]">
-                        <td rowSpan={2}>No. Kunjungan</td>
+                        <td rowSpan={2}>No. Rawat</td>
                         <td rowSpan={2}>Tanggal</td>
                         <td rowSpan={2}>Dokter</td>
                         <td colSpan={3} className="!border-r-0">

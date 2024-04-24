@@ -313,7 +313,7 @@ export default function ListLaborat() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>Nama Pasien</ThDiv>
@@ -1159,7 +1159,7 @@ const PermintLabDialog = ({
                               <ThDiv>*</ThDiv>
                             </Th>
                             <Th>
-                              <ThDiv>No. Kunjungan</ThDiv>
+                              <ThDiv>No. Rawat</ThDiv>
                             </Th>
                             <Th>
                               <ThDiv>No. R.M.</ThDiv>

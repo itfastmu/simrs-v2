@@ -221,7 +221,7 @@ export default function SemuaKunjungan() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>No. R.M.</ThDiv>

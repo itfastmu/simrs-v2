@@ -86,7 +86,7 @@ const CetakHasilRadiologi = forwardRef<
                 <p>{data.permintaan?.alamat}</p>
               </div>
               <div className="flex">
-                <p className="w-[95px]">No. Kunjungan</p>
+                <p className="w-[95px]">No. Rawat</p>
                 <p className="px-1.5">:</p>
                 <p>{data.permintaan?.id_kunjungan}</p>
               </div>

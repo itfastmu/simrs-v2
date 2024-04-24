@@ -315,7 +315,7 @@ export default function ListRadiologi() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>Nama Pasien</ThDiv>
@@ -1188,7 +1188,7 @@ const PermintRadDialog = ({
                               <ThDiv>*</ThDiv>
                             </Th>
                             <Th>
-                              <ThDiv>No. Kunjungan</ThDiv>
+                              <ThDiv>No. Rawat</ThDiv>
                             </Th>
                             <Th>
                               <ThDiv>No. R.M.</ThDiv>

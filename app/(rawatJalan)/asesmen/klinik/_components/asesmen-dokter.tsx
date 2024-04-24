@@ -518,14 +518,14 @@ export default function AsesmenDokter({
                   </td>
                 </tr>
                 <tr>
-                  <td className="align-baseline">No. Kunjungan</td>
+                  <td className="align-baseline">No. Rawat</td>
                   <td className="px-1 align-baseline">:</td>
                   <td className="align-baseline">
                     {params.idKunjungan === "igd" ? "" : params.idKunjungan}
                   </td>
                 </tr>
                 <tr>
-                  <td className="align-baseline">Tgl. Kunjungan</td>
+                  <td className="align-baseline">Tanggal</td>
                   <td className="px-1 align-baseline">:</td>
                   <td className="align-baseline">
                     {hasilDokter?.anamnesis.created_at
@@ -542,7 +542,7 @@ export default function AsesmenDokter({
                   </td>
                 </tr>
                 <tr>
-                  <td className="align-baseline">Jam Kunjungan</td>
+                  <td className="align-baseline">Jam</td>
                   <td className="px-1 align-baseline">:</td>
                   <td className="align-baseline">
                     {hasilDokter?.anamnesis.created_at

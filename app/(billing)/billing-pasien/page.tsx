@@ -235,7 +235,7 @@ export default function ListPasienBilling() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>No. R.M.</ThDiv>
@@ -1053,7 +1053,7 @@ const BillingDialog = ({
                     </div>
                     <div className="flex flex-col gap-0.5 text-sm">
                       <div className="flex">
-                        <p className="w-44">No. Kunjungan</p>
+                        <p className="w-44">No. Rawat</p>
                         <p className="px-1.5 align-top">:</p>
                         <p>{billing.data?.kodebooking}</p>
                       </div>

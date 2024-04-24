@@ -488,7 +488,7 @@ export default function FormSEP() {
         <div className="flex items-center gap-2 rounded bg-slate-100 p-2 pr-8 dark:bg-gray-800">
           <Input
             className="w-auto px-2 py-1 text-xs"
-            placeholder="No. Kunjungan"
+            placeholder="No. Rawat"
             value={kunjunganText}
             onChange={(e) => setKunjunganText(e.target.value)}
           />

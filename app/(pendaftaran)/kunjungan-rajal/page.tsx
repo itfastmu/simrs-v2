@@ -530,7 +530,7 @@ export default function KunjunganRajal() {
                     <ThDiv>Antrian</ThDiv>
                   </Th>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>Nama</ThDiv>

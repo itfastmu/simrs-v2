@@ -84,16 +84,16 @@ export const hijriyahDate = (date: Date): string => {
   const hijriMonths = [
     "Muharram",
     "Safar",
-    "Rabi' al-Awwal",
-    "Rabi' al-Thani",
-    "Jumada al-Awwal",
-    "Jumada al-Thani",
+    "Rabiul Awal",
+    "Rabiul Akhir",
+    "Jumadil Awal",
+    "Jumadil Akhir",
     "Rajab",
-    "Sha'ban",
-    "Ramadan",
-    "Shawwal",
-    "Dhu al-Qi'dah",
-    "Dhu al-Hijjah",
+    "Sya'ban",
+    "Ramadhan",
+    "Syawal",
+    "Dzulqa'dah",
+    "Dzulhijjah",
   ];
 
   const gregorianYear = date.getFullYear();

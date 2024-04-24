@@ -339,7 +339,7 @@ export default function RiwayatRadiologi({
                       <thead>
                         <tr>
                           <Th>
-                            <ThDiv>No. Kunjungan</ThDiv>
+                            <ThDiv>No. Rawat</ThDiv>
                           </Th>
                           {/* <Th>
                             <ThDiv>No. R.M.</ThDiv>
