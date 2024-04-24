@@ -34,11 +34,12 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 import { DetailPesanan, SuratPesanan } from "../schema";
 
-type PenerimaanBarang = {
+type PenerimaanBarangT = {
   id: string;
   user: string;
   status: number;
   created_at: string;
+  tempo: string;
   faktur: [];
 };
 
@@ -60,7 +61,7 @@ type DPenerimaanBarang = {
 
 type LihatState = {
   modal: boolean;
-  data?: PenerimaanBarang;
+  data?: PenerimaanBarangT;
 };
 type LihatAction = { type: "setLihat"; lihat: LihatState };
 
@@ -79,7 +80,7 @@ export default function PenerimaanBarang() {
   );
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
-  const [dataList, setDataList] = useState<PenerimaanBarang[]>([]);
+  const [dataList, setDataList] = useState<PenerimaanBarangT[]>([]);
 
   const [tambahDialog, setTambahDialog] = useState<boolean>(false);
   const lihatState = {
@@ -496,6 +497,7 @@ const PenerimaanDialog = ({
     faktur: z.custom<FileList>().refine((file) => file && file.length > 0, {
       message: "harus diinputkan",
     }),
+    tempo: z.string().min(1, "harus diisi"),
     detail: z
       .object({
         id_sp: z.string().nullish(),
@@ -520,6 +522,7 @@ const PenerimaanDialog = ({
     handleSubmit,
     setValue,
     reset,
+    register,
     watch,
     control,
     formState: { errors },
@@ -705,7 +708,7 @@ const PenerimaanDialog = ({
   const tableDivRef = useRef<HTMLDivElement>(null);
 
   const [penerimaan, setPenerimaan] = useState<
-    PenerimaanBarang & { total: string | null; detail: DPenerimaanBarang[] }
+    PenerimaanBarangT & { total: string | null; detail: DPenerimaanBarang[] }
   >();
   const [faktur, setFaktur] = useState<string[]>([]);
   const loadPenerimaan = async () => {
@@ -720,6 +723,7 @@ const PenerimaanDialog = ({
   };
   useEffect(() => {
     if (!penerimaan) return;
+    setValue("tempo", new Date(penerimaan.tempo).toLocaleDateString("fr-CA"));
     setValue(
       "detail",
       penerimaan.detail.map((val) => ({
@@ -862,81 +866,107 @@ const PenerimaanDialog = ({
                       />
                     </div> */}
 
-                    <div
-                      className={cn(errors.faktur && "rounded-lg bg-red-100")}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Faktur
-                        </label>
-                        {errors.faktur ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.faktur.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      {!lihat.modal ? (
-                        <Controller
-                          control={control}
-                          name="faktur"
-                          render={({
-                            field: { ref, name, onChange, onBlur },
-                          }) => (
-                            <Input
-                              type="file"
-                              multiple
-                              className="cursor-pointer p-0 file:mr-3 file:border-0 file:px-3 file:py-2"
-                              accept="image/*,.pdf"
-                              ref={ref}
-                              onBlur={onBlur}
-                              name={name}
-                              onChange={(e) => onChange(e.target.files)}
-                            />
-                          )}
-                        />
-                      ) : (
-                        <div
-                          className={cn(
-                            "w-full overflow-hidden rounded shadow"
-                          )}
-                        >
-                          <table className="min-w-full text-xs">
-                            <thead>
-                              <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
-                                <td className="w-6 px-4 py-2">No.</td>
-                                <td className="px-4 py-2">Faktur</td>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                              {faktur?.map((val, idx) => (
-                                <tr
-                                  className={cn(
-                                    "bg-white hover:text-sky-600 dark:bg-slate-900"
-                                    //, "divide-x divide-gray-300 dark:divide-gray-800"
-                                  )}
-                                  key={idx}
-                                >
-                                  <td className="whitespace-pre-wrap px-4 py-2">
-                                    {idx + 1 + "."}
-                                  </td>
-                                  <td className="whitespace-pre-wrap px-4 py-2">
-                                    {val}
-                                  </td>
-                                </tr>
-                              ))}
-                              {!faktur || faktur?.length === 0 ? (
-                                <tr>
-                                  <td colSpan={8}>
-                                    <p className="px-4 py-2 text-center">
-                                      Belum ada faktur
-                                    </p>
-                                  </td>
-                                </tr>
-                              ) : null}
-                            </tbody>
-                          </table>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div
+                        className={cn(errors.faktur && "rounded-lg bg-red-100")}
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white">
+                            Faktur
+                          </label>
+                          {errors.faktur ? (
+                            <p className="pr-0.5 text-xs text-red-500">
+                              {errors.faktur.message}
+                            </p>
+                          ) : null}
                         </div>
-                      )}
+                        {!lihat.modal ? (
+                          <Controller
+                            control={control}
+                            name="faktur"
+                            render={({
+                              field: { ref, name, onChange, onBlur },
+                            }) => (
+                              <Input
+                                type="file"
+                                multiple
+                                className="cursor-pointer p-0 file:mr-3 file:border-0 file:px-3 file:py-2.5"
+                                accept="image/*,.pdf"
+                                ref={ref}
+                                onBlur={onBlur}
+                                name={name}
+                                onChange={(e) => onChange(e.target.files)}
+                              />
+                            )}
+                          />
+                        ) : (
+                          <div
+                            className={cn(
+                              "w-full overflow-hidden rounded shadow"
+                            )}
+                          >
+                            <table className="min-w-full text-xs">
+                              <thead>
+                                <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
+                                  <td className="w-6 px-4 py-2">No.</td>
+                                  <td className="px-4 py-2">Faktur</td>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {faktur?.map((val, idx) => (
+                                  <tr
+                                    className={cn(
+                                      "bg-white hover:text-sky-600 dark:bg-slate-900"
+                                      //, "divide-x divide-gray-300 dark:divide-gray-800"
+                                    )}
+                                    key={idx}
+                                  >
+                                    <td className="whitespace-pre-wrap px-4 py-2">
+                                      {idx + 1 + "."}
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2">
+                                      {val}
+                                    </td>
+                                  </tr>
+                                ))}
+                                {!faktur || faktur?.length === 0 ? (
+                                  <tr>
+                                    <td colSpan={8}>
+                                      <p className="px-4 py-2 text-center">
+                                        Belum ada faktur
+                                      </p>
+                                    </td>
+                                  </tr>
+                                ) : null}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+
+                      <div
+                        className={cn(errors?.tempo && "rounded-lg bg-red-100")}
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <label
+                            htmlFor="tgl"
+                            className="text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            Jatuh Tempo
+                          </label>
+                          {errors?.tempo ? (
+                            <p className="pr-0.5 text-xs text-red-500">
+                              {errors.tempo.message}
+                            </p>
+                          ) : null}
+                        </div>
+                        <Input
+                          id="tgl"
+                          type="date"
+                          disabled={lihat.modal}
+                          {...register("tempo")}
+                        />
+                      </div>
                     </div>
 
                     <div
