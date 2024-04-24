@@ -3,13 +3,12 @@ import { twMerge } from "tailwind-merge";
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 
-export const getAge = (strDate: number | Date | undefined) => {
-  if (strDate === undefined) return NaN;
-  const today = new Date();
+export const getAge = (strDate: Date, anotherDate: Date = new Date()) => {
+  const another = anotherDate;
   const birth = new Date(strDate);
-  let year = today.getFullYear() - birth.getFullYear();
-  let month = today.getMonth() - birth.getMonth();
-  let date = today.getDate() - birth.getDate();
+  let year = another.getFullYear() - birth.getFullYear();
+  let month = another.getMonth() - birth.getMonth();
+  let date = another.getDate() - birth.getDate();
 
   if (date < 0) {
     const lastDate = new Date(
@@ -28,12 +27,12 @@ export const getAge = (strDate: number | Date | undefined) => {
   return year;
 };
 
-export const getAgeAll = (strDate: Date) => {
-  const today = new Date();
+export const getAgeAll = (strDate: Date, anotherDate: Date = new Date()) => {
+  const another = anotherDate;
   const birth = new Date(strDate);
-  let year = today.getFullYear() - birth.getFullYear();
-  let month = today.getMonth() - birth.getMonth();
-  let date = today.getDate() - birth.getDate();
+  let year = another.getFullYear() - birth.getFullYear();
+  let month = another.getMonth() - birth.getMonth();
+  let date = another.getDate() - birth.getDate();
 
   if (date < 0) {
     const lastDate = new Date(
@@ -52,12 +51,12 @@ export const getAgeAll = (strDate: Date) => {
   return year + " Tahun " + month + " Bulan " + date + " Hari";
 };
 
-export const getAgeThn = (strDate: Date) => {
-  const today = new Date();
+export const getAgeThn = (strDate: Date, anotherDate: Date = new Date()) => {
+  const another = anotherDate;
   const birth = new Date(strDate);
-  let year = today.getFullYear() - birth.getFullYear();
-  let month = today.getMonth() - birth.getMonth();
-  let date = today.getDate() - birth.getDate();
+  let year = another.getFullYear() - birth.getFullYear();
+  let month = another.getMonth() - birth.getMonth();
+  let date = another.getDate() - birth.getDate();
 
   if (date < 0) {
     const lastDate = new Date(
@@ -73,7 +72,7 @@ export const getAgeThn = (strDate: Date) => {
     year = year - 1;
   }
   const totalDays = Math.floor(
-    (today.getTime() - birth.getTime()) / (1000 * 3600 * 24)
+    (another.getTime() - birth.getTime()) / (1000 * 3600 * 24)
   );
   const weeks = Math.floor(totalDays / 7);
 
