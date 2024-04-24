@@ -65,6 +65,7 @@ export default function AsesmenDokter({
   const params = useParams();
   const searchParams = useSearchParams();
   const qlist = searchParams.get("qlist")?.split("-");
+  const id = searchParams.get("id");
   const proses = parseInt(searchParams.get("proses")!);
 
   const [dataPeserta, setDataPeserta] = useState<DataPesertaBPJS>();
@@ -72,7 +73,7 @@ export default function AsesmenDokter({
     try {
       const urlPeserta = new URL(`${APIURL}/rs/pasien/bpjs`);
       const paramsPeserta = {
-        id_pasien: data?.id,
+        id_pasien: id,
       };
       urlPeserta.search = new URLSearchParams(paramsPeserta as any).toString();
       const resPeserta = await fetch(urlPeserta, {
@@ -206,7 +207,6 @@ export default function AsesmenDokter({
   };
   useEffect(() => {
     if (!hasilDokter) return;
-    // return;
     setIsUpdate(true);
     setValue("anamnesis.id", hasilDokter.anamnesis.id);
     setValue("anamnesis.keluhan", hasilDokter.anamnesis.keluhan);
@@ -485,22 +485,20 @@ export default function AsesmenDokter({
                     </p>
                   </td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">No. RM</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
-                    {data?.id ? String(data?.id).padStart(6, "0") : ""}
-                  </td>
+                <tr className="*:align-baseline">
+                  <td className="w-20">No. RM</td>
+                  <td className="px-1">:</td>
+                  <td>{data?.id ? String(data?.id).padStart(6, "0") : ""}</td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Nama</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.nama ?? ""}</td>
+                <tr className="*:align-baseline">
+                  <td>Nama</td>
+                  <td className="px-1">:</td>
+                  <td>{data?.nama ?? ""}</td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Tgl. Lahir</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
+                <tr className="*:align-baseline">
+                  <td>Tgl. Lahir</td>
+                  <td className="px-1">:</td>
+                  <td>
                     {data?.tanggal_lahir
                       ? new Intl.DateTimeFormat("id-ID", {
                           year: "numeric",
@@ -510,24 +508,38 @@ export default function AsesmenDokter({
                       : ""}
                   </td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Usia</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
+                <tr className="*:align-baseline">
+                  <td>Usia</td>
+                  <td className="px-1">:</td>
+                  <td>
                     {data?.tanggal_lahir ? getAgeAll(data?.tanggal_lahir) : ""}
                   </td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">No. Rawat</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
+                {!!hasilDokter ? (
+                  <tr className="*:align-baseline">
+                    <td>Usia Rawat</td>
+                    <td className="px-1">:</td>
+                    <td>
+                      {data?.tanggal_lahir && hasilDokter?.anamnesis.created_at
+                        ? getAgeAll(
+                            data?.tanggal_lahir,
+                            new Date(hasilDokter?.anamnesis.created_at)
+                          )
+                        : ""}
+                    </td>
+                  </tr>
+                ) : null}
+                <tr className="*:align-baseline">
+                  <td>No. Rawat</td>
+                  <td className="px-1">:</td>
+                  <td>
                     {params.idKunjungan === "igd" ? "" : params.idKunjungan}
                   </td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Tanggal</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
+                <tr className="*:align-baseline">
+                  <td>Tanggal</td>
+                  <td className="px-1">:</td>
+                  <td>
                     {hasilDokter?.anamnesis.created_at
                       ? new Intl.DateTimeFormat("id-ID", {
                           year: "numeric",
@@ -541,10 +553,10 @@ export default function AsesmenDokter({
                         }).format(new Date())}
                   </td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Jam</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
+                <tr className="*:align-baseline">
+                  <td>Jam</td>
+                  <td className="px-1">:</td>
+                  <td>
                     {hasilDokter?.anamnesis.created_at
                       ? new Intl.DateTimeFormat("en", {
                           timeStyle: "short",
@@ -553,17 +565,45 @@ export default function AsesmenDokter({
                       : data?.jam_periksa}
                   </td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Poliklinik</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.klinik}</td>
+                <tr className="*:align-baseline">
+                  <td>Poliklinik</td>
+                  <td className="px-1">:</td>
+                  <td>{data?.klinik}</td>
                 </tr>
-                <tr>
-                  <td className="align-baseline">Dokter</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.dokter}</td>
+                <tr className="*:align-baseline">
+                  <td>Dokter</td>
+                  <td className="px-1">:</td>
+                  <td>{data?.dokter}</td>
                 </tr>
               </tbody>
+              <Transition
+                show={!!dataPeserta}
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 -translate-y-1"
+                enterTo="opacity-100"
+                leave="ease-in duration-150"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <tbody>
+                  <tr className="*:align-baseline">
+                    <td>Status</td>
+                    <td className="px-1">:</td>
+                    <td>{dataPeserta?.statusPeserta.keterangan}</td>
+                  </tr>
+                  <tr className="*:align-baseline">
+                    <td>Hak Kelas</td>
+                    <td className="w-min px-1">:</td>
+                    <td>{dataPeserta?.hakKelas.keterangan}</td>
+                  </tr>
+                  <tr className="*:align-baseline">
+                    <td>Jenis Peserta</td>
+                    <td className="px-1">:</td>
+                    <td>{dataPeserta?.jenisPeserta.keterangan}</td>
+                  </tr>
+                </tbody>
+              </Transition>
             </table>
           </div>
           <RiwayatPemeriksaan />
