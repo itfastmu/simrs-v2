@@ -124,7 +124,7 @@ const HasilPerawat = React.forwardRef(
 
     return (
       <div
-        className="mx-auto flex w-[813px] justify-center bg-white p-8 font-[cambria]"
+        className="mx-auto flex w-[813px] justify-center bg-white p-8 font-[cambria] text-black"
         ref={ref}
       >
         <div className="w-full border-x border-t border-black">

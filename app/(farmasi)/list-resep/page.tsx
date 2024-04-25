@@ -924,7 +924,6 @@ const TelaahDialog = ({
               jumlah: nonracik.jumlah,
               batch: null,
               kadaluarsa: null,
-              harga: nonracik.harga || 0,
             });
             setValue("obat", [...obat]);
           }
@@ -947,7 +946,6 @@ const TelaahDialog = ({
                   jumlah: detail.jumlah,
                   batch: null,
                   kadaluarsa: null,
-                  harga: detail.harga || 0,
                 });
                 setValue("obat", [...obat]);
               }
@@ -1009,7 +1007,6 @@ const TelaahDialog = ({
         nama: z.string(),
         batch: z.string().nullable(),
         kadaluarsa: z.string().nullable(),
-        harga: z.number(),
         jumlah: z.number(),
       })
       .array(),
@@ -1458,9 +1455,6 @@ const TelaahDialog = ({
                                       {obat.kadaluarsa}
                                     </td>
                                     <td className="whitespace-pre-wrap px-4 py-2">
-                                      {obat.harga || 0}
-                                    </td>
-                                    <td className="whitespace-pre-wrap px-4 py-2">
                                       {obat.jumlah}
                                     </td>
                                     <td className="whitespace-pre-wrap px-4 py-2">
@@ -1902,7 +1896,6 @@ const TelaahDialog = ({
                                             id_poa: data.id,
                                             nama: data.nama,
                                             batch: "",
-                                            harga: data.harga || 0,
                                             jumlah: 1,
                                             kadaluarsa: "",
                                           });
@@ -1940,7 +1933,6 @@ const TelaahDialog = ({
                                           id_poa: data.id,
                                           nama: data.nama,
                                           batch: "",
-                                          harga: data.harga || 0,
                                           jumlah: 1,
                                           kadaluarsa: "",
                                         })
@@ -2025,7 +2017,6 @@ const TelaahDialog = ({
                                           id_poa: data.id,
                                           nama: data.nama,
                                           batch: "",
-                                          harga: data.harga || 0,
                                           jumlah: 1,
                                           kadaluarsa: "",
                                         })
@@ -2045,7 +2036,6 @@ const TelaahDialog = ({
                                           id_poa: data.id,
                                           nama: data.nama,
                                           batch: "",
-                                          harga: data.harga || 0,
                                           jumlah: 1,
                                           kadaluarsa: "",
                                         })

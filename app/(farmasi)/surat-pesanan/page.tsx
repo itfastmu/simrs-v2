@@ -323,7 +323,7 @@ export default function SuratPesanan() {
                     <ThDiv>Kode</ThDiv>
                   </Th>
                   <Th>
-                    <ThDiv>Pengiriman</ThDiv>
+                    <ThDiv>Biaya Pengiriman</ThDiv>
                   </Th>
                   {/* <Th>
                     <ThDiv>Keterangan</ThDiv>
@@ -332,7 +332,7 @@ export default function SuratPesanan() {
                     <ThDiv>Petugas</ThDiv>
                   </Th> */}
                   <Th>
-                    <ThDiv>Tanggal</ThDiv>
+                    <ThDiv>Tgl. S.P.</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>*</ThDiv>
@@ -1029,7 +1029,7 @@ const PesananDialog = ({
                     >
                       <div className="flex items-baseline justify-between">
                         <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Pengiriman
+                          Biaya Pengiriman
                         </label>
                         {errors.pengiriman ? (
                           <p className="pr-0.5 text-xs text-red-500">

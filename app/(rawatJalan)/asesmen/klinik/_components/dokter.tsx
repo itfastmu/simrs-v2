@@ -758,11 +758,12 @@ export const ObjektifDr = ({
                             {...register("fisik.td.0", {
                               valueAsNumber: true,
                             })}
+                            min={50}
+                            step={5}
                             onWheel={(e) => e.currentTarget.blur()}
                             onInput={(
                               e: React.FocusEvent<HTMLInputElement, Element>
                             ) => {
-                              +e.target.value < 0 && setValue("fisik.td.0", 0);
                               +e.target.value > 250 &&
                                 setValue("fisik.td.0", 250);
                             }}
@@ -780,11 +781,12 @@ export const ObjektifDr = ({
                             {...register("fisik.td.1", {
                               valueAsNumber: true,
                             })}
+                            min={10}
+                            step={5}
                             onWheel={(e) => e.currentTarget.blur()}
                             onInput={(
                               e: React.FocusEvent<HTMLInputElement, Element>
                             ) => {
-                              +e.target.value < 0 && setValue("fisik.td.1", 0);
                               +e.target.value > 180 &&
                                 setValue("fisik.td.1", 180);
                             }}
@@ -809,11 +811,11 @@ export const ObjektifDr = ({
                           type="number"
                           className="mb-2 py-1 pl-2 pr-10 text-xs"
                           {...register("fisik.hr", { valueAsNumber: true })}
+                          min={20}
                           onWheel={(e) => e.currentTarget.blur()}
                           onInput={(
                             e: React.FocusEvent<HTMLInputElement, Element>
                           ) => {
-                            +e.target.value < 0 && setValue("fisik.hr", 0);
                             +e.target.value > 300 && setValue("fisik.hr", 300);
                           }}
                         />
@@ -869,6 +871,7 @@ export const ObjektifDr = ({
                           type="number"
                           className="mb-2 py-1 pl-2 pr-10 text-xs"
                           {...register("fisik.rr", { valueAsNumber: true })}
+                          min={10}
                           onWheel={(e) => e.currentTarget.blur()}
                           onInput={(
                             e: React.FocusEvent<HTMLInputElement, Element>
@@ -898,12 +901,11 @@ export const ObjektifDr = ({
                           {...register("fisik.saturasi", {
                             valueAsNumber: true,
                           })}
+                          min={50}
                           onWheel={(e) => e.currentTarget.blur()}
                           onInput={(
                             e: React.FocusEvent<HTMLInputElement, Element>
                           ) => {
-                            +e.target.value < 0 &&
-                              setValue("fisik.saturasi", 0);
                             +e.target.value > 100 &&
                               setValue("fisik.saturasi", 100);
                           }}
@@ -973,7 +975,7 @@ export const ObjektifDr = ({
                       </label>
                       <InputArea
                         className="mb-2 px-2 py-1 text-xs"
-                        placeholder="(GDS, Luka, HPM, ...)"
+                        placeholder="(Pemeriksaan Fisik Lain, Pemeriksaan Penunjang, ...)"
                         {...register("fisik.tambahan")}
                       />
                     </div>

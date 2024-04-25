@@ -461,11 +461,12 @@ export const ObjektifFisio = ({
                       {...register("fisik.td.0", {
                         valueAsNumber: true,
                       })}
+                      min={50}
+                      step={5}
                       onWheel={(e) => e.currentTarget.blur()}
                       onInput={(
                         e: React.FocusEvent<HTMLInputElement, Element>
                       ) => {
-                        +e.target.value < 0 && setValue("fisik.td.0", 0);
                         +e.target.value > 250 && setValue("fisik.td.0", 250);
                       }}
                     />
@@ -482,11 +483,12 @@ export const ObjektifFisio = ({
                       {...register("fisik.td.1", {
                         valueAsNumber: true,
                       })}
+                      min={10}
+                      step={5}
                       onWheel={(e) => e.currentTarget.blur()}
                       onInput={(
                         e: React.FocusEvent<HTMLInputElement, Element>
                       ) => {
-                        +e.target.value < 0 && setValue("fisik.td.1", 0);
                         +e.target.value > 180 && setValue("fisik.td.1", 180);
                       }}
                     />
@@ -510,11 +512,11 @@ export const ObjektifFisio = ({
                     type="number"
                     className="mb-2 py-1 pl-2 pr-10 text-xs"
                     {...register("fisik.hr", { valueAsNumber: true })}
+                    min={20}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.hr", 0);
                       +e.target.value > 300 && setValue("fisik.hr", 300);
                     }}
                   />
@@ -570,11 +572,11 @@ export const ObjektifFisio = ({
                     type="number"
                     className="mb-2 py-1 pl-2 pr-10 text-xs"
                     {...register("fisik.rr", { valueAsNumber: true })}
+                    min={10}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.rr", 0);
                       +e.target.value > 40 && setValue("fisik.rr", 40);
                     }}
                   />
@@ -643,7 +645,7 @@ export const ObjektifFisio = ({
                 </label>
                 <InputArea
                   className="px-2 py-1 text-xs"
-                  placeholder="(GDS, Luka, ...)"
+                  placeholder="(Pemeriksaan Fisik Lain, Pemeriksaan Penunjang, ...)"
                   {...register("fisik.tambahan")}
                 />
               </div>
@@ -1134,7 +1136,7 @@ export const AsesmenFisio = ({
       <div className={cn("mb-2 flex flex-col gap-2")}>
         <div className="pr-1">
           <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
-            Diagnosis/Masalah Medis
+            Diagnosis
           </div>
           <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
             <div
@@ -1151,7 +1153,7 @@ export const AsesmenFisio = ({
               ) : null}
               <InputArea
                 className="px-2 py-1 text-xs"
-                placeholder="Diagnosis/Masalah Medis"
+                placeholder="Diagnosis"
                 {...register("keperawatan.diagnosis")}
               />
             </div>
@@ -1676,7 +1678,7 @@ export const ObjektifRehabMedik = ({
                     </label>
                     <InputArea
                       className="px-2 py-1 text-xs"
-                      placeholder="(GDS, Luka, ...)"
+                      placeholder="(Pemeriksaan Fisik Lain, Pemeriksaan Penunjang, ...)"
                       {...register("fisik.tambahan")}
                     />
                   </div>

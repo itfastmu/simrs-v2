@@ -665,11 +665,12 @@ export const ObjektifPer = ({
                       {...register("fisik.td.0", {
                         valueAsNumber: true,
                       })}
+                      min={50}
+                      step={5}
                       onWheel={(e) => e.currentTarget.blur()}
                       onInput={(
                         e: React.FocusEvent<HTMLInputElement, Element>
                       ) => {
-                        +e.target.value < 0 && setValue("fisik.td.0", 0);
                         +e.target.value > 250 && setValue("fisik.td.0", 250);
                       }}
                     />
@@ -686,11 +687,12 @@ export const ObjektifPer = ({
                       {...register("fisik.td.1", {
                         valueAsNumber: true,
                       })}
+                      min={10}
+                      step={5}
                       onWheel={(e) => e.currentTarget.blur()}
                       onInput={(
                         e: React.FocusEvent<HTMLInputElement, Element>
                       ) => {
-                        +e.target.value < 0 && setValue("fisik.td.1", 0);
                         +e.target.value > 180 && setValue("fisik.td.1", 180);
                       }}
                     />
@@ -714,11 +716,11 @@ export const ObjektifPer = ({
                     type="number"
                     className="mb-2 py-1 pl-2 pr-10 text-xs"
                     {...register("fisik.hr", { valueAsNumber: true })}
+                    min={20}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.hr", 0);
                       +e.target.value > 300 && setValue("fisik.hr", 300);
                     }}
                   />
@@ -774,11 +776,11 @@ export const ObjektifPer = ({
                     type="number"
                     className="mb-2 py-1 pl-2 pr-10 text-xs"
                     {...register("fisik.rr", { valueAsNumber: true })}
+                    min={10}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.rr", 0);
                       +e.target.value > 40 && setValue("fisik.rr", 40);
                     }}
                   />
@@ -803,11 +805,11 @@ export const ObjektifPer = ({
                     {...register("fisik.saturasi", {
                       valueAsNumber: true,
                     })}
+                    min={50}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.saturasi", 0);
                       +e.target.value > 100 && setValue("fisik.saturasi", 100);
                     }}
                   />
@@ -876,7 +878,7 @@ export const ObjektifPer = ({
                 </label>
                 <InputArea
                   className="mb-2 px-2 py-1 text-xs"
-                  placeholder="(GDS, Luka, HPM, ...)"
+                  placeholder="(Pemeriksaan Fisik Lain, Pemeriksaan Penunjang, ...)"
                   {...register("fisik.tambahan")}
                 />
               </div>
@@ -969,7 +971,7 @@ export const AsesmenPer = ({
       <div className={cn("mb-2")}>
         <div className="pr-1">
           <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
-            Diagnosis/Masalah Medis
+            Diagnosis/Masalah Keperawatan
           </div>
           <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
             <div

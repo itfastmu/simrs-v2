@@ -908,7 +908,7 @@ const PenjualanDialog = ({
                     <div className={cn(errors.nama && "rounded-lg bg-red-100")}>
                       <div className="flex items-baseline justify-between">
                         <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Nama
+                          Nama Pembeli
                         </label>
                         {errors.nama ? (
                           <p className="pr-0.5 text-xs text-red-500">

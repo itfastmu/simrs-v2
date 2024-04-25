@@ -16,12 +16,10 @@ import {
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
 import { cn, getAgeThn } from "@/lib/utils";
-import { Transition } from "@headlessui/react";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  Fragment,
   Suspense,
   useCallback,
   useDeferredValue,
@@ -33,7 +31,7 @@ import {
 } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { HiOutlineDocumentAdd, HiOutlineDocumentText } from "react-icons/hi";
-import { IoDocumentTextOutline } from "react-icons/io5";
+import { IoBookOutline, IoDocumentTextOutline } from "react-icons/io5";
 import { RiNurseFill, RiStethoscopeLine } from "react-icons/ri";
 import { TbFingerprint, TbFingerprintOff } from "react-icons/tb";
 import { toast } from "react-toastify";
@@ -556,6 +554,10 @@ export default function ListPasienAsesmen({
                               className="text-slate-200 dark:text-slate-400"
                             />
                           ) : null}
+                          <IoBookOutline
+                            size="1.5rem"
+                            className="text-slate-200 dark:text-slate-400"
+                          />
                           <RiStethoscopeLine
                             size="1.5rem"
                             className="text-slate-200 dark:text-slate-400"
@@ -699,6 +701,52 @@ export default function ListPasienAsesmen({
                               </Tooltip.Provider>
                             </>
                           ) : null}
+
+                          <Tooltip.Provider
+                            delayDuration={300}
+                            disableHoverableContent
+                          >
+                            <Tooltip.Root>
+                              <Tooltip.Trigger
+                                onClick={
+                                  () => false
+                                  // skriningDispatch({
+                                  //   type: "setSkrining",
+                                  //   skrining: {
+                                  //     modal: true,
+                                  //     data: {
+                                  //       id_kunjungan: data.id_kunjungan,
+                                  //       id_pasien: data.id_pasien,
+                                  //       nama: data.nama,
+                                  //       tanggal_lahir: data.tanggal_lahir,
+                                  //       id_klinik: data.id_klinik,
+                                  //       id_proses: data.id_proses,
+                                  //     },
+                                  //   },
+                                  // })
+                                }
+                                className="relative disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <IoBookOutline
+                                  size="1.5rem"
+                                  className="text-cyan-700 hover:text-cyan-800 active:text-cyan-900 dark:text-cyan-500 dark:hover:text-cyan-600 dark:active:text-cyan-700"
+                                />
+                                {/* {parseInt(data.id_proses) > 3 ? (
+                                  <FaCheck
+                                    className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
+                                    aria-hidden="true"
+                                  />
+                                ) : null} */}
+                              </Tooltip.Trigger>
+                              <Tooltip.Content
+                                side="left"
+                                sideOffset={0}
+                                className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
+                              >
+                                <p>Edukasi</p>
+                              </Tooltip.Content>
+                            </Tooltip.Root>
+                          </Tooltip.Provider>
 
                           {user === "Dewa" ? (
                             <Tooltip.Provider
