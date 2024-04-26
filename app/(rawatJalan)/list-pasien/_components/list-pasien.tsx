@@ -224,6 +224,7 @@ export default function ListPasienAsesmen({
   }, [listJadwal]);
 
   const listDokter = useMemo(() => {
+    if (!listJadwal) return [];
     return Array.from(
       new Set(
         listJadwal
@@ -233,9 +234,10 @@ export default function ListPasienAsesmen({
     ).map((id) => {
       return listJadwal.find((val) => val.id_pegawai === id);
     });
-  }, [filterKlinik]);
+  }, [filterKlinik, listJadwal]);
 
   const listJam = useMemo(() => {
+    if (!listJadwal) return [];
     return listJadwal
       .filter((data) => data.id_pegawai === filterDokter)
       .map((val) => {
@@ -248,7 +250,7 @@ export default function ListPasienAsesmen({
         (val1, val2) =>
           parseInt(val1.mulai?.slice(0, 2)) - parseInt(val2.mulai?.slice(0, 2))
       );
-  }, [filterDokter]);
+  }, [filterDokter, listJadwal]);
 
   const [isMutating, setIsMutating] = useState<boolean>(false);
   const loadData = async (signal?: AbortSignal) => {

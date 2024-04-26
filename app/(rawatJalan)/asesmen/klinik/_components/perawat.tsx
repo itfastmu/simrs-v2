@@ -1056,6 +1056,8 @@ export const PlanningTargetPer = ({
                       ? "keperawatan.rencana_asuhan"
                       : "kebidanan.rencana_asuhan"
                   )}
+                  rows={3}
+                  placeholder="(Tuliskan pokok rencana asuhan yang akan diberikan. Misal: Pengobatan rawat jalan, rawat inap, tindakan, dsb.)"
                 />
               </div>
               <div
@@ -1077,6 +1079,8 @@ export const PlanningTargetPer = ({
                   {...register(
                     !klinik.isObg ? "keperawatan.target" : "kebidanan.target"
                   )}
+                  rows={3}
+                  placeholder="(Tuliskan target objektif dari rencana asuhan. Misal: TD Sistolik < 140mmHg, atau sesak berkurang, atau GDS < 200mg/dL)"
                 />
               </div>
             </div>

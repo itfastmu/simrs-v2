@@ -1505,6 +1505,8 @@ export const PlanningTargetDr = ({
                 <InputArea
                   className="-mb-1 px-2 py-1 text-xs"
                   id="rencana_asuhan"
+                  rows={3}
+                  placeholder="(Tuliskan pokok rencana asuhan yang akan diberikan. Misal: Pengobatan rawat jalan, rawat inap, tindakan, dsb.)"
                   {...register("asuhan")}
                 />
               </div>
@@ -1524,6 +1526,8 @@ export const PlanningTargetDr = ({
                 <InputArea
                   className="-mb-1 px-2 py-1 text-xs"
                   id="target"
+                  rows={3}
+                  placeholder="(Tuliskan target objektif dari rencana asuhan. Misal: TD Sistolik < 140mmHg, atau sesak berkurang, atau GDS < 200mg/dL)"
                   {...register("target")}
                 />
               </div>

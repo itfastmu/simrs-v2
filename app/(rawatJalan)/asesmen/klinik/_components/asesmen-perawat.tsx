@@ -2,10 +2,11 @@
 
 import { DataPesertaBPJS } from "@/app/(pendaftaran)/schema";
 import css from "@/assets/css/scrollbar.module.css";
+import { Button, LinkButton } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
 import { cn, getAgeAll } from "@/lib/utils";
-import { Tab, Transition } from "@headlessui/react";
+import { Dialog, Tab, Transition } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -455,6 +456,8 @@ export default function AsesmenPerawat({
 
   const panelDivRef = useRef<HTMLElement>(null);
 
+  const [tutupAsesmen, setTutupAsesmen] = useState<boolean>(false);
+
   return (
     <FormProvider {...methods}>
       <form
@@ -706,22 +709,16 @@ export default function AsesmenPerawat({
           <Tooltip.Provider delayDuration={300} disableHoverableContent>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
-                <Link
-                  href={{
-                    pathname: "/list-pasien",
-                    query: {
-                      klinik: qlist?.at(0) || "all",
-                      dokter: qlist?.at(1) || "all",
-                      mulai: qlist?.at(2) || "all",
-                    },
-                  }}
+                <button
+                  type="button"
+                  onClick={() => setTutupAsesmen(true)}
                   className="absolute right-3 top-[18px] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <IoCloseCircleOutline
                     size="1.5rem"
                     className="text-red-600 ui-not-disabled:hover:text-red-700 ui-not-disabled:active:text-red-800"
                   />
-                </Link>
+                </button>
               </Tooltip.Trigger>
               <Tooltip.Content
                 side="left"
@@ -732,6 +729,78 @@ export default function AsesmenPerawat({
               </Tooltip.Content>
             </Tooltip.Root>
           </Tooltip.Provider>
+
+          <Transition show={tutupAsesmen} as={Fragment}>
+            <Dialog
+              as="div"
+              className="relative z-[1001]"
+              onClose={() => setTutupAsesmen(false)}
+            >
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="fixed inset-0 bg-black bg-opacity-25" />
+              </Transition.Child>
+
+              <div className="fixed inset-0 overflow-y-auto">
+                <div className="flex min-h-full items-center justify-center p-4 text-center">
+                  <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="ease-in duration-50"
+                    leaveFrom="opacity-100 scale-100"
+                    leaveTo="opacity-0 scale-95"
+                  >
+                    <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
+                      <Dialog.Title
+                        as="p"
+                        className="font-medium leading-6 text-gray-900"
+                      >
+                        Tutup Asesmen
+                      </Dialog.Title>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-500">
+                          Asesmen belum disimpan, apakah Anda yakin untuk
+                          menutup asesmen tanpa disimpan?
+                        </p>
+                      </div>
+                      <div className="mt-4 flex justify-end gap-1">
+                        <Link
+                          href={{
+                            pathname: "/list-pasien",
+                            query: {
+                              klinik: qlist?.at(0) || "all",
+                              dokter: qlist?.at(1) || "all",
+                              mulai: qlist?.at(2) || "all",
+                            },
+                          }}
+                          onClick={() => setTutupAsesmen(false)}
+                          passHref
+                          legacyBehavior
+                        >
+                          <LinkButton color="red100">Tutup</LinkButton>
+                        </Link>
+                        <Button
+                          color="red"
+                          onClick={() => setTutupAsesmen(false)}
+                        >
+                          Batal
+                        </Button>
+                      </div>
+                    </Dialog.Panel>
+                  </Transition.Child>
+                </div>
+              </div>
+            </Dialog>
+          </Transition>
         </div>
       </form>
     </FormProvider>
