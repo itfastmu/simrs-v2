@@ -1146,7 +1146,7 @@ const BookingDialog = ({
                             </label>
                           </div>
                         ))}
-                        {listJadwal.length === 0 ? (
+                        {!listJadwal || listJadwal.length === 0 ? (
                           <p className="p-2 text-center text-sm">
                             Jadwal belum ditemukan
                           </p>
