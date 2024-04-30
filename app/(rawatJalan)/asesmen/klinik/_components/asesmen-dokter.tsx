@@ -456,7 +456,7 @@ export default function AsesmenDokter({
       if (json.status !== "Created" && json.status !== "Updated")
         throw new Error(json.message);
       toast.success("Asesmen berhasil disimpan!");
-      router.replace("/list-pasien");
+      router.replace("/list-pasien?user=Dokter");
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);
@@ -852,9 +852,7 @@ export default function AsesmenDokter({
                           href={{
                             pathname: "/list-pasien",
                             query: {
-                              klinik: qlist?.at(0) || "all",
-                              dokter: qlist?.at(1) || "all",
-                              mulai: qlist?.at(2) || "all",
+                              user: "Dokter",
                             },
                           }}
                           onClick={() => setTutupAsesmen(false)}

@@ -50,9 +50,11 @@ export type BillingAction = { type: "setBilling"; billing: BillingState };
 
 export default function ListPasienAsesmen({
   user,
+  grup,
   idPegawai,
 }: {
   user: string;
+  grup: string;
   idPegawai: string;
 }) {
   const router = useRouter();
@@ -258,20 +260,24 @@ export default function ListPasienAsesmen({
       setIsMutating(true);
       tableDivRef.current?.scrollTo(0, 0);
       const url = new URL(`${APIURL}/rs/kunjungan/rajal`);
-      const params = {
-        page: meta.page,
-        perPage: meta.perPage,
-        keyword: deferredCari.trimStart(),
-        tanggal: memoizedTanggal,
-        klinik: filterKlinik === "all" ? "" : filterKlinik,
-        dokter:
-          user === "Dokter"
-            ? idPegawai
-            : filterDokter === "all"
-            ? ""
-            : filterDokter,
-        mulai: filterMulai === "all" ? "" : filterMulai,
-      };
+      const params =
+        user === "Perawat"
+          ? {
+              page: meta.page,
+              perPage: meta.perPage,
+              keyword: deferredCari.trimStart(),
+              tanggal: memoizedTanggal,
+              klinik: filterKlinik === "all" ? "" : filterKlinik,
+              dokter: filterDokter === "all" ? "" : filterDokter,
+              mulai: filterMulai === "all" ? "" : filterMulai,
+            }
+          : {
+              page: meta.page,
+              perPage: meta.perPage,
+              keyword: deferredCari.trimStart(),
+              tanggal: memoizedTanggal,
+              dokter: idPegawai,
+            };
       url.search = new URLSearchParams(params as any).toString();
       const resp = await fetch(url, {
         method: "GET",
@@ -360,7 +366,7 @@ export default function ListPasienAsesmen({
                 }
               />
               {/* <Transition
-                show={user === "Dewa"}
+                show={grup === "Dewa"}
                 as={Fragment}
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 -translate-y-1"
@@ -378,7 +384,7 @@ export default function ListPasienAsesmen({
                 }}
               />
               {/* </Transition> */}
-              {user !== "Dokter" ? (
+              {grup !== "Dokter" ? (
                 <select
                   className={cn(
                     "w-48 rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 focus:border-cyan-500 focus:outline-none focus:ring-cyan-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500",
@@ -550,7 +556,7 @@ export default function ListPasienAsesmen({
                       </td>
                       <td>
                         <div className="flex flex-nowrap items-center justify-center gap-1">
-                          {user === "Perawat Rajal" || user === "Dewa" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <IoDocumentTextOutline
                               size="1.5rem"
                               className="text-slate-200 dark:text-slate-400"
@@ -564,7 +570,7 @@ export default function ListPasienAsesmen({
                             size="1.5rem"
                             className="text-slate-200 dark:text-slate-400"
                           />
-                          {user === "Perawat Rajal" || user === "Dewa" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <>
                               <HiOutlineDocumentAdd
                                 size="1.5rem"
@@ -655,7 +661,7 @@ export default function ListPasienAsesmen({
                       </td>
                       <td className="border-b border-slate-200 dark:border-gray-700">
                         <div className="flex flex-nowrap items-center justify-center gap-1 px-2">
-                          {user === "Perawat Rajal" || user === "Dewa" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <>
                               <Tooltip.Provider
                                 delayDuration={300}
@@ -750,7 +756,7 @@ export default function ListPasienAsesmen({
                             </Tooltip.Root>
                           </Tooltip.Provider>
 
-                          {user === "Dewa" ? (
+                          {grup === "Dewa" ? (
                             <Tooltip.Provider
                               delayDuration={300}
                               disableHoverableContent
@@ -815,15 +821,15 @@ export default function ListPasienAsesmen({
                               <Tooltip.Trigger
                                 className="relative disabled:cursor-not-allowed disabled:opacity-50"
                                 disabled={
-                                  user === "Perawat Rajal" &&
+                                  grup === "Perawat Rajal" &&
                                   parseInt(data.id_proses) < 2
                                 }
                                 asChild={
-                                  user === "Dokter" ||
+                                  grup === "Dokter" ||
                                   parseInt(data.id_proses) >= 2
                                 }
                               >
-                                {user === "Perawat Rajal" &&
+                                {grup === "Perawat Rajal" &&
                                 parseInt(data.id_proses) < 2 ? (
                                   <>
                                     <RiStethoscopeLine
@@ -851,7 +857,7 @@ export default function ListPasienAsesmen({
                                           filterMulai,
                                         kode: data.id_pegawai,
                                         proses: data.id_proses,
-                                        grup: user,
+                                        grup: grup,
                                       },
                                     }}
                                   >
@@ -861,9 +867,9 @@ export default function ListPasienAsesmen({
                                         "text-cyan-600 hover:text-cyan-700 active:text-cyan-800"
                                       )}
                                     />
-                                    {((user === "Dokter" || user === "Dewa") &&
+                                    {((grup === "Dokter" || grup === "Dewa") &&
                                       parseInt(data.id_proses) > 4) ||
-                                    (user === "Perawat Rajal" &&
+                                    (grup === "Perawat Rajal" &&
                                       parseInt(data.id_proses) > 3) ? (
                                       <FaCheck
                                         className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
@@ -879,7 +885,7 @@ export default function ListPasienAsesmen({
                                 className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
                               >
                                 <p>
-                                  {user === "Dewa"
+                                  {grup === "Dewa"
                                     ? "Asesmen Dokter"
                                     : "Asesmen"}
                                 </p>
@@ -887,7 +893,7 @@ export default function ListPasienAsesmen({
                             </Tooltip.Root>
                           </Tooltip.Provider>
 
-                          {user === "Perawat Rajal" || user === "Dewa" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <>
                               <Tooltip.Provider
                                 delayDuration={300}
@@ -931,7 +937,7 @@ export default function ListPasienAsesmen({
                               >
                                 <Tooltip.Root>
                                   <Tooltip.Trigger
-                                    disabled={parseInt(data.id_proses) < 5}
+                                    // disabled={parseInt(data.id_proses) < 5}
                                     className="disabled:cursor-not-allowed disabled:opacity-50"
                                     onClick={() => {
                                       skdpDispatch({

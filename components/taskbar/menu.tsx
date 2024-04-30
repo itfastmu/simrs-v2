@@ -46,6 +46,7 @@ import { VscReferences } from "react-icons/vsc";
 import { cookies } from "next/headers";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { BiBox } from "react-icons/bi";
+import { Url } from "next/dist/shared/lib/router/router";
 
 export default function MenuComponent() {
   const [isShow, setShow] = useState(false);
@@ -180,7 +181,12 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
       },
       {
         judul: "List Pasien",
-        href: "/list-pasien",
+        href: {
+          pathname: "/list-pasien",
+          query: {
+            user: grupId === 1 ? "Dewa" : grupId === 4 ? "Perawat" : "Dokter",
+          },
+        } as Url,
         icon: RiNurseFill,
         grup: [1, 4, 5],
       },
