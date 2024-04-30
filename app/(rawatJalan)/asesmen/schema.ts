@@ -242,7 +242,13 @@ export const AsesmenPerSchema = z.object({
   keperawatan: z
     .object({
       id: z.number().optional(),
-      diagnosis: z.string().min(1, "harus diisi"),
+      diagnosis: z
+        .object({
+          id_diagnosis: z.number(),
+          nama: z.string(),
+        })
+        .array()
+        .min(1, "harus diisi"),
       rencana_asuhan: z.string().min(1, "harus diisi"),
       target: z.string().min(1, "harus diisi"),
       tindakan: z.string().optional(),
@@ -250,6 +256,7 @@ export const AsesmenPerSchema = z.object({
     .optional(),
   deleted: z
     .object({
+      diagnosis: z.number().array().optional(),
       status_lokalis: z.number().array().optional(),
       persalinan: z.number().array().optional(),
     })
@@ -884,3 +891,8 @@ export type RacikState = {
   index?: number;
 };
 export type RacikAction = { type: "setRacik"; racik: RacikState };
+
+export type DiagnosisKeperawatan = {
+  id: number;
+  nama: string;
+};

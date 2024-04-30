@@ -3,14 +3,25 @@ import { RiAddCircleLine, RiDeleteBin5Line } from "react-icons/ri";
 import { useFormContext, Controller } from "react-hook-form";
 import { Transition } from "@headlessui/react";
 import { Input, InputArea, LabelButton } from "@/components/form";
-import { MyOption, MyOptions, SelectInput } from "@/components/select";
+import {
+  AsyncSelectInput,
+  MyOption,
+  MyOptions,
+  SelectInput,
+} from "@/components/select";
 import { Button } from "@/components/button";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
-import { KlinikAsesmen, TAsesmenPer, TFormImunisasi } from "../../schema";
+import {
+  DiagnosisKeperawatan,
+  KlinikAsesmen,
+  TAsesmenPer,
+  TFormImunisasi,
+} from "../../schema";
 import { useParams } from "next/navigation";
 import { HasilSkrining } from "../../_components/skrining-perawat";
+import { APIURL } from "@/lib/connection";
 
 export const SubjektifPer = ({
   listImunisasi,
@@ -955,17 +966,142 @@ export const ObjektifPer = ({
 };
 
 export const AsesmenPer = ({
+  isUpdate,
   setTabIdx,
   panelDivRef,
 }: {
+  isUpdate: boolean;
   setTabIdx: React.Dispatch<React.SetStateAction<number>>;
   panelDivRef: React.RefObject<HTMLElement>;
 }) => {
+  const headers = new Headers();
+  const token = Cookies.get("token");
+  headers.append("Authorization", token as string);
+  headers.append("Content-Type", "application/json");
+
   const {
-    register,
+    watch,
+    setValue,
     trigger,
     formState: { errors },
   } = useFormContext<TAsesmenPer>();
+
+  const [katDiagPerOptions, setKatDiagPerOptions] = useState<MyOptions>([]);
+  const [selKatDiag, setSelKatDiag] = useState<MyOption | null>(null);
+  const loadKatDiagPer = async () => {
+    try {
+      const url = `${APIURL}/rs/diagnosa/perawat/kategori/`;
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+      const json = await resp.json();
+      if (json.status !== "Ok") throw new Error(json.message);
+      setKatDiagPerOptions(
+        json?.data.map((val: Pick<DiagnosisKeperawatan, "id" | "nama">) => ({
+          value: val.id,
+          label: val.nama,
+        }))
+      );
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === "Data tidak ditemukan") return;
+      toast.error(error.message);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    loadKatDiagPer();
+  }, []);
+
+  const [subKatDiagPerOptions, setSubKatDiagPerOptions] = useState<MyOptions>(
+    []
+  );
+  const [selSubKatDiag, setSelSubKatDiag] = useState<MyOption | null>(null);
+  const loadSubKatDiagPer = async (id: number) => {
+    try {
+      const url = `${APIURL}/rs/diagnosa/perawat/subkategori/${id}`;
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+      const json = await resp.json();
+      if (json.status !== "Ok") throw new Error(json.message);
+      setSubKatDiagPerOptions(
+        json?.data.map((val: DiagnosisKeperawatan) => ({
+          value: val.id,
+          label: val.nama,
+        }))
+      );
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === "Data tidak ditemukan") return;
+      toast.error(error.message);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selKatDiag?.value) loadSubKatDiagPer(selKatDiag.value as number);
+  }, [selKatDiag]);
+
+  const [diagPerOptions, setDiagPerOptions] = useState<MyOptions>([]);
+  const [selDiagnosis, setSelDiagnosis] = useState<MyOption | null>(null);
+  const loadDiagnosisPer = async (id: number) => {
+    try {
+      const url = `${APIURL}/rs/diagnosa/perawat/${id}`;
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+      const json = await resp.json();
+      if (json.status !== "Ok") throw new Error(json.message);
+      setDiagPerOptions(
+        json?.data.map((val: DiagnosisKeperawatan) => ({
+          value: val.id,
+          label: val.nama,
+        }))
+      );
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === "Data tidak ditemukan") return;
+      toast.error(error.message);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selSubKatDiag?.value) loadDiagnosisPer(selSubKatDiag.value as number);
+  }, [selSubKatDiag]);
+
+  const diagnosis = watch("keperawatan.diagnosis");
+  const addDiagnosis = () => {
+    if (!selDiagnosis) return toast.warning("Pilih diagnosis terlebih dahulu!");
+    const newDiag = diagnosis;
+    newDiag.push({
+      id_diagnosis: selDiagnosis.value as number,
+      nama: selDiagnosis.label,
+    });
+    setValue("keperawatan.diagnosis", [...newDiag]);
+    trigger("keperawatan.diagnosis");
+  };
+
+  const delDiagnosis = (id: number) => {
+    if (isUpdate) {
+      if (diagnosis?.find((_, i) => i === id)?.id_diagnosis) {
+        setValue("deleted.diagnosis", [
+          ...(watch("deleted.diagnosis") || []),
+          diagnosis?.find((_, i) => i === id)?.id_diagnosis!,
+        ]);
+      }
+    }
+    setValue(
+      "keperawatan.diagnosis",
+      diagnosis?.filter((_, i) => id !== i)
+    );
+    trigger("keperawatan.diagnosis");
+  };
   return (
     <>
       <div className={cn("mb-2")}>
@@ -976,22 +1112,105 @@ export const AsesmenPer = ({
           <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
             <div
               className={cn(
-                "relative flex w-6/12 justify-center",
+                "relative basis-full justify-center gap-1",
                 errors.keperawatan?.diagnosis &&
                   "rounded-lg bg-red-300 p-2 pt-4 dark:bg-red-500/50"
               )}
             >
+              <small className="text-sky-700 dark:text-sky-400">
+                Catatan: Klik (+) untuk menambah item
+              </small>
               {errors.keperawatan?.diagnosis ? (
                 <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
                   {errors.keperawatan.diagnosis.message}
                 </p>
               ) : null}
-              <InputArea
-                className="px-2 py-1 text-xs"
-                placeholder="Diagnosis/Masalah Keperawatan"
-                {...register("keperawatan.diagnosis")}
-              />
+              <div className="flex w-full gap-2">
+                <SelectInput
+                  noOptionsMessage={(e) => "Tidak ada pilihan"}
+                  size="sm"
+                  options={katDiagPerOptions}
+                  placeholder="Pilih Kategori"
+                  value={selKatDiag}
+                  onChange={(option) =>
+                    setSelKatDiag(option as MyOption | null)
+                  }
+                  maxMenuHeight={200}
+                />
+                <SelectInput
+                  noOptionsMessage={(e) => "Pilih kategori terlebih dahulu!"}
+                  size="sm"
+                  options={subKatDiagPerOptions}
+                  placeholder="Pilih Subkategori"
+                  value={selSubKatDiag}
+                  onChange={(option) =>
+                    setSelSubKatDiag(option as MyOption | null)
+                  }
+                  maxMenuHeight={200}
+                />
+                <SelectInput
+                  noOptionsMessage={(e) => "Pilih subkategori terlebih dahulu!"}
+                  size="sm"
+                  options={diagPerOptions}
+                  placeholder="Pilih Diagnosis"
+                  value={selDiagnosis}
+                  onChange={(option) =>
+                    setSelDiagnosis(option as MyOption | null)
+                  }
+                  maxMenuHeight={200}
+                />
+                <button type="button" onClick={addDiagnosis}>
+                  <RiAddCircleLine
+                    size="1.5rem"
+                    className="text-blue-600 dark:text-blue-400"
+                  />
+                </button>
+              </div>
             </div>
+            <Transition
+              show={diagnosis?.length !== 0}
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 -translate-y-1"
+              enterTo="opacity-100"
+              leave="ease-in duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className={cn("mt-2 w-full overflow-hidden rounded shadow")}>
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="divide-x divide-slate-50 bg-slate-100 dark:bg-gray-700">
+                      <td className={cn("px-4 py-2")}>No.</td>
+                      <td className={cn("px-4 py-2")}>Diagnosis</td>
+                      <td className={cn("px-4 py-2")}>*</td>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {diagnosis?.map((diag, idx) => (
+                      <tr
+                        className="bg-white hover:text-sky-600 dark:bg-slate-900"
+                        key={idx}
+                      >
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          {diag.id_diagnosis}
+                        </td>
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          {diag.nama}
+                        </td>
+                        <td className="text-center">
+                          <RiDeleteBin5Line
+                            className="inline text-amber-500 hover:cursor-pointer"
+                            size="1.2rem"
+                            onClick={() => delDiagnosis(idx)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Transition>
           </div>
         </div>
       </div>
