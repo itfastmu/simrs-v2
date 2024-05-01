@@ -1138,7 +1138,7 @@ export const AsesmenPer = ({
                   maxMenuHeight={200}
                 />
                 <SelectInput
-                  noOptionsMessage={(e) => "Pilih kategori terlebih dahulu!"}
+                  noOptionsMessage={(e) => "Pilih kategori terlebih dahulu"}
                   size="sm"
                   options={subKatDiagPerOptions}
                   placeholder="Pilih Subkategori"
@@ -1149,7 +1149,7 @@ export const AsesmenPer = ({
                   maxMenuHeight={200}
                 />
                 <SelectInput
-                  noOptionsMessage={(e) => "Pilih subkategori terlebih dahulu!"}
+                  noOptionsMessage={(e) => "Pilih subkategori terlebih dahulu"}
                   size="sm"
                   options={diagPerOptions}
                   placeholder="Pilih Diagnosis"
