@@ -50,10 +50,12 @@ export type BillingAction = { type: "setBilling"; billing: BillingState };
 
 export default function ListPasienAsesmen({
   user,
+  userId,
   grup,
   idPegawai,
 }: {
   user: string;
+  userId: string | undefined;
   grup: string;
   idPegawai: string;
 }) {
@@ -276,7 +278,7 @@ export default function ListPasienAsesmen({
               perPage: meta.perPage,
               keyword: deferredCari.trimStart(),
               tanggal: memoizedTanggal,
-              dokter: idPegawai,
+              dokter: userId || idPegawai,
             };
       url.search = new URLSearchParams(params as any).toString();
       const resp = await fetch(url, {

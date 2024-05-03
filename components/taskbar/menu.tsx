@@ -93,6 +93,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
     const router = useRouter();
     const ref: React.RefObject<HTMLDivElement> = createRef();
     const grupId = parseInt(Cookies.get("grupId")!);
+    const userId = Cookies.get("id");
 
     useEffect(() => {
       // Bind the event listener
@@ -185,6 +186,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
           pathname: "/list-pasien",
           query: {
             user: grupId === 1 ? "Dewa" : grupId === 4 ? "Perawat" : "Dokter",
+            id: userId?.replaceAll(".", "_"),
           },
         } as Url,
         icon: RiNurseFill,

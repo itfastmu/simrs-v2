@@ -9,16 +9,18 @@ export const fetchCache = "force-no-store";
 export default function ListPasienPage({
   searchParams,
 }: {
-  searchParams: { user: string | undefined };
+  searchParams: { user: string | undefined; id: string | undefined };
 }) {
   noStore();
   const userParams = searchParams?.user;
+  const userId = searchParams?.id?.replaceAll("_", ".");
   const grup = cookies().get("grup")?.value!;
   const idPegawai = cookies().get("id")?.value!;
 
   return (
     <ListPasienAsesmen
       user={userParams === "Dewa" || !userParams ? "Perawat" : userParams}
+      userId={userId}
       grup={grup}
       idPegawai={idPegawai}
     />

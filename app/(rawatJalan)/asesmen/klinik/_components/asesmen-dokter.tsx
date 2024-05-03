@@ -853,6 +853,7 @@ export default function AsesmenDokter({
                             pathname: "/list-pasien",
                             query: {
                               user: "Dokter",
+                              id: id?.replaceAll(".", "_"),
                             },
                           }}
                           onClick={() => setTutupAsesmen(false)}
