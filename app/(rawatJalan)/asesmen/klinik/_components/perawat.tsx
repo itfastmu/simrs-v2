@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { RiAddCircleLine, RiDeleteBin5Line } from "react-icons/ri";
 import { useFormContext, Controller } from "react-hook-form";
 import { Transition } from "@headlessui/react";
@@ -1011,8 +1011,13 @@ export const AsesmenPer = ({
     }
   };
 
+  const initialized = useRef<boolean>(false);
   useEffect(() => {
-    loadKatDiagPer();
+    if (!initialized.current) {
+      loadKatDiagPer();
+      loadDiagnosisPer();
+      initialized.current = true;
+    }
   }, []);
 
   const [subKatDiagPerOptions, setSubKatDiagPerOptions] = useState<MyOptions>(
@@ -1048,9 +1053,9 @@ export const AsesmenPer = ({
 
   const [diagPerOptions, setDiagPerOptions] = useState<MyOptions>([]);
   const [selDiagnosis, setSelDiagnosis] = useState<MyOption | null>(null);
-  const loadDiagnosisPer = async (id: number) => {
+  const loadDiagnosisPer = async (id?: number) => {
     try {
-      const url = `${APIURL}/rs/diagnosa/perawat/${id}`;
+      const url = `${APIURL}/rs/diagnosa/perawat/${id || ""}`;
       const resp = await fetch(url, {
         method: "GET",
         headers: headers,
@@ -1075,7 +1080,7 @@ export const AsesmenPer = ({
     if (selSubKatDiag?.value) loadDiagnosisPer(selSubKatDiag.value as number);
   }, [selSubKatDiag]);
 
-  const diagnosis = watch("keperawatan.diagnosis");
+  const diagnosis = watch("keperawatan.diagnosis") || [];
   const addDiagnosis = () => {
     if (!selDiagnosis) return toast.warning("Pilih diagnosis terlebih dahulu!");
     const newDiag = diagnosis;
@@ -1112,7 +1117,7 @@ export const AsesmenPer = ({
           <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
             <div
               className={cn(
-                "relative basis-full justify-center gap-1",
+                "relative w-full justify-center gap-1",
                 errors.keperawatan?.diagnosis &&
                   "rounded-lg bg-red-300 p-2 pt-4 dark:bg-red-500/50"
               )}
@@ -1149,7 +1154,8 @@ export const AsesmenPer = ({
                   maxMenuHeight={200}
                 />
                 <SelectInput
-                  noOptionsMessage={(e) => "Pilih subkategori terlebih dahulu"}
+                  noOptionsMessage={(e) => "Pilih diagnosis"}
+                  className="w-full flex-1"
                   size="sm"
                   options={diagPerOptions}
                   placeholder="Pilih Diagnosis"
@@ -1193,7 +1199,7 @@ export const AsesmenPer = ({
                         key={idx}
                       >
                         <td className="whitespace-pre-wrap px-4 py-2">
-                          {diag.id_diagnosis}
+                          {idx + 1 + "."}
                         </td>
                         <td className="whitespace-pre-wrap px-4 py-2">
                           {diag.nama}
