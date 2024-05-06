@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import React, {
   Fragment,
+  useCallback,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -31,10 +32,12 @@ import { AiOutlineEye } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
 import { TbEdit, TbTrash } from "react-icons/tb";
+import { useReactToPrint } from "react-to-print";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { Supplier } from "../list-supplier/page";
 import { Depo, DetailPesanan, KFAPOA, SuratPesanan } from "../schema";
+import CetakSP from "./_components/cetak-sp";
 
 type LihatState = {
   modal: boolean;
@@ -881,6 +884,26 @@ const PesananDialog = ({
     }
   };
 
+  const cetakRef = useRef(null);
+  const onBeforeGetContentResolve = useRef<Promise<void> | null>(null);
+  const handleOnBeforeGetContent = useCallback(async () => {
+    await onBeforeGetContentResolve.current;
+  }, [pesanan]);
+
+  const reactToPrintContent = useCallback(() => {
+    return cetakRef.current;
+  }, [cetakRef.current]);
+
+  const handlePrint = useReactToPrint({
+    content: reactToPrintContent,
+    documentTitle: "Surat Pesanan",
+    onBeforeGetContent: handleOnBeforeGetContent,
+    onPrintError: (_, err) => {
+      toast.error(err.message);
+    },
+    removeAfterPrint: true,
+  });
+
   return (
     <Transition show={lihat.modal || tambahDialog} as={Fragment}>
       <Dialog as="div" className="relative z-[1001]" onClose={tutup}>
@@ -1333,6 +1356,13 @@ const PesananDialog = ({
                     ) : null} */}
                     <Button
                       className="w-fit border border-transparent text-sm font-medium focus:ring-0"
+                      color="sky"
+                      onClick={handlePrint}
+                    >
+                      Print
+                    </Button>
+                    <Button
+                      className="w-fit border border-transparent text-sm font-medium focus:ring-0"
                       color="red"
                       onClick={tutup}
                     >
@@ -1340,6 +1370,18 @@ const PesananDialog = ({
                     </Button>
                   </div>
                 </form>
+
+                <div className="hidden">
+                  <CetakSP
+                    ref={cetakRef}
+                    data={{
+                      suplier: supplierOptions.find(
+                        (val) => val.value === watch("id_suplier")
+                      )?.label,
+                      ...pesanan!,
+                    }}
+                  />
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
