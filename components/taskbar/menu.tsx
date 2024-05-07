@@ -207,10 +207,10 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
             judul: "Resep Pasien",
             href: "/list-resep",
           },
-          {
-            judul: "Master Farmasi",
-            href: "/master-farmasi",
-          },
+          // {
+          //   judul: "Master Farmasi",
+          //   href: "/master-farmasi",
+          // },
           // {
           //   judul: "Stok Barang",
           //   href: "/stok-barang",
@@ -250,18 +250,18 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
           //   href: "/tarif-bhp",
           //   icon: GiMedicalDrip,
           // },
-          {
-            judul: "List Supplier",
-            href: "/list-supplier",
-          },
-          {
-            judul: "Master KFA",
-            href: "/master-kfa",
-          },
-          {
-            judul: "KFA Mapping POA",
-            href: "/kfa-mapping-poa",
-          },
+          // {
+          //   judul: "List Supplier",
+          //   href: "/list-supplier",
+          // },
+          // {
+          //   judul: "Master KFA",
+          //   href: "/master-kfa",
+          // },
+          // {
+          //   judul: "KFA Mapping POA",
+          //   href: "/kfa-mapping-poa",
+          // },
         ],
       },
       {
@@ -298,6 +298,14 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
             judul: "Penerimaan Barang",
             href: "/penerimaan-barang",
             grup: [1, 6, 10],
+          },
+          {
+            judul: "List Supplier",
+            href: "/list-supplier",
+          },
+          {
+            judul: "Master KFA",
+            href: "/master-kfa",
           },
         ],
       },
@@ -491,7 +499,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
                                 className={cn(
                                   "p-0.5",
                                   "grup" in val &&
-                                    val.grup.every(
+                                    val.grup?.every(
                                       (grupVal) => grupVal !== grupId
                                     ) &&
                                     "hidden"

@@ -922,8 +922,6 @@ const TelaahDialog = ({
               id_poa: nonracik.id_poa,
               nama: nonracik.nama_obat,
               jumlah: nonracik.jumlah,
-              batch: null,
-              kadaluarsa: null,
             });
             setValue("obat", [...obat]);
           }
@@ -944,8 +942,6 @@ const TelaahDialog = ({
                   id_poa: detail.id_poa,
                   nama: detail.nama,
                   jumlah: detail.jumlah,
-                  batch: null,
-                  kadaluarsa: null,
                 });
                 setValue("obat", [...obat]);
               }
@@ -1005,8 +1001,6 @@ const TelaahDialog = ({
       .object({
         id_poa: z.number(),
         nama: z.string(),
-        batch: z.string().nullable(),
-        kadaluarsa: z.string().nullable(),
         jumlah: z.number(),
       })
       .array(),
@@ -1429,8 +1423,6 @@ const TelaahDialog = ({
                               <thead>
                                 <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
                                   <td className="px-4 py-2">Obat</td>
-                                  <td className="px-4 py-2">Batch</td>
-                                  <td className="px-4 py-2">Kadaluarsa</td>
                                   <td className="px-4 py-2">Harga</td>
                                   <td className="px-4 py-2">Jumlah</td>
                                   <td className="px-4 py-2 text-center">*</td>
@@ -1447,12 +1439,6 @@ const TelaahDialog = ({
                                   >
                                     <td className="whitespace-pre-wrap px-4 py-2">
                                       {obat.nama}
-                                    </td>
-                                    <td className="whitespace-pre-wrap px-4 py-2">
-                                      {obat.batch}
-                                    </td>
-                                    <td className="whitespace-pre-wrap px-4 py-2">
-                                      {obat.kadaluarsa}
                                     </td>
                                     <td className="whitespace-pre-wrap px-4 py-2">
                                       {obat.jumlah}
@@ -1808,12 +1794,6 @@ const TelaahDialog = ({
                               <ThDiv>Barang</ThDiv>
                             </Th>
                             <Th>
-                              <ThDiv>Batch</ThDiv>
-                            </Th>
-                            <Th>
-                              <ThDiv>Kadaluarsa</ThDiv>
-                            </Th>
-                            <Th>
                               <ThDiv>Restriksi</ThDiv>
                             </Th>
                             <Th>
@@ -1895,9 +1875,7 @@ const TelaahDialog = ({
                                         : setObat({
                                             id_poa: data.id,
                                             nama: data.nama,
-                                            batch: "",
                                             jumlah: 1,
-                                            kadaluarsa: "",
                                           });
                                       // !!watch("obat")?.find(
                                       //   (val) => val.id_poa === data.id
@@ -1912,10 +1890,8 @@ const TelaahDialog = ({
                                       //       {
                                       //         id_poa: data.id,
                                       //         nama: data.nama,
-                                      //         batch: "",
                                       //         harga: data.harga||0,
                                       //         jumlah: NaN,
-                                      //         kadaluarsa: "",
                                       //       },
                                       //     ])
                                     }}
@@ -1932,78 +1908,11 @@ const TelaahDialog = ({
                                       : setObat({
                                           id_poa: data.id,
                                           nama: data.nama,
-                                          batch: "",
                                           jumlah: 1,
-                                          kadaluarsa: "",
                                         })
                                   }
                                 >
                                   <p>{data.nama}</p>
-                                </td>
-                                <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
-                                  <Input
-                                    className="w-40 py-1.5 text-xs font-normal"
-                                    value={
-                                      obat?.id_poa === data.id
-                                        ? obat?.batch || ""
-                                        : ""
-                                      // watch("obat")?.find(
-                                      //   (val) => val.id_poa === data.id
-                                      // )?.batch || ""
-                                    }
-                                    onChange={(e) => {
-                                      setObat({
-                                        ...obat!,
-                                        batch: e.target.value,
-                                      });
-                                      // const detailBatch = (
-                                      //   watch("obat") || []
-                                      // ).map((val) => {
-                                      //   if (val.id_poa === data.id) {
-                                      //     return {
-                                      //       ...val,
-                                      //       batch: e.target.value,
-                                      //     };
-                                      //   }
-                                      //   return val;
-                                      // });
-                                      // setValue("obat", detailBatch);
-                                    }}
-                                    disabled={obat?.id_poa !== data.id}
-                                  />
-                                </td>
-                                <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
-                                  <Input
-                                    type="date"
-                                    className="w-32 py-1.5 text-xs font-normal"
-                                    value={
-                                      obat?.id_poa === data.id
-                                        ? obat?.kadaluarsa || ""
-                                        : ""
-                                      // watch("obat")?.find(
-                                      //   (val) => val.id_poa === data.id
-                                      // )?.kadaluarsa || ""
-                                    }
-                                    onChange={(e) => {
-                                      setObat({
-                                        ...obat!,
-                                        kadaluarsa: e.target.value,
-                                      });
-                                      // const detailKadaluarsa = (
-                                      //   watch("obat") || []
-                                      // ).map((val) => {
-                                      //   if (val.id_poa === data.id) {
-                                      //     return {
-                                      //       ...val,
-                                      //       kadaluarsa: e.target.value,
-                                      //     };
-                                      //   }
-                                      //   return val;
-                                      // });
-                                      // setValue("obat", detailKadaluarsa);
-                                    }}
-                                    disabled={obat?.id_poa !== data.id}
-                                  />
                                 </td>
                                 <td
                                   className={cn(
@@ -2016,9 +1925,7 @@ const TelaahDialog = ({
                                       : setObat({
                                           id_poa: data.id,
                                           nama: data.nama,
-                                          batch: "",
                                           jumlah: 1,
-                                          kadaluarsa: "",
                                         })
                                   }
                                 >
@@ -2035,9 +1942,7 @@ const TelaahDialog = ({
                                       : setObat({
                                           id_poa: data.id,
                                           nama: data.nama,
-                                          batch: "",
                                           jumlah: 1,
-                                          kadaluarsa: "",
                                         })
                                   }
                                 >
@@ -2178,63 +2083,6 @@ const TelaahDialog = ({
                     >
                       Ubah Obat
                     </Dialog.Title>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="batch" className="text-sm">
-                        Batch
-                      </label>
-                      <Input
-                        value={
-                          watch("obat")?.find(
-                            (_, idx) => idx === validResepObat.data?.idx
-                          )?.batch || ""
-                        }
-                        onChange={(e) => {
-                          const detailBatch = (watch("obat") || []).map(
-                            (val, idx) => {
-                              if (idx === validResepObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  batch: e.target.value,
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("obat", detailBatch);
-                        }}
-                        id="batch"
-                        className="text-sm"
-                      />
-                    </div>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="kadaluarsa" className="text-sm">
-                        Kadaluarsa
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          watch("obat")?.find(
-                            (_, idx) => idx === validResepObat.data?.idx
-                          )?.kadaluarsa || ""
-                        }
-                        onChange={(e) => {
-                          const detailKadaluarsa = (watch("obat") || []).map(
-                            (val, idx) => {
-                              if (idx === validResepObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  kadaluarsa: e.target.value,
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("obat", detailKadaluarsa);
-                        }}
-                        id="kadaluarsa"
-                        className="text-sm"
-                      />
-                    </div>
                     <div className="mt-1 flex flex-col">
                       <label htmlFor="jumlah" className="text-sm">
                         Jumlah

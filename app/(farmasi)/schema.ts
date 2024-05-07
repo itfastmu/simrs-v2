@@ -87,8 +87,6 @@ export const TransaksiBarangSchema = z.object({
     .object({
       id_poa: z.number(),
       nama: z.string(),
-      batch: z.string(),
-      kadaluarsa: z.string(),
       jumlah: z.number(),
     })
     .array()
