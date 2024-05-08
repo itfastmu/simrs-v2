@@ -1064,7 +1064,7 @@ export const AsesmenPer = ({
       if (json.status !== "Ok") throw new Error(json.message);
       setDiagPerOptions(
         json?.data.map((val: DiagnosisKeperawatan) => ({
-          value: val.id,
+          value: val.kode,
           label: val.nama,
         }))
       );
@@ -1085,7 +1085,7 @@ export const AsesmenPer = ({
     if (!selDiagnosis) return toast.warning("Pilih diagnosis terlebih dahulu!");
     const newDiag = diagnosis;
     newDiag.push({
-      id_diagnosis: selDiagnosis.value as number,
+      id_diagnosis: selDiagnosis.value as string,
       nama: selDiagnosis.label,
     });
     setValue("keperawatan.diagnosis", [...newDiag]);
@@ -1093,14 +1093,6 @@ export const AsesmenPer = ({
   };
 
   const delDiagnosis = (id: number) => {
-    if (isUpdate) {
-      if (diagnosis?.find((_, i) => i === id)?.id_diagnosis) {
-        setValue("deleted.diagnosis", [
-          ...(watch("deleted.diagnosis") || []),
-          diagnosis?.find((_, i) => i === id)?.id_diagnosis!,
-        ]);
-      }
-    }
     setValue(
       "keperawatan.diagnosis",
       diagnosis?.filter((_, i) => id !== i)

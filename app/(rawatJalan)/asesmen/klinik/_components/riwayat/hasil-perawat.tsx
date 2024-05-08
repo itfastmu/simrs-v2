@@ -960,10 +960,12 @@ const HasilPerawat = React.forwardRef(
             <p className="flex select-none items-center justify-center bg-black text-center text-sm font-bold uppercase tracking-normal text-white">
               Target
             </p>
-            <div className="w-full border-r border-black px-2 py-0.5 text-sm">
-              <p className="min-h-[50px] whitespace-pre-wrap">
-                {data?.keperawatan?.diagnosis}
-              </p>
+            <div className="w-full border-r border-black py-0.5 pr-2 text-sm">
+              <ul className="ml-5 min-h-[50px] list-disc whitespace-pre-wrap">
+                {data?.keperawatan?.diagnosis.map((val, i) => (
+                  <li key={i.toString()}>{val}</li>
+                ))}
+              </ul>
             </div>
             <div className="w-full border-r border-black px-2 py-0.5 text-sm">
               <p className="whitespace-pre-wrap">

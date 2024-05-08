@@ -312,7 +312,15 @@ export default function AsesmenPerawat({
       setValue("keperawatan.tindakan", hasilPerawat.keperawatan.tindakan);
     } else if (klinik.isRehab) {
       if (hasilPerawat.keperawatan) {
-        // setValue("keperawatan.diagnosis", hasilPerawat.keperawatan.diagnosis);
+        setValue(
+          "keperawatan.diagnosis",
+          hasilPerawat.keperawatan?.diagnosis.map((val, idx) => ({
+            id_diagnosis: hasilPerawat.keperawatan?.id_diagnosis.find(
+              (_, i) => i === idx
+            )!,
+            nama: val,
+          }))
+        );
         setValue(
           "keperawatan.rencana_asuhan",
           hasilPerawat.keperawatan.rencana_asuhan

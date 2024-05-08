@@ -114,7 +114,7 @@ export default function RiwayatPemeriksaan() {
       }
     };
     loadRiwayat();
-    loadRiwayatICare();
+    // loadRiwayatICare();
   }, []);
 
   const [icareDialog, setIcareDialog] = useState<boolean>(false);
