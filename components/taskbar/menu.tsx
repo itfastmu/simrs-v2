@@ -481,7 +481,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
                             )}
                           >
                             <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
-                              <div className="relative grid grid-cols-3 gap-4 bg-white px-4 py-3">
+                              <div className="relative grid grid-cols-3 gap-4 bg-white px-4 py-3 dark:bg-slate-700">
                                 {menu.child?.map((val, menuIdx) => (
                                   // <div
                                   //   className={cn(
@@ -512,7 +512,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
                                       onClick={() => {
                                         setShow(false);
                                       }}
-                                      className="mx-auto flex w-max rounded-lg bg-slate-200 p-3 shadow-sm dark:bg-slate-700"
+                                      className="mx-auto flex w-max rounded-lg bg-slate-200 p-3 shadow-sm dark:bg-slate-800"
                                     >
                                       <val.icon
                                         size="1.6rem"

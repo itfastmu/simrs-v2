@@ -42,6 +42,7 @@ export type KlinikAsesmen = {
   isObg: boolean;
   isOrt: boolean;
   isGigi: boolean;
+  isDerma: boolean;
 };
 
 export type THasilSkrining = {

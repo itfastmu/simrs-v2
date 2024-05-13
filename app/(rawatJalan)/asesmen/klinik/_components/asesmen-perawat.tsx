@@ -774,7 +774,7 @@ export default function AsesmenPerawat({
                     <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
                       <Dialog.Title
                         as="p"
-                        className="font-medium leading-6 text-gray-900"
+                        className="font-medium leading-6 text-gray-900 dark:text-slate-100"
                       >
                         Tutup Asesmen
                       </Dialog.Title>

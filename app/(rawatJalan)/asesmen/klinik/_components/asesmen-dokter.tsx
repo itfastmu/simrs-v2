@@ -11,7 +11,6 @@ import anatomiMata from "@/assets/img/mata.png";
 import anatomiOrto from "@/assets/img/ortopedi.png";
 import anatomiParu from "@/assets/img/paru.png";
 import anatomiPD from "@/assets/img/penyakit-dalam.png";
-import anatomiRehabMedik from "@/assets/img/rehabmedik.png";
 import anatomiSaraf from "@/assets/img/saraf.png";
 import anatomiTHT from "@/assets/img/tht-kl.png";
 import { Button, LinkButton } from "@/components/button";
@@ -48,6 +47,7 @@ import { ObjektifRehabMedik } from "./rehab-medik";
 import HasilBidan from "./riwayat/hasil-bidan";
 import HasilPerawat from "./riwayat/hasil-perawat";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
+import { ObjektifDerma } from "./kulit";
 
 export default function AsesmenDokter({
   data,
@@ -114,7 +114,8 @@ export default function AsesmenDokter({
     OBG: anatomiObg, // OBG
     ORT: anatomiOrto, // ORTHO
     INT: anatomiPD, // PENYAKIT DALAM
-    IRM: anatomiRehabMedik, // REHAB MEDIK
+    IRM: anatomiUmum, // REHAB MEDIK
+    KLT: anatomiUmum, // DERMA
     SAR: anatomiSaraf, // SARAF
     THT: anatomiTHT, // THT
   };
@@ -657,6 +658,14 @@ export default function AsesmenDokter({
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
+                ) : klinik.isDerma ? (
+                  <ObjektifDerma
+                    hasilPerawat={hasilPerawat}
+                    isUpdate={isUpdate}
+                    statusLokSrc={anatomiImg}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 ) : (
                   <ObjektifDr
                     hasilPerawat={hasilPerawat}
@@ -837,7 +846,7 @@ export default function AsesmenDokter({
                     <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
                       <Dialog.Title
                         as="p"
-                        className="font-medium leading-6 text-gray-900"
+                        className="font-medium leading-6 text-gray-900 dark:text-slate-100"
                       >
                         Tutup Asesmen
                       </Dialog.Title>

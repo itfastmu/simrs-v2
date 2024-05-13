@@ -15,7 +15,7 @@ import {
 import Cookies from "js-cookie";
 import ImageMarker, { Marker } from "@/components/image-marker";
 import { TbEdit, TbTrash } from "react-icons/tb";
-import anatomiRehabMedik from "@/assets/img/rehabmedik.png";
+import anatomiUmum from "@/assets/img/anatomi-umum.png";
 import { HasilSkrining } from "../../_components/skrining-perawat";
 import { useSearchParams } from "next/navigation";
 
@@ -657,7 +657,7 @@ export const ObjektifFisio = ({
               <div className={cn("grid grid-cols-2 text-base")}>
                 <div className="overflow-hidden rounded bg-slate-100">
                   <ImageMarker
-                    src={anatomiRehabMedik}
+                    src={anatomiUmum}
                     markers={statusLok}
                     onAddMarker={(marker) => addMarker(marker)}
                   />
@@ -1699,7 +1699,7 @@ export const ObjektifRehabMedik = ({
                 <div className="overflow-hidden rounded bg-slate-100">
                   <ImageMarker
                     className="cursor-copy"
-                    src={anatomiRehabMedik}
+                    src={anatomiUmum}
                     markers={statusLok}
                     onAddMarker={(marker) => addMarker(marker)}
                   />
