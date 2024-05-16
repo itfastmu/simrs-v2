@@ -1015,7 +1015,7 @@ export const AsesmenPer = ({
   useEffect(() => {
     if (!initialized.current) {
       loadKatDiagPer();
-      loadDiagnosisPer();
+      loadDiagnosisPer("");
       initialized.current = true;
     }
   }, []);
@@ -1053,31 +1053,38 @@ export const AsesmenPer = ({
 
   const [diagPerOptions, setDiagPerOptions] = useState<MyOptions>([]);
   const [selDiagnosis, setSelDiagnosis] = useState<MyOption | null>(null);
-  const loadDiagnosisPer = async (id?: number) => {
+  const loadDiagnosisPer = async (inputSearch: string) => {
     try {
-      const url = `${APIURL}/rs/diagnosa/perawat/${id || ""}`;
+      const url = new URL(
+        `${APIURL}/rs/diagnosa/perawat/${selSubKatDiag?.value || ""}`
+      );
+      const params = {
+        keyword: inputSearch?.trimStart(),
+      };
+      url.search = new URLSearchParams(params as any).toString();
       const resp = await fetch(url, {
         method: "GET",
         headers: headers,
       });
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
-      setDiagPerOptions(
-        json?.data.map((val: DiagnosisKeperawatan) => ({
-          value: val.kode,
-          label: val.nama,
-        }))
-      );
+      const options = json?.data.map((val: DiagnosisKeperawatan) => ({
+        value: val.kode,
+        label: val.nama,
+      }));
+      setDiagPerOptions(options);
+      return options;
     } catch (err) {
       const error = err as Error;
-      if (error.message === "Data tidak ditemukan") return;
+      if (error.message === "Data tidak ditemukan") return [];
       toast.error(error.message);
       console.error(error);
+      return [];
     }
   };
 
   useEffect(() => {
-    if (selSubKatDiag?.value) loadDiagnosisPer(selSubKatDiag.value as number);
+    if (selSubKatDiag?.value) loadDiagnosisPer("");
   }, [selSubKatDiag]);
 
   const diagnosis = watch("keperawatan.diagnosis") || [];
@@ -1124,6 +1131,7 @@ export const AsesmenPer = ({
               ) : null}
               <div className="flex w-full gap-2">
                 <SelectInput
+                  isClearable
                   noOptionsMessage={(e) => "Tidak ada pilihan"}
                   size="sm"
                   options={katDiagPerOptions}
@@ -1135,6 +1143,7 @@ export const AsesmenPer = ({
                   maxMenuHeight={200}
                 />
                 <SelectInput
+                  isClearable
                   noOptionsMessage={(e) => "Pilih kategori terlebih dahulu"}
                   size="sm"
                   options={subKatDiagPerOptions}
@@ -1145,11 +1154,12 @@ export const AsesmenPer = ({
                   }
                   maxMenuHeight={200}
                 />
-                <SelectInput
+                <AsyncSelectInput
                   noOptionsMessage={(e) => "Pilih diagnosis"}
                   className="w-full flex-1"
                   size="sm"
-                  options={diagPerOptions}
+                  loadOptions={loadDiagnosisPer}
+                  // options={diagPerOptions}
                   placeholder="Pilih Diagnosis"
                   value={selDiagnosis}
                   onChange={(option) =>
