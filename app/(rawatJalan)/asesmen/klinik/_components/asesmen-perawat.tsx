@@ -35,6 +35,12 @@ import {
 } from "./perawat";
 import { AsesmenFisio, ObjektifFisio, SubjektifFisio } from "./rehab-medik";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
+import {
+  AsesmenWicara,
+  ObjektifWicara,
+  SubjektifWicara,
+  TindakanWicara,
+} from "./terapi-wicara";
 
 export default function AsesmenPerawat({
   data,
@@ -364,9 +370,9 @@ export default function AsesmenPerawat({
   }, [watch]);
 
   useEffect(() => {
+    console.log(errors);
     if (Object.keys(errors).length > 0)
       toast.warn("Lengkapi isian terlebih dahulu!");
-    console.log(errors);
   }, [errors]);
 
   const [listImunisasi] = useState<TFormImunisasi[]>([
@@ -661,6 +667,11 @@ export default function AsesmenPerawat({
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
+                ) : klinik.isWicara ? (
+                  <SubjektifWicara
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 ) : (
                   <SubjektifPer
                     listImunisasi={listImunisasi}
@@ -674,6 +685,12 @@ export default function AsesmenPerawat({
               <Tab.Panel className="focus:outline-none" unmount={false}>
                 {klinik.isRehab ? (
                   <ObjektifFisio
+                    isUpdate={isUpdate}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
+                ) : klinik.isWicara ? (
+                  <ObjektifWicara
                     isUpdate={isUpdate}
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
@@ -694,6 +711,11 @@ export default function AsesmenPerawat({
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
+                ) : klinik.isWicara ? (
+                  <AsesmenWicara
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 ) : (
                   <AsesmenPer
                     isUpdate={isUpdate}
@@ -710,11 +732,15 @@ export default function AsesmenPerawat({
                 />
               </Tab.Panel>
               <Tab.Panel className="focus:outline-none">
-                <TindakanPer
-                  isUpdate={isUpdate}
-                  isLoading={isLoading}
-                  klinik={klinik}
-                />
+                {!klinik.isWicara ? (
+                  <TindakanPer
+                    isUpdate={isUpdate}
+                    isLoading={isLoading}
+                    klinik={klinik}
+                  />
+                ) : (
+                  <TindakanWicara isUpdate={isUpdate} isLoading={isLoading} />
+                )}
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>

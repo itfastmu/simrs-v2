@@ -1154,7 +1154,7 @@ export const AsesmenFisio = ({
               <InputArea
                 className="px-2 py-1 text-xs"
                 placeholder="Diagnosis"
-                {...register("keperawatan.diagnosis")}
+                // {...register("keperawatan.diagnosis.0")}
               />
             </div>
           </div>

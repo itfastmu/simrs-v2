@@ -1,8 +1,5 @@
-import { Barang, KFAPOA, OptionBarang } from "@/app/(farmasi)/schema";
-import { ICD9 } from "@/app/(referensi)/list-icd/page";
 import { Button } from "@/components/button";
 import { Input, InputArea, LabelButton } from "@/components/form";
-import ImageMarker, { Marker } from "@/components/image-marker";
 import {
   AsyncSelectInput,
   MyOption,
@@ -15,43 +12,11 @@ import { Transition } from "@headlessui/react";
 import Cookies from "js-cookie";
 import { StaticImageData } from "next/image";
 import { useSearchParams } from "next/navigation";
-import {
-  Fragment,
-  Suspense,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { Fragment, Suspense, useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { FaFileMedical } from "react-icons/fa6";
-import { GiPestleMortar } from "react-icons/gi";
-import {
-  RiAddCircleLine,
-  RiBodyScanFill,
-  RiCheckLine,
-  RiDeleteBin5Line,
-  RiFlaskFill,
-} from "react-icons/ri";
-import { TbEdit, TbTrash } from "react-icons/tb";
+import { RiAddCircleLine, RiDeleteBin5Line } from "react-icons/ri";
 import { toast } from "react-toastify";
-import { HasilSkrining } from "../../_components/skrining-perawat";
-import {
-  KlinikAsesmen,
-  RacikAction,
-  RacikState,
-  TAsesmenDok,
-  THasilDokter,
-  THasilPerawat,
-  listPenyakit,
-} from "../../schema";
-import {
-  PermintLabDialog,
-  PermintRadDialog,
-  tempPermintaan,
-} from "./permintaan-penunjang";
-import { RacikanDialog, ResepDokter } from "./resep-dokter";
+import { TAsesmenDok, THasilPerawat } from "../../schema";
 
 export const ObjektifJiwa = ({
   hasilPerawat,

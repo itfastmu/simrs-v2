@@ -58,8 +58,10 @@ export default function AsesmenKlinik() {
       isOrt: data?.kode_klinik === "ORT",
       isGigi: data?.kode_klinik === "GIG" || data?.kode_klinik === "END",
       isDerma: data?.kode_klinik === "KLT",
-      // isPsi: data?.kode_klinik === "PSI" || data?.klinik === "Klinik Psikologi",
-      isPsi: data?.kode_klinik === "INT",
+      isPsi: data?.kode_klinik === "PSI" || data?.klinik === "Klinik Psikologi",
+      // isPsi: data?.kode_klinik === "INT",
+      isJiwa: data?.kode_klinik === "INT",
+      isWicara: data?.kode_klinik === "TRP" || data?.klinik === "Terapi Wicara",
     }),
     [data]
   );

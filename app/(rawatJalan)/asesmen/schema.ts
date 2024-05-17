@@ -43,6 +43,8 @@ export type KlinikAsesmen = {
   isOrt: boolean;
   isGigi: boolean;
   isDerma: boolean;
+  isPsi: boolean;
+  isWicara: boolean;
   isJiwa: boolean;
 };
 
