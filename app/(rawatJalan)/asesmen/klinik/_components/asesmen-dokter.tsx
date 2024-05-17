@@ -49,6 +49,7 @@ import { ObjektifRehabMedik } from "./rehab-medik";
 import HasilBidan from "./riwayat/hasil-bidan";
 import HasilPerawat from "./riwayat/hasil-perawat";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
+import AsesmenPsikologi from "./psikologi";
 
 export default function AsesmenDokter({
   data,
@@ -171,7 +172,7 @@ export default function AsesmenDokter({
     }
   };
   useEffect(() => {
-    if (!hasilPerawat || klinik.isRehab) return;
+    if (!hasilPerawat || klinik.isRehab || klinik.isPsi) return;
     setViewHasilPerawat(true);
     setValue("anamnesis.keluhan", hasilPerawat.anamnesis.keluhan);
     setValue("anamnesis.alergi", hasilPerawat.anamnesis.alergi);
@@ -208,9 +209,9 @@ export default function AsesmenDokter({
   };
   useEffect(() => {
     if (!hasilDokter) return;
-    // if (klinik.isPsi) {
-    //   return;
-    // }
+    if (klinik.isPsi) {
+      return;
+    }
     setIsUpdate(true);
     setValue("anamnesis.id", hasilDokter.anamnesis.id);
     setValue("anamnesis.keluhan", hasilDokter.anamnesis.keluhan);
@@ -373,7 +374,7 @@ export default function AsesmenDokter({
 
   const initialized = useRef<boolean>(false);
   useEffect(() => {
-    if (!initialized.current) {
+    if (!initialized.current && !klinik.isPsi) {
       loadInfoPeserta();
       if (proses < 5) {
         loadAsesPerawat();
@@ -615,112 +616,116 @@ export default function AsesmenDokter({
           <RiwayatPemeriksaan />
         </div>
         <div className="relative flex-1 rounded-md bg-white p-3 shadow-md dark:bg-slate-700">
-          <Tab.Group
-            selectedIndex={tabIdx}
-            onChange={(index) => {
-              setTabIdx(index);
-              panelDivRef.current?.scrollTo(0, 0);
-            }}
-          >
-            <Tab.List className="mr-8 flex space-x-0.5 rounded-md bg-gray-900/20 p-0.5 dark:bg-slate-600">
-              {menues.map((menu) => (
-                <Tab
-                  className={cn(
-                    "w-full rounded py-1.5 text-sm leading-5 text-gray-700 focus:outline-none ui-selected:bg-white ui-selected:shadow ui-not-selected:hover:bg-white/[0.12] dark:text-slate-50 ui-selected:dark:bg-slate-800 ui-not-selected:dark:hover:bg-slate-700"
-                  )}
-                  key={menu}
-                >
-                  {menu}
-                </Tab>
-              ))}
-            </Tab.List>
-            <Tab.Panels
-              ref={panelDivRef}
-              className={cn(
-                "my-2 h-[calc(100%-40px)] overflow-y-auto",
-                css.scrollbar
-              )}
+          {!klinik.isPsi ? (
+            <Tab.Group
+              selectedIndex={tabIdx}
+              onChange={(index) => {
+                setTabIdx(index);
+                panelDivRef.current?.scrollTo(0, 0);
+              }}
             >
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                <SubjektifDr
-                  lainRiwayat={lainRiwayat}
-                  lainRiwayatKel={lainRiwayatKel}
-                  setLainRiwayat={setLainRiwayat}
-                  setLainRiwayatKel={setLainRiwayatKel}
-                  klinik={klinik}
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                {klinik.isRehab ? (
-                  <ObjektifRehabMedik
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
+              <Tab.List className="mr-8 flex space-x-0.5 rounded-md bg-gray-900/20 p-0.5 dark:bg-slate-600">
+                {menues.map((menu) => (
+                  <Tab
+                    className={cn(
+                      "w-full rounded py-1.5 text-sm leading-5 text-gray-700 focus:outline-none ui-selected:bg-white ui-selected:shadow ui-not-selected:hover:bg-white/[0.12] dark:text-slate-50 ui-selected:dark:bg-slate-800 ui-not-selected:dark:hover:bg-slate-700"
+                    )}
+                    key={menu}
+                  >
+                    {menu}
+                  </Tab>
+                ))}
+              </Tab.List>
+              <Tab.Panels
+                ref={panelDivRef}
+                className={cn(
+                  "my-2 h-[calc(100%-40px)] overflow-y-auto",
+                  css.scrollbar
+                )}
+              >
+                <Tab.Panel className="focus:outline-none" unmount={false}>
+                  <SubjektifDr
+                    lainRiwayat={lainRiwayat}
+                    lainRiwayatKel={lainRiwayatKel}
+                    setLainRiwayat={setLainRiwayat}
+                    setLainRiwayatKel={setLainRiwayatKel}
                     klinik={klinik}
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
-                ) : klinik.isDerma ? (
-                  <ObjektifDerma
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    statusLokSrc={anatomiImg}
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none" unmount={false}>
+                  {klinik.isRehab ? (
+                    <ObjektifRehabMedik
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      klinik={klinik}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  ) : klinik.isDerma ? (
+                    <ObjektifDerma
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      statusLokSrc={anatomiImg}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  ) : klinik.isJiwa ? (
+                    <ObjektifJiwa
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      statusLokSrc={anatomiImg}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  ) : (
+                    <ObjektifDr
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      klinik={klinik}
+                      statusLokSrc={anatomiImg}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  )}
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none">
+                  {klinik.isJiwa ? (
+                    <AsesmenJiwa
+                      tabIdx={tabIdx}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                      isUpdate={isUpdate}
+                    />
+                  ) : (
+                    <AsesmenDr
+                      tabIdx={tabIdx}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                      isUpdate={isUpdate}
+                    />
+                  )}
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none">
+                  <PlanningTargetDr
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
-                ) : klinik.isJiwa ? (
-                  <ObjektifJiwa
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : (
-                  <ObjektifDr
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none" unmount={false}>
+                  <InstruksiDr
+                    hasilDokter={hasilDokter}
                     klinik={klinik}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                )}
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none">
-                {klinik.isJiwa ? (
-                  <AsesmenJiwa
-                    tabIdx={tabIdx}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
+                    isLoading={isLoading}
                     isUpdate={isUpdate}
                   />
-                ) : (
-                  <AsesmenDr
-                    tabIdx={tabIdx}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                    isUpdate={isUpdate}
-                  />
-                )}
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none">
-                <PlanningTargetDr
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                <InstruksiDr
-                  hasilDokter={hasilDokter}
-                  klinik={klinik}
-                  isLoading={isLoading}
-                  isUpdate={isUpdate}
-                />
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
+                </Tab.Panel>
+              </Tab.Panels>
+            </Tab.Group>
+          ) : (
+            <AsesmenPsikologi />
+          )}
           <Tooltip.Provider delayDuration={300} disableHoverableContent>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
