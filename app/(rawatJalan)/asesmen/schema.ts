@@ -43,6 +43,7 @@ export type KlinikAsesmen = {
   isOrt: boolean;
   isGigi: boolean;
   isDerma: boolean;
+  isJiwa: boolean;
 };
 
 export type THasilSkrining = {
@@ -671,6 +672,26 @@ export const AsesmenDokSchema = z.object({
       abdomen: z.string().optional(),
       ekstremitas: z.string().optional(),
       prognosis: z.string().array().length(6),
+    })
+    .optional(),
+  jiwa: z
+    .object({
+      id: z.number().optional(),
+      napza: z.string().optional(),
+      kesan: z.string().optional(),
+      kesadaran: z.string().optional(),
+      sikap: z.string().optional(),
+      pembicaraan: z.string().optional(),
+      orientasi: z.string().optional(),
+      mood: z.string().optional(),
+      bentuk_pikir: z.string().optional(),
+      isi_pikir: z.string().optional(),
+      progresi_pikir: z.string().optional(),
+      persepsi: z.string().optional(),
+      hub_jiwa: z.string().optional(),
+      perhatian: z.string().optional(),
+      insight: z.string().optional(),
+      diagnosis_multiaksial: z.string().array().length(5),
     })
     .optional(),
   deleted: z

@@ -186,6 +186,17 @@ export const SubjektifDr = ({
                     onChange={(e) => setLainRiwayatKel(e.target.value)}
                   />
                 </div>
+                {klinik.isJiwa ? (
+                  <div className="w-6/12">
+                    <label className="py-2 font-semibold dark:text-neutral-200">
+                      Riwayat Penggunaan obat-obatan dan NAPZA
+                    </label>
+                    <InputArea
+                      className="px-2 py-1 text-xs"
+                    {...register("jiwa.napza")}
+                    />
+                  </div>
+                ) : null}
                 <div className="w-6/12">
                   <label className="py-2 font-semibold dark:text-neutral-200">
                     Riwayat Alergi

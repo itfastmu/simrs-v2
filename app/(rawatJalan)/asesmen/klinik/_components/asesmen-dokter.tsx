@@ -43,11 +43,12 @@ import {
   PlanningTargetDr,
   SubjektifDr,
 } from "./dokter";
+import { AsesmenJiwa, ObjektifJiwa } from "./jiwa";
+import { ObjektifDerma } from "./kulit";
 import { ObjektifRehabMedik } from "./rehab-medik";
 import HasilBidan from "./riwayat/hasil-bidan";
 import HasilPerawat from "./riwayat/hasil-perawat";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
-import { ObjektifDerma } from "./kulit";
 
 export default function AsesmenDokter({
   data,
@@ -170,8 +171,7 @@ export default function AsesmenDokter({
     }
   };
   useEffect(() => {
-    if (!hasilPerawat) return;
-    if (klinik.isRehab) return;
+    if (!hasilPerawat || klinik.isRehab) return;
     setViewHasilPerawat(true);
     setValue("anamnesis.keluhan", hasilPerawat.anamnesis.keluhan);
     setValue("anamnesis.alergi", hasilPerawat.anamnesis.alergi);
@@ -208,6 +208,9 @@ export default function AsesmenDokter({
   };
   useEffect(() => {
     if (!hasilDokter) return;
+    // if (klinik.isPsi) {
+    //   return;
+    // }
     setIsUpdate(true);
     setValue("anamnesis.id", hasilDokter.anamnesis.id);
     setValue("anamnesis.keluhan", hasilDokter.anamnesis.keluhan);
@@ -457,7 +460,7 @@ export default function AsesmenDokter({
       if (json.status !== "Created" && json.status !== "Updated")
         throw new Error(json.message);
       toast.success("Asesmen berhasil disimpan!");
-      router.replace("/list-pasien?user=Dokter");
+      router.replace(`/list-pasien?user=Dokter&id=${id?.replaceAll(".", "_")}`);
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);
@@ -666,6 +669,14 @@ export default function AsesmenDokter({
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
+                ) : klinik.isJiwa ? (
+                  <ObjektifJiwa
+                    hasilPerawat={hasilPerawat}
+                    isUpdate={isUpdate}
+                    statusLokSrc={anatomiImg}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 ) : (
                   <ObjektifDr
                     hasilPerawat={hasilPerawat}
@@ -678,12 +689,21 @@ export default function AsesmenDokter({
                 )}
               </Tab.Panel>
               <Tab.Panel className="focus:outline-none">
-                <AsesmenDr
-                  tabIdx={tabIdx}
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                  isUpdate={isUpdate}
-                />
+                {klinik.isJiwa ? (
+                  <AsesmenJiwa
+                    tabIdx={tabIdx}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                    isUpdate={isUpdate}
+                  />
+                ) : (
+                  <AsesmenDr
+                    tabIdx={tabIdx}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                    isUpdate={isUpdate}
+                  />
+                )}
               </Tab.Panel>
               <Tab.Panel className="focus:outline-none">
                 <PlanningTargetDr

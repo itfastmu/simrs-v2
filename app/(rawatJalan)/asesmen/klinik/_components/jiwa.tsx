@@ -1,17 +1,59 @@
+import { Barang, KFAPOA, OptionBarang } from "@/app/(farmasi)/schema";
+import { ICD9 } from "@/app/(referensi)/list-icd/page";
 import { Button } from "@/components/button";
 import { Input, InputArea, LabelButton } from "@/components/form";
 import ImageMarker, { Marker } from "@/components/image-marker";
-import { SelectInput } from "@/components/select";
+import {
+  AsyncSelectInput,
+  MyOption,
+  MyOptions,
+  SelectInput,
+} from "@/components/select";
+import { APIURL } from "@/lib/connection";
 import { cn } from "@/lib/utils";
 import { Transition } from "@headlessui/react";
+import Cookies from "js-cookie";
 import { StaticImageData } from "next/image";
 import { useSearchParams } from "next/navigation";
-import { Fragment, Suspense, useEffect, useMemo, useState } from "react";
+import {
+  Fragment,
+  Suspense,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import { FaFileMedical } from "react-icons/fa6";
+import { GiPestleMortar } from "react-icons/gi";
+import {
+  RiAddCircleLine,
+  RiBodyScanFill,
+  RiCheckLine,
+  RiDeleteBin5Line,
+  RiFlaskFill,
+} from "react-icons/ri";
 import { TbEdit, TbTrash } from "react-icons/tb";
-import { TAsesmenDok, THasilPerawat } from "../../schema";
+import { toast } from "react-toastify";
+import { HasilSkrining } from "../../_components/skrining-perawat";
+import {
+  KlinikAsesmen,
+  RacikAction,
+  RacikState,
+  TAsesmenDok,
+  THasilDokter,
+  THasilPerawat,
+  listPenyakit,
+} from "../../schema";
+import {
+  PermintLabDialog,
+  PermintRadDialog,
+  tempPermintaan,
+} from "./permintaan-penunjang";
+import { RacikanDialog, ResepDokter } from "./resep-dokter";
 
-export const ObjektifDerma = ({
+export const ObjektifJiwa = ({
   hasilPerawat,
   isUpdate,
   statusLokSrc,
@@ -117,57 +159,78 @@ export const ObjektifDerma = ({
     handleKesadaran();
   }, [watch("fisik.gcs.0"), watch("fisik.gcs.1"), watch("fisik.gcs.2")]);
 
-  const statusLok = watch("status_lokalis") || [];
-  const [idCatatan, setIdCatatan] = useState<number | undefined>(undefined);
-  const showCatatan = useMemo(() => {
-    return !!idCatatan;
-  }, [idCatatan]);
-  const [isEditCatatan, setIsEditCatatan] = useState<boolean>(false);
-  const [catatan, setCatatan] = useState<string | undefined>(undefined);
-  const addMarker = (marker: Marker) => {
-    setIdCatatan(statusLok.length + 1);
-    if (showCatatan) {
-      let newMarkers = statusLok;
-      if (statusLok?.length > 0) {
-        newMarkers[statusLok.length - 1].catatan = catatan;
-      }
-      setValue("status_lokalis", [...newMarkers, marker]);
-    } else {
-      setValue("status_lokalis", [...statusLok, marker]);
-    }
-    setCatatan("");
-  };
-  const addCatatan = () => {
-    let newMarkers = statusLok;
-    newMarkers[idCatatan! - 1].catatan = catatan!;
-    for (let mark in newMarkers) {
-      if (newMarkers[mark].catatan === undefined) {
-        newMarkers.splice(parseInt(mark), 1);
-      }
-    }
-    setValue("status_lokalis", [...newMarkers]);
-    setIdCatatan(undefined);
-    setCatatan("");
-  };
-  const delMarker = (id: number) => {
-    if (isUpdate) {
-      if (watch("status_lokalis")?.find((_, i) => i === id)?.id) {
-        setValue("deleted.status_lokalis", [
-          ...(watch("deleted.status_lokalis") || []),
-          watch("status_lokalis")?.find((_, i) => i === id)?.id!,
-        ]);
-      }
-    }
-    setValue(
-      "status_lokalis",
-      statusLok.filter((_, i) => id !== i)
-    );
-  };
-  const editCatatan = (id: number) => {
-    setIsEditCatatan(true);
-    setIdCatatan(id + 1);
-    setCatatan(statusLok[id].catatan);
-  };
+  const [listStatusMental] = useState<
+    {
+      judul: string;
+      register:
+        | "jiwa.kesan"
+        | "jiwa.kesadaran"
+        | "jiwa.sikap"
+        | "jiwa.pembicaraan"
+        | "jiwa.orientasi"
+        | "jiwa.mood"
+        | "jiwa.bentuk_pikir"
+        | "jiwa.isi_pikir"
+        | "jiwa.progresi_pikir"
+        | "jiwa.persepsi"
+        | "jiwa.hub_jiwa"
+        | "jiwa.perhatian"
+        | "jiwa.insight";
+    }[]
+  >([
+    {
+      judul: "Kesan Umum",
+      register: "jiwa.kesan",
+    },
+    {
+      judul: "Kesadaran",
+      register: "jiwa.kesadaran",
+    },
+    {
+      judul: "Sikap Tingkah Laku",
+      register: "jiwa.sikap",
+    },
+    {
+      judul: "Pembicaraan",
+      register: "jiwa.pembicaraan",
+    },
+    {
+      judul: "Orientasi",
+      register: "jiwa.orientasi",
+    },
+    {
+      judul: "Afek/Mood",
+      register: "jiwa.mood",
+    },
+    {
+      judul: "Bentuk Pikir",
+      register: "jiwa.bentuk_pikir",
+    },
+    {
+      judul: "Isi Pikir",
+      register: "jiwa.isi_pikir",
+    },
+    {
+      judul: "Progresi Pikir",
+      register: "jiwa.progresi_pikir",
+    },
+    {
+      judul: "Persepsi",
+      register: "jiwa.persepsi",
+    },
+    {
+      judul: "Hubungan Jiwa",
+      register: "jiwa.hub_jiwa",
+    },
+    {
+      judul: "Perhatian",
+      register: "jiwa.perhatian",
+    },
+    {
+      judul: "Insight",
+      register: "jiwa.insight",
+    },
+  ]);
 
   return (
     <Suspense>
@@ -675,191 +738,20 @@ export const ObjektifDerma = ({
               </Transition>
             ) : null}
             <div className="mb-2 flex w-3/4 flex-col gap-2">
-              <label className="text-sm font-semibold dark:text-neutral-200">
-                Status Lokalis
+              <label className="-mb-1 text-sm font-semibold dark:text-neutral-200">
+                Status Mental
               </label>
-              <div className={cn("grid grid-cols-2 text-base")}>
-                <div className="overflow-hidden rounded bg-slate-100">
-                  <ImageMarker
-                    className="cursor-copy"
-                    src={statusLokSrc}
-                    markers={statusLok}
-                    onAddMarker={(marker) => addMarker(marker)}
-                  />
-                </div>
-                <div className="px-3 text-xs">
-                  <p className="text-sm dark:text-neutral-50">Catatan</p>
-                  <table className="mb-2 mt-2 w-full border border-gray-400 bg-slate-100 dark:bg-gray-700">
-                    <tbody>
-                      {statusLok?.map((val, idx) =>
-                        val.catatan !== undefined ? (
-                          <tr
-                            className="border-b border-b-gray-400 text-left"
-                            key={idx}
-                          >
-                            <td className="w-10 border-r border-r-gray-400 px-2 py-1">
-                              <div className="flex gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => editCatatan(idx)}
-                                >
-                                  <TbEdit
-                                    size="1rem"
-                                    className="text-blue-600"
-                                  />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => delMarker(idx)}
-                                >
-                                  <TbTrash
-                                    size="1rem"
-                                    className="text-amber-600"
-                                  />
-                                </button>
-                              </div>
-                            </td>
-                            <td className="w-5 px-2 py-1 dark:text-neutral-50">
-                              {idx + 1 + "."}
-                            </td>
-                            <td className="border-r border-r-gray-400 px-2 py-1 dark:text-neutral-50">
-                              {val.catatan}
-                            </td>
-                          </tr>
-                        ) : null
-                      )}
-                    </tbody>
-                  </table>
-                  <Transition
-                    show={showCatatan}
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0 -translate-y-1"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-150"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="dark:text-neutral-50">
-                        Catatan untuk No. {idCatatan}
-                      </span>
-                      <InputArea
-                        className="px-2 py-1 text-xs"
-                        value={catatan}
-                        onChange={(e) => setCatatan(e.target.value)}
-                        autoFocus
-                      />
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          className="px-2.5 py-1 text-xs"
-                          color="cyan"
-                          onClick={addCatatan}
-                        >
-                          Simpan
-                        </Button>
-                        <Button
-                          className="px-2.5 py-1 text-xs"
-                          color="red"
-                          onClick={() => {
-                            !isEditCatatan && delMarker(statusLok.length - 1);
-                            setIdCatatan(undefined);
-                            setCatatan("");
-                          }}
-                        >
-                          Batal
-                        </Button>
-                      </div>
-                    </div>
-                  </Transition>
-                </div>
-              </div>
-            </div>
-            <div className="mb-2 flex w-3/4 flex-col">
-              <label className="text-sm font-semibold dark:text-neutral-200">
-                Status Kulit
-              </label>
-              <div>
-                <label className="font-semibold dark:text-neutral-200">
-                  Inspeksi
-                </label>
-                <InputArea
-                  className="px-2 py-1 text-xs"
-                  {...register("rehabmedik.inspeksi")}
-                />
-              </div>
-              <div className="grid grid-flow-row grid-cols-2 gap-2">
-                <div>
+              {listStatusMental.map((val) => (
+                <div key={val.judul} className="text-left">
                   <label className="font-semibold dark:text-neutral-200">
-                    Lokasi
+                    {val.judul}
                   </label>
                   <Input
                     className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.statis")}
+                    {...register(val.register)}
                   />
                 </div>
-                <div>
-                  <label className="font-semibold dark:text-neutral-200">
-                    UKK
-                  </label>
-                  <Input
-                    className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.dinamis")}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold dark:text-neutral-200">
-                    Konfigurasi
-                  </label>
-                  <Input
-                    className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.kognitif")}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold dark:text-neutral-200">
-                    Lainnya
-                  </label>
-                  <Input
-                    className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.kognitif")}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex w-3/4 flex-col">
-              <label className="text-sm font-semibold dark:text-neutral-200">
-                Status Kelamin
-              </label>
-              <div className="flex flex-col gap-1">
-                <div>
-                  <label className="font-semibold dark:text-neutral-200">
-                    Inspeksi
-                  </label>
-                  <InputArea
-                    className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.inspeksi")}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold dark:text-neutral-200">
-                    Inspekulo
-                  </label>
-                  <InputArea
-                    className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.inspeksi")}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold dark:text-neutral-200">
-                    Palpasi
-                  </label>
-                  <InputArea
-                    className="px-2 py-1 text-xs"
-                    {...register("rehabmedik.inspeksi")}
-                  />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -875,5 +767,252 @@ export const ObjektifDerma = ({
         Selanjutnya
       </Button>
     </Suspense>
+  );
+};
+
+export const AsesmenJiwa = ({
+  tabIdx,
+  setTabIdx,
+  panelDivRef,
+  isUpdate,
+}: {
+  tabIdx: number;
+  setTabIdx: React.Dispatch<React.SetStateAction<number>>;
+  panelDivRef: React.RefObject<HTMLElement>;
+  isUpdate: boolean;
+}) => {
+  const {
+    trigger,
+    setValue,
+    watch,
+    register,
+    formState: { errors },
+  } = useFormContext<TAsesmenDok>();
+
+  const headers = new Headers();
+  const [token] = useState(Cookies.get("token"));
+  headers.append("Authorization", token as string);
+  headers.append("Content-Type", "application/json");
+
+  const diagnosis = watch("diagnosis") || [];
+  const [diagText, setDiagText] = useState<string>("");
+  const [icd10Options, setIcd10Options] = useState<MyOptions>([]);
+  const [selIcd10, setSelIcd10] = useState<MyOption | null>(null);
+  const loadIcd10 = async (inputText: string): Promise<MyOptions> => {
+    try {
+      const url = new URL(`${APIURL}/rs/icd/10`);
+      const params = {
+        perPage: 50,
+        keyword: inputText,
+      };
+      url.search = new URLSearchParams(params as any).toString();
+      const resp = await fetch(url, { method: "GET", headers: headers });
+      const json = await resp.json();
+      const options = json?.data?.map((data: any) => ({
+        value: data?.id,
+        label: data?.id + " - " + data?.deskripsi,
+      }));
+      setIcd10Options(options);
+      return options;
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  };
+  useEffect(() => {
+    loadIcd10("");
+  }, []);
+  const addDiagnosis = () => {
+    if (!diagText && !selIcd10)
+      return toast.warning("Isi diagnosis terlebih dahulu!");
+    const newDiag = diagnosis;
+    newDiag.push({
+      diagnosis: diagText,
+      icd10: selIcd10
+        ? { id: selIcd10?.value as string, nama: selIcd10?.label! }
+        : undefined,
+      primer: diagnosis.length === 0,
+    });
+    setValue("diagnosis", [...newDiag]);
+    setDiagText("");
+    setSelIcd10(null);
+    trigger("diagnosis");
+  };
+  const primerDiagnosis = (id: number) => {
+    diagnosis.forEach((_, index) => {
+      diagnosis[index].primer = false;
+    });
+    diagnosis[id].primer = true;
+    setValue("diagnosis", [...diagnosis]);
+  };
+  const delDiagnosis = (id: number) => {
+    if (isUpdate) {
+      if (watch("diagnosis")?.find((_, i) => i === id)?.id) {
+        setValue("deleted.diagnosis", [
+          ...(watch("deleted.diagnosis") || []),
+          watch("diagnosis")?.find((_, i) => i === id)?.id!,
+        ]);
+      }
+    }
+    if (diagnosis.length > 1 && diagnosis[id].primer) {
+      diagnosis[id - 1].primer = true;
+    }
+    setValue(
+      "diagnosis",
+      diagnosis?.filter((_, i) => id !== i)
+    );
+    trigger("diagnosis");
+  };
+
+  return (
+    <>
+      <div className={cn("mb-2 flex flex-col gap-2")}>
+        <div className="pr-1">
+          <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
+            Diagnosis Multiaksial
+          </div>
+          <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center gap-2 rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
+            <div className="flex w-3/4 flex-col gap-2">
+              {["I", "II", "III", "IV", "V"].map((val, idx) => (
+                <div
+                  className={cn(
+                    "relative text-left",
+                    Array.isArray(errors.jiwa?.diagnosis_multiaksial) &&
+                      errors.jiwa?.diagnosis_multiaksial?.at(idx) &&
+                      "rounded-lg bg-red-300 p-2 pt-0 dark:bg-red-500/50"
+                  )}
+                  key={idx}
+                >
+                  <label className="font-semibold dark:text-neutral-200">
+                    Axis {val}
+                  </label>
+                  {Array.isArray(errors.jiwa?.diagnosis_multiaksial) &&
+                  errors.jiwa?.diagnosis_multiaksial?.at(idx) ? (
+                    <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                      {Array.isArray(errors.jiwa?.diagnosis_multiaksial) &&
+                        errors.jiwa?.diagnosis_multiaksial?.at(idx)?.message}
+                    </p>
+                  ) : null}
+                  <Input
+                    className="px-2 py-1 text-xs"
+                    {...register(`jiwa.diagnosis_multiaksial.${idx}`)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="pr-1">
+          <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
+            Diagnosis/Masalah Medis
+          </div>
+          <div className="flex h-[calc(100%-32px)] flex-col items-center rounded-b bg-slate-200 p-2 pb-4 text-left text-xs shadow-md dark:bg-gray-800">
+            <div
+              className={cn(
+                "relative w-full",
+                errors.diagnosis && "rounded-lg bg-red-300 dark:bg-red-500/50"
+              )}
+            >
+              <small className="text-sky-700 dark:text-sky-400">
+                Catatan: Klik (+) untuk menambah item
+              </small>
+              {errors.diagnosis ? (
+                <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                  harus diisi
+                </p>
+              ) : null}
+              <div className="flex">
+                <div className="grid w-full grid-cols-2 justify-center gap-2">
+                  <InputArea
+                    className="px-2 py-1 text-xs"
+                    placeholder="Diagnosis/Masalah Medis"
+                    value={diagText}
+                    onChange={(e) => setDiagText(e.target.value)}
+                  />
+                  <AsyncSelectInput
+                    loadOptions={loadIcd10}
+                    defaultOptions={icd10Options}
+                    placeholder="Pilih ICD 10"
+                    value={selIcd10}
+                    onChange={(option: MyOption | null) => setSelIcd10(option)}
+                    maxMenuHeight={200}
+                  />
+                </div>
+                <button type="button" className="mx-2" onClick={addDiagnosis}>
+                  <RiAddCircleLine
+                    size="1.5rem"
+                    className="text-blue-600 dark:text-blue-400"
+                  />
+                </button>
+              </div>
+            </div>
+            <Transition
+              show={diagnosis?.length !== 0}
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 -translate-y-1"
+              enterTo="opacity-100"
+              leave="ease-in duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className={cn("mt-2 w-full overflow-hidden rounded shadow")}>
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="divide-x divide-slate-50 bg-slate-100 dark:bg-gray-700">
+                      <td className={cn("px-4 py-2")}>Diagnosis</td>
+                      <td className={cn("px-4 py-2")}>ICD 10</td>
+                      <td className={cn("px-4 py-2")}>Primer</td>
+                      <td className={cn("px-4 py-2")}>*</td>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {diagnosis?.map((diag, idx) => (
+                      <tr
+                        className="bg-white hover:text-sky-600 dark:bg-slate-900"
+                        key={idx}
+                      >
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          {diag.diagnosis}
+                        </td>
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          {diag?.icd10?.nama}
+                        </td>
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={diag.primer}
+                            onChange={() => primerDiagnosis(idx)}
+                            className="accent-slate-500"
+                          />
+                        </td>
+                        <td className="text-center">
+                          <RiDeleteBin5Line
+                            className="inline text-amber-500 hover:cursor-pointer"
+                            size="1.2rem"
+                            onClick={() => delDiagnosis(idx)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Transition>
+          </div>
+        </div>
+      </div>
+      <Button
+        onClick={async () => {
+          const cek = await trigger("diagnosis");
+          if (cek) {
+            setTabIdx(3);
+            panelDivRef.current?.scrollTo(0, 0);
+          }
+        }}
+      >
+        Selanjutnya
+      </Button>
+    </>
   );
 };
