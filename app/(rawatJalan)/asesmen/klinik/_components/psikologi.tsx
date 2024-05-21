@@ -1,65 +1,20 @@
-import { Barang, KFAPOA, OptionBarang } from "@/app/(farmasi)/schema";
 import css from "@/assets/css/scrollbar.module.css";
-import { ICD9 } from "@/app/(referensi)/list-icd/page";
-import { Button } from "@/components/button";
 import { Input, InputArea, LabelButton } from "@/components/form";
-import ImageMarker, { Marker } from "@/components/image-marker";
-import {
-  AsyncSelectInput,
-  MyOption,
-  MyOptions,
-  SelectInput,
-} from "@/components/select";
-import { APIURL } from "@/lib/connection";
-import { cn } from "@/lib/utils";
-import { Transition } from "@headlessui/react";
+import { cn, getAge } from "@/lib/utils";
 import Cookies from "js-cookie";
-import { StaticImageData } from "next/image";
-import { useSearchParams } from "next/navigation";
-import {
-  Fragment,
-  Suspense,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
-import { Controller, useFormContext } from "react-hook-form";
-import { FaFileMedical } from "react-icons/fa6";
-import { GiPestleMortar } from "react-icons/gi";
-import {
-  RiAddCircleLine,
-  RiBodyScanFill,
-  RiCheckLine,
-  RiDeleteBin5Line,
-  RiFlaskFill,
-} from "react-icons/ri";
-import { TbEdit, TbTrash } from "react-icons/tb";
-import { toast } from "react-toastify";
-import { HasilSkrining } from "../../_components/skrining-perawat";
-import {
-  KlinikAsesmen,
-  RacikAction,
-  RacikState,
-  TAsesmenDok,
-  THasilDokter,
-  THasilPerawat,
-  listPenyakit,
-} from "../../schema";
-import {
-  PermintLabDialog,
-  PermintRadDialog,
-  tempPermintaan,
-} from "./permintaan-penunjang";
-import { RacikanDialog, ResepDokter } from "./resep-dokter";
+import { useFormContext } from "react-hook-form";
+import { TAsesmenDok } from "../../schema";
+import { useEffect, useState } from "react";
 
-export default function AsesmenPsikologi({}: //   hasilPerawat,
+export default function AsesmenPsikologi({
+  tanggal_lahir,
+}: //   hasilPerawat,
 //   isUpdate,
 //   statusLokSrc,
 //   setTabIdx,
 //   panelDivRef,
 {
+  tanggal_lahir: string | undefined;
   //   hasilPerawat: THasilPerawat | undefined;
   //   isUpdate?: boolean;
   //   statusLokSrc: StaticImageData;
@@ -70,6 +25,12 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
   const token = Cookies.get("token");
   headers.append("Authorization", token as string);
   headers.append("Content-Type", "application/json");
+
+  useEffect(() => {
+    if (!tanggal_lahir) return;
+    getAge(new Date(tanggal_lahir)) <= 12 && setIsAnak(true);
+  }, [tanggal_lahir]);
+  const [isAnak, setIsAnak] = useState<boolean>(false);
 
   const {
     register,
@@ -89,73 +50,188 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
         )}
       >
         <div className={cn("mb-2 flex flex-col gap-2")}>
-          <div className="pr-1">
-            <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
-              Riwayat Penyakit
-            </div>
-            <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center gap-2 rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
-              <div
-                className={cn(
-                  "relative w-6/12",
-                  errors.anamnesis?.keluhan &&
-                    "rounded-lg bg-red-300 dark:bg-red-500/50"
-                )}
-              >
-                <label className="py-2 font-semibold dark:text-neutral-200">
-                  Keluhan Fisik
-                </label>
-                {errors.anamnesis?.keluhan ? (
-                  <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
-                    {errors.anamnesis.keluhan.message}
-                  </p>
-                ) : null}
-                <InputArea
-                  className="-mb-1.5 px-2 py-1 text-xs"
-                  // {...register("anamnesis.keluhan")}
-                />
+          {!isAnak ? (
+            <div className="pr-1">
+              <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
+                Riwayat Penyakit
               </div>
-              <div
-                className={cn(
-                  "relative w-6/12",
-                  errors.anamnesis?.keluhan &&
-                    "rounded-lg bg-red-300 dark:bg-red-500/50"
-                )}
-              >
-                <label className="py-2 font-semibold dark:text-neutral-200">
-                  Keluhan Psikologis
-                </label>
-                {errors.anamnesis?.keluhan ? (
-                  <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
-                    {errors.anamnesis.keluhan.message}
-                  </p>
-                ) : null}
-                <InputArea
-                  className="-mb-1.5 px-2 py-1 text-xs"
-                  // {...register("anamnesis.keluhan")}
-                />
-              </div>
-              <div
-                className={cn(
-                  "relative w-6/12"
-                  // errors.anamnesis?.keluhan &&
-                  //   "rounded-lg bg-red-300 dark:bg-red-500/50"
-                )}
-              >
-                <label className="py-2 font-semibold dark:text-neutral-200">
-                  Diagnosis Dokter
-                </label>
-                {/* {errors.anamnesis?.keluhan ? (
+              <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center gap-2 rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
+                <div
+                  className={cn(
+                    "relative w-6/12",
+                    errors.anamnesis?.keluhan &&
+                      "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Keluhan Fisik
+                  </label>
+                  {errors.anamnesis?.keluhan ? (
+                    <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                      {errors.anamnesis.keluhan.message}
+                    </p>
+                  ) : null}
+                  <InputArea
+                    className="-mb-1.5 px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "relative w-6/12",
+                    errors.anamnesis?.keluhan &&
+                      "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Keluhan Psikologis
+                  </label>
+                  {errors.anamnesis?.keluhan ? (
+                    <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                      {errors.anamnesis.keluhan.message}
+                    </p>
+                  ) : null}
+                  <InputArea
+                    className="-mb-1.5 px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "relative w-6/12"
+                    // errors.anamnesis?.keluhan &&
+                    //   "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Diagnosis Dokter
+                  </label>
+                  {/* {errors.anamnesis?.keluhan ? (
                 <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
                   {errors.anamnesis.keluhan.message}
                 </p>
               ) : null} */}
-                <InputArea
-                  className="-mb-1.5 px-2 py-1 text-xs"
-                  // {...register("anamnesis.keluhan")}
-                />
+                  <InputArea
+                    className="-mb-1.5 px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="pr-1">
+              <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
+                Riwayat Kesehatan
+              </div>
+              <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center gap-2 rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
+                <div>
+                  <label className="font-semibold dark:text-neutral-200">
+                    Lahir
+                  </label>
+                  <div className="mb-1">
+                    {[
+                      "a. Normal",
+                      "b. Operasi",
+                      "c. Berat Badan Kurang",
+                      "d. Premature",
+                    ].map((val, idx) => (
+                      <LabelButton
+                        type="radio"
+                        id={"orientasi-" + (idx + 1)}
+                        value={val}
+                        key={idx}
+                        className="py-0.5 font-semibold"
+                        // {...register("kajian.soseksk.0")}
+                      >
+                        {val}
+                      </LabelButton>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  className={cn(
+                    "relative w-6/12"
+                    // errors.anamnesis?.keluhan &&
+                    //   "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Penyakit yang pernah/sedang diderita (Dx Dokter)
+                  </label>
+                  {/* {errors.anamnesis?.keluhan ? (
+                  <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                    {errors.anamnesis.keluhan.message}
+                  </p>
+                ) : null} */}
+                  <Input
+                    className="px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "relative w-6/12"
+                    // errors.anamnesis?.keluhan &&
+                    //   "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Perilaku anak yang bermasalah
+                  </label>
+                  {/* {errors.anamnesis?.keluhan ? (
+                  <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                    {errors.anamnesis.keluhan.message}
+                  </p>
+                ) : null} */}
+                  <Input
+                    className="px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "relative w-6/12"
+                    // errors.anamnesis?.keluhan &&
+                    //   "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Perilaku anak yang menyenangkan
+                  </label>
+                  {/* {errors.anamnesis?.keluhan ? (
+                  <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                    {errors.anamnesis.keluhan.message}
+                  </p>
+                ) : null} */}
+                  <Input
+                    className="px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "relative w-6/12"
+                    // errors.anamnesis?.keluhan &&
+                    //   "rounded-lg bg-red-300 dark:bg-red-500/50"
+                  )}
+                >
+                  <label className="py-2 font-semibold dark:text-neutral-200">
+                    Kegiatan yang disukai anak
+                  </label>
+                  {/* {errors.anamnesis?.keluhan ? (
+                  <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
+                    {errors.anamnesis.keluhan.message}
+                  </p>
+                ) : null} */}
+                  <Input
+                    className="px-2 py-1 text-xs"
+                    // {...register("anamnesis.keluhan")}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="pr-1">
             <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
               Asesmen
@@ -229,7 +305,7 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                         Roman Muka
                       </label>
                       <div className="mb-2">
-                        {["Murung", "Wajar", "Euphoria"].map((val, idx) => (
+                        {["Wajar", "Murung", "Euphoria"].map((val, idx) => (
                           <LabelButton
                             type="radio"
                             id={"muka-" + (idx + 1)}
@@ -265,7 +341,7 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                         Gangguan Persepsi
                       </label>
                       <div className="mb-2">
-                        {["Halusinasi", "Delusi", "Tidak Ada"].map(
+                        {["Tidak Ada", "Halusinasi", "Delusi"].map(
                           (val, idx) => (
                             <LabelButton
                               type="radio"
@@ -309,12 +385,13 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                               </LabelButton>
                             ))}
                           </div>
+                          <Input className="px-2 py-1 pl-3 text-xs" />
                         </div>
                         <div>
                           <label className="font-semibold dark:text-neutral-200">
                             Konsentrasi
                           </label>
-                          <div>
+                          <div className="mb-1">
                             {["+", "-"].map((val, idx) => (
                               <LabelButton
                                 type="radio"
@@ -328,12 +405,13 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                               </LabelButton>
                             ))}
                           </div>
+                          <Input className="px-2 py-1 pl-3 text-xs" />
                         </div>
                         <div>
                           <label className="font-semibold dark:text-neutral-200">
                             Orientasi
                           </label>
-                          <div>
+                          <div className="mb-1">
                             {["+", "-"].map((val, idx) => (
                               <LabelButton
                                 type="radio"
@@ -347,12 +425,13 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                               </LabelButton>
                             ))}
                           </div>
+                          <Input className="px-2 py-1 pl-3 text-xs" />
                         </div>
                         <div>
                           <label className="font-semibold dark:text-neutral-200">
                             Kemampuan Verbal
                           </label>
-                          <div>
+                          <div className="mb-1">
                             {["+", "-"].map((val, idx) => (
                               <LabelButton
                                 type="radio"
@@ -366,6 +445,7 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                               </LabelButton>
                             ))}
                           </div>
+                          <Input className="px-2 py-1 pl-3 text-xs" />
                         </div>
                       </div>
                     </div>
@@ -393,8 +473,8 @@ export default function AsesmenPsikologi({}: //   hasilPerawat,
                       </label>
                       <div className="mb-1">
                         {[
-                          "Ada Hambatan",
                           "Normal",
+                          "Ada Hambatan",
                           "Agresif",
                           "Menarik Diri",
                         ].map((val, idx) => (

@@ -270,6 +270,28 @@ export type DetailPesanan = {
   id_sp: string;
 };
 
+export type PermohonanMutasi = {
+  id: number;
+  tanggal: string;
+  keterangan: string;
+  id_depo: number;
+  id_ref: number;
+  id_jenis: number;
+  user: string;
+  created_at: string;
+  depo: string;
+  jenis: string;
+};
+
+export type DetailMutasi = {
+  id: string;
+  id_poa: number;
+  jumlah: number;
+  id_transaksi: number;
+  status: number;
+  nama: string;
+};
+
 export type StokBarangDepo = {
   id: number;
   id_depo: number;

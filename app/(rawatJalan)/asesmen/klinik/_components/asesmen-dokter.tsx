@@ -68,6 +68,8 @@ export default function AsesmenDokter({
   const searchParams = useSearchParams();
   const qlist = searchParams.get("qlist")?.split("-");
   const id = searchParams.get("id");
+  const kode = searchParams.get("kode");
+  const grupId = parseInt(Cookies.get("grupId")!);
   const proses = parseInt(searchParams.get("proses")!);
 
   const [dataPeserta, setDataPeserta] = useState<DataPesertaBPJS>();
@@ -724,7 +726,9 @@ export default function AsesmenDokter({
               </Tab.Panels>
             </Tab.Group>
           ) : (
-            <AsesmenPsikologi />
+            <AsesmenPsikologi
+              tanggal_lahir={data?.tanggal_lahir as string | undefined}
+            />
           )}
           <Tooltip.Provider delayDuration={300} disableHoverableContent>
             <Tooltip.Root>
@@ -886,8 +890,8 @@ export default function AsesmenDokter({
                           href={{
                             pathname: "/list-pasien",
                             query: {
-                              user: "Dokter",
-                              id: id?.replaceAll(".", "_"),
+                              user: grupId != 1 ? "Dokter" : "Dewa",
+                              id: kode?.replaceAll(".", "_"),
                             },
                           }}
                           onClick={() => setTutupAsesmen(false)}

@@ -651,6 +651,67 @@ export const ObjektifWicara = ({
             </div>
           </div>
         </div>
+        <div className="pr-1">
+          <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
+            Pemeriksaan Khusus
+          </div>
+          <div className="h-[calc(100%-32px)] rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
+            <div className="mx-auto grid w-1/4 grid-flow-col grid-rows-2 gap-2 *:flex *:items-center *:gap-1">
+              <div>
+                <input
+                  type="checkbox"
+                  id="khusus-tadir"
+                  //   {...register("kajian.soseksk.0")}
+                />
+                <label
+                  className="cursor-pointer py-2 font-semibold dark:text-neutral-200"
+                  htmlFor="khusus-tadir"
+                >
+                  Tes TADIR
+                </label>
+              </div>
+              <div>
+                <input
+                  type="checkbox"
+                  id="khusus-tedyva"
+                  //   {...register("kajian.soseksk.0")}
+                />
+                <label
+                  className="cursor-pointer py-2 font-semibold dark:text-neutral-200"
+                  htmlFor="khusus-tedyva"
+                >
+                  Tes TEDYVA
+                </label>
+              </div>
+              <div>
+                <input
+                  type="checkbox"
+                  id="khusus-pls"
+                  //   {...register("kajian.soseksk.0")}
+                />
+                <label
+                  className="cursor-pointer py-2 font-semibold dark:text-neutral-200"
+                  htmlFor="khusus-pls"
+                >
+                  PLS
+                </label>
+              </div>
+              <div>
+                <input
+                  type="checkbox"
+                  id="khusus-lainnya"
+                  //   {...register("kajian.soseksk.0")}
+                />
+                <label
+                  className="cursor-pointer py-2 font-semibold dark:text-neutral-200"
+                  htmlFor="khusus-lainnya"
+                >
+                  Lainnya
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <Button
         onClick={async () => {
@@ -721,6 +782,7 @@ export const AsesmenWicara = ({
                       //     errors.fisio?.diagnosis?.at(0) &&
                       //     "rounded-lg bg-red-300 p-2 pt-0 dark:bg-red-500/50"
                     )}
+                    key={val}
                   >
                     <label className="font-semibold dark:text-neutral-200">
                       {val}

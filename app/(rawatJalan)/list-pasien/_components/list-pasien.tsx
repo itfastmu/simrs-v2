@@ -903,7 +903,7 @@ export default function ListPasienAsesmen({
                               >
                                 <Tooltip.Root>
                                   <Tooltip.Trigger
-                                    disabled={parseInt(data.id_proses) < 5}
+                                    // disabled={parseInt(data.id_proses) < 5}
                                     onClick={() =>
                                       billingDispatch({
                                         type: "setBilling",

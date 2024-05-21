@@ -268,6 +268,12 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
             grup: [1, 6, 10],
           },
           {
+            judul: "Permohonan Mutasi",
+            icon: IoDocumentTextOutline,
+            href: "/permohonan-mutasi",
+            grup: [1, 6],
+          },
+          {
             judul: "Penerimaan Barang",
             icon: FaTruckLoading,
             href: "/penerimaan-barang",
