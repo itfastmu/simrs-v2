@@ -5,7 +5,7 @@ import FormSKDPDialog from "@/app/(pendaftaran)/list-skdp/_components/skdp";
 import { SKDP } from "@/app/(pendaftaran)/list-skdp/page";
 import { KunjunganRajal } from "@/app/(pendaftaran)/schema";
 import css from "@/assets/css/scrollbar.module.css";
-import { Input } from "@/components/form";
+import { Input, InputArea } from "@/components/form";
 import {
   InputSearch,
   Pagination,
@@ -19,7 +19,7 @@ import { cn, getAgeThn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
+import React, {
   Suspense,
   useCallback,
   useDeferredValue,
@@ -41,6 +41,9 @@ import SkriningPerawatDialog, {
 } from "../../asesmen/_components/skrining-perawat";
 import { asuransi } from "../../asesmen/schema";
 import BillingDialog from "./billing";
+import { Dialog, Transition } from "@headlessui/react";
+import { Button } from "@/components/button";
+import { LinkButton } from "@/components/button";
 
 export type BillingState = {
   modal: boolean;
@@ -154,6 +157,29 @@ export default function ListPasienAsesmen({
     }
   };
   const [skdp, skdpDispatch] = useReducer(skdpActs, skdpState);
+
+  type PsikologiDialogState = {
+    modal: boolean;
+    data?: KunjunganRajal;
+  };
+  type PsikologiDialogAction = PsikologiDialogState;
+  const psikologiDialogState = {
+    modal: false,
+    data: undefined,
+  };
+  const psikologiDialogActs = (
+    state: PsikologiDialogState,
+    action: PsikologiDialogAction
+  ) => {
+    return {
+      ...action,
+    };
+  };
+  const [psikologiDialog, psikologiDialogDispatch] = useReducer(
+    psikologiDialogActs,
+    psikologiDialogState
+  );
+  const [psikotes, setPsikotes] = useState<boolean>(false);
 
   const metaState: Meta = {
     page: 1,
@@ -821,7 +847,7 @@ export default function ListPasienAsesmen({
                           >
                             <Tooltip.Root>
                               <Tooltip.Trigger
-                                className="relative disabled:cursor-not-allowed disabled:opacity-50"
+                                className="relative flex disabled:cursor-not-allowed disabled:opacity-50"
                                 disabled={
                                   grup === "Perawat Rajal" &&
                                   parseInt(data.id_proses) < 2
@@ -841,6 +867,23 @@ export default function ListPasienAsesmen({
                                       )}
                                     />
                                   </>
+                                ) : data.klinik === "Klinik Mata" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      psikologiDialogDispatch({
+                                        modal: true,
+                                        data: data,
+                                      })
+                                    }
+                                  >
+                                    <RiStethoscopeLine
+                                      size="1.5rem"
+                                      className={cn(
+                                        "text-cyan-600 hover:text-cyan-700 active:text-cyan-800"
+                                      )}
+                                    />
+                                  </button>
                                 ) : (
                                   <Link
                                     className="relative"
@@ -1009,6 +1052,135 @@ export default function ListPasienAsesmen({
         ubahDispatch={skdpDispatch}
         loadData={loadData}
       />
+
+      <Transition show={psikologiDialog.modal} as={React.Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-[1001]"
+          onClose={() =>
+            psikologiDialogDispatch({ ...psikologiDialog, modal: false })
+          }
+        >
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-50"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 translate-x-5 scale-95"
+              >
+                <Dialog.Panel
+                  className={cn(
+                    "w-full max-w-md transform overflow-y-auto rounded bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700",
+                    "flex flex-col gap-3",
+                    css.scrollbar
+                  )}
+                >
+                  <Dialog.Title
+                    as="p"
+                    className="font-medium leading-6 text-gray-900"
+                  >
+                    Pemeriksaan Psikologi
+                  </Dialog.Title>
+                  <Transition
+                    show={!psikotes}
+                    as={React.Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 -translate-y-1"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-150"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0 -translate-y-1"
+                  >
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        className="relative"
+                        href={{
+                          pathname: `/asesmen/klinik/${psikologiDialog.data?.id_kunjungan}`,
+                          query: {
+                            id: psikologiDialog.data?.id_pasien,
+                            // klinik: psikologiDialog.data?.klinik,
+                            klinik: "Klinik Psikologi",
+                            kode_klinik: psikologiDialog.data?.kode_klinik,
+                            dokter: psikologiDialog.data?.dokter,
+                            qlist:
+                              filterKlinik +
+                              "-" +
+                              filterDokter +
+                              "-" +
+                              filterMulai,
+                            kode: psikologiDialog.data?.id_pegawai,
+                            proses: psikologiDialog.data?.id_proses,
+                            grup: grup,
+                          },
+                        }}
+                        passHref
+                        legacyBehavior
+                      >
+                        <LinkButton color="cyan">Non Psikotes</LinkButton>
+                        {/* {((grup === "Dokter" || grup === "Dewa") &&
+                        parseInt(data.id_proses) > 4) ||
+                      (grup === "Perawat Rajal" &&
+                        parseInt(data.id_proses) > 3) ? (
+                        <FaCheck
+                          className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
+                          aria-hidden="true"
+                        />
+                      ) : null} */}
+                      </Link>
+                      <Button color="green" onClick={() => setPsikotes(true)}>
+                        Psikotes
+                      </Button>
+                    </div>
+                  </Transition>
+
+                  <Transition
+                    show={psikotes}
+                    as={React.Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 -translate-y-1"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-150"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0 -translate-y-1"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <InputArea className="" placeholder="Hasil Psikotes" />
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => {
+                            // BUAT SIMPAN PSIKOTES
+                            psikologiDialogDispatch({ modal: false });
+                            setPsikotes(false);
+                            toast.success("Berhasil disimpan");
+                          }}
+                        >
+                          Simpan
+                        </Button>
+                      </div>
+                    </div>
+                  </Transition>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </Suspense>
   );
 }

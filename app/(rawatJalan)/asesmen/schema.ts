@@ -924,3 +924,108 @@ export type DiagnosisKeperawatan = {
   jenis: number;
   status: number;
 };
+
+export const AsesmenPsiSchema = z.object({
+  id_kunjungan: z.string(),
+  penyakit: z.object({
+    keluhan_fisik: z.string(),
+    keluhan_psikologis: z.string(),
+    diagnosis_dokter: z.string(),
+  }),
+  observasi: z.object({
+    penampilan: z.string().optional(),
+    sikap: z.string().optional(),
+    afek: z.string().optional(),
+    muka: z.string().optional(),
+    pikir: z.string().optional(),
+    persepsi: z.string().optional(),
+    emosi: z.string().optional(),
+    perilaku: z.string().optional(),
+  }),
+  kognitif: z.object({
+    memori: z.boolean(),
+    memori_ket: z.string().optional(),
+    konsentrasi: z.boolean(),
+    konsentrasi_ket: z.string().optional(),
+    orientasi: z.boolean(),
+    orientasi_ket: z.string().optional(),
+    verbal: z.boolean(),
+    verbal_ket: z.string().optional(),
+  }),
+  psikotes: z.object({
+    tes: z.string().array().length(5),
+    hasil: z.string().optional(),
+  }),
+  simpton: z.string().array(),
+  dinamika: z.string(),
+  diagnosis: z
+    .object({
+      id: z.number().optional(),
+      diagnosis: z.string(),
+      icd10: z
+        .object({
+          id: z.string(),
+          nama: z.string(),
+        })
+        .nullish(),
+      primer: z.boolean(),
+    })
+    .array()
+    .min(1),
+  diagnosis_psikologi: z.string(),
+  rencana: z.string(),
+  intervensi: z.string(),
+  deleted: z
+    .object({
+      diagnosis: z.number().array().optional(),
+    })
+    .optional(),
+});
+export type TAsesmenPsi = z.infer<typeof AsesmenPsiSchema>;
+
+export type THasilPsikolog = {
+  id_kunjungan: string;
+  penyakit: {
+    keluhan_fisik: string;
+    keluhan_psikologis: string;
+    diagnosis_dokter: string;
+  };
+  observasi: {
+    penampilan: string;
+    sikap: string;
+    afek: string;
+    muka: string;
+    pikir: string;
+    persepsi: string;
+    emosi: string;
+    perilaku: string;
+  };
+  kognitif: {
+    memori: boolean;
+    memori_ket: string;
+    konsentrasi: boolean;
+    konsentrasi_ket: string;
+    orientasi: boolean;
+    orientasi_ket: string;
+    verbal: boolean;
+    verbal_ket: string;
+  };
+  psikotes: {
+    tes: string[];
+    hasil: string;
+  };
+  simpton: string[];
+  dinamika: string;
+  diagnosis: {
+    id: number;
+    icd10: {
+      id: string;
+      nama: string;
+    };
+    diagnosis: string;
+    primer: boolean;
+  }[];
+  diagnosis_psikologi: string;
+  rencana: string;
+  intervensi: string;
+};

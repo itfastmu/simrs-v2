@@ -8,6 +8,7 @@ import { TData } from "../../schema";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
+import AsesmenPsikologi from "../_components/asesmen-psikologi";
 
 export default function AsesmenKlinik() {
   const headers = new Headers();
@@ -69,6 +70,8 @@ export default function AsesmenKlinik() {
     <Suspense>
       {userGroup === "Perawat Rajal" ? (
         <AsesmenPerawat data={data} klinik={klinik} />
+      ) : klinik.isPsi ? (
+        <AsesmenPsikologi data={data} klinik={klinik} />
       ) : (
         <AsesmenDokter data={data} klinik={klinik} />
       )}
