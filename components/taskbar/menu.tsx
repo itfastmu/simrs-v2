@@ -49,7 +49,7 @@ import { Url } from "next/dist/shared/lib/router/router";
 import { CgMenuGridO } from "react-icons/cg";
 import { HiOutlineDocumentPlus, HiOutlineDocumentText } from "react-icons/hi2";
 import { FaBookMedical, FaTruckLoading } from "react-icons/fa";
-import { FaBoxOpen } from "react-icons/fa6";
+import { FaBoxOpen, FaBuildingCircleArrowRight } from "react-icons/fa6";
 
 export default function MenuComponent() {
   const [isShow, setShow] = useState(false);
@@ -292,10 +292,29 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         ],
       },
       {
-        judul: "Master Tarif",
-        href: "/master-tarif",
+        judul: "Keuangan",
         icon: BsCashStack,
         grup: [1],
+        child: [
+          {
+            judul: "Master Tarif",
+            href: "/master-tarif",
+            icon: BsCashStack,
+            grup: [1],
+          },
+          {
+            judul: "Setting Harga Obat",
+            href: "/harga-obat",
+            icon: GiMedicines,
+            grup: [1],
+          },
+          {
+            judul: "List Produsen",
+            href: "/list-produsen",
+            icon: FaBuildingCircleArrowRight,
+            grup: [1],
+          },
+        ],
       },
       {
         judul: "Billing Pasien",

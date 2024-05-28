@@ -3,7 +3,12 @@
 import css from "@/assets/css/scrollbar.module.css";
 import { Button } from "@/components/button";
 import { Input } from "@/components/form";
-import { AsyncSelectInput, MyOption, MyOptions } from "@/components/select";
+import {
+  AsyncSelectInput,
+  MyOption,
+  MyOptions,
+  SelectInput,
+} from "@/components/select";
 import {
   InputSearch,
   Pagination,
@@ -132,16 +137,22 @@ export default function PermohonanMutasi() {
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
       setDataList(json?.data);
-      metaDispatch({
-        type: "setMeta",
-        setMeta: {
-          page: parseInt(json?.page.page),
-          perPage: parseInt(json?.page.perPage),
-          lastPage: parseInt(json?.page.lastPage),
-          total: parseInt(json?.page.total),
-        },
-      });
       setIsMutating(false);
+      /* HIDUPKAN PAGINATION PAGE LANJUTAN */
+      // metaDispatch({
+      //   type: "setMeta",
+      //   setMeta: {
+      //     page: parseInt(json?.page.page),
+      //     perPage: parseInt(json?.page.perPage),
+      //     lastPage: parseInt(json?.page.lastPage),
+      //     total: parseInt(json?.page.total),
+      //   },
+      // });
+      /* KOMEN SETELAH META JALAN */
+      metaDispatch({
+        type: "total",
+        total: 1,
+      });
     } catch (err) {
       const error = err as Error;
       metaDispatch({
@@ -277,7 +288,7 @@ export default function PermohonanMutasi() {
                       key={i}
                     >
                       <td className="h-[36.5px]">
-                        <p className="mx-auto h-6 w-44 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-6 w-16 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <p className="mx-auto h-5 w-24 rounded bg-slate-200 dark:bg-slate-400"></p>
@@ -289,7 +300,7 @@ export default function PermohonanMutasi() {
                         <p className="mx-auto h-5 w-56 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td> */}
                       <td>
-                        <p className="mx-auto h-4 w-56 rounded bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-4 w-32 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <div className="flex flex-nowrap items-center justify-center gap-2  ">
@@ -314,7 +325,7 @@ export default function PermohonanMutasi() {
                       key={i}
                     >
                       <td className="border-b border-slate-200 py-1.5 dark:border-gray-700">
-                        <p className="mx-auto w-44 rounded-sm bg-slate-700 py-1 text-center text-xs font-medium tracking-wider text-slate-100">
+                        <p className="mx-auto w-16 rounded-sm bg-slate-700 py-1 text-center text-xs font-medium tracking-wider text-slate-100">
                           {data.id}
                         </p>
                       </td>
@@ -628,40 +639,11 @@ const PermohonanDialog = ({
     }
   };
 
-  //   const [depoOptions, setDepoOptions] = useState<MyOptions>([]);
-  //   const loadDepo = async (inputText: string) => {
-  //     try {
-  //       const url = new URL(`${APIURL}/rs/depo`);
-  //       const params = {
-  //         perPage: 50,
-  //         keyword: inputText,
-  //       };
-  //       url.search = new URLSearchParams(params as any).toString();
-  //       const resp = await fetch(url, { method: "GET", headers: headers });
-  //       const json = await resp.json();
-  //       const data =
-  //         json?.data?.map((data: Depo) => {
-  //           const option: MyOption = {
-  //             value: data.id,
-  //             label: data.nama,
-  //           };
-  //           return option;
-  //         }) || [];
-  //       setDepoOptions(data);
-  //       return data;
-  //     } catch (error) {
-  //       console.error(error);
-  //       return [];
-  //     }
-  //   };
-
-  const [permohonan, setPermohonan] = useState<
-    PermohonanMutasi & { total: string | null; detail: DetailMutasi[] }
-  >();
+  const [permohonan, setPermohonan] = useState<DetailMutasi[]>();
   const loadPermohonan = async () => {
     try {
       const url = new URL(
-        `${APIURL}/rs/farmasi/mutasi/permohonan/${lihat.data?.id}`
+        `${APIURL}/rs/farmasi/mutasi/permohonan/detail/${lihat.data?.id}`
       );
       const resp = await fetch(url, { method: "GET", headers: headers });
       const json = await resp.json();
@@ -671,13 +653,19 @@ const PermohonanDialog = ({
     }
   };
   useEffect(() => {
-    if (!permohonan) return;
-    setValue("id_depo", permohonan.id_ref);
-    setValue("id_ref", permohonan.id_depo);
-    setValue("keterangan", permohonan.keterangan);
+    if (!permohonan || !lihat.data) return;
+    setValue("id_depo", lihat.data?.id_ref);
+    setValue("id_ref", lihat.data?.id_depo);
+    setValue("keterangan", lihat.data?.keterangan);
+    setValue(
+      "tanggal",
+      lihat.data?.tanggal
+        ? new Date(lihat.data?.tanggal).toLocaleDateString("fr-CA")
+        : ""
+    );
     setValue(
       "detail",
-      (permohonan.detail || []).map((val) => ({
+      (permohonan || []).map((val) => ({
         id: val.id,
         id_poa: val.id_poa,
         nama: val.nama,
@@ -723,7 +711,13 @@ const PermohonanDialog = ({
       const post = await fetch(`${APIURL}/rs/farmasi/mutasi/permohonan`, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          detail: watch("detail").map((val) => {
+            const { nama, ...data } = val;
+            return data;
+          }),
+        }),
       });
       const resp = await post.json();
       if (resp.status !== "Created") throw new Error(resp.message);
@@ -744,7 +738,12 @@ const PermohonanDialog = ({
       const resp = await fetch(url, {
         method: "PUT",
         headers: headers,
-        body: JSON.stringify({ detail: watch("detail") }),
+        body: JSON.stringify({
+          detail: watch("detail").map((val) => {
+            const { nama, ...data } = val;
+            return data;
+          }),
+        }),
       });
       const json = await resp.json();
       if (json.status !== "Updated") throw new Error(json.message);
@@ -801,7 +800,48 @@ const PermohonanDialog = ({
                   className="mt-2 flex flex-col gap-3"
                 >
                   <div className="grid grid-cols-2 gap-2">
-                    {/* <div
+                    <div
+                      className={cn(
+                        errors.keterangan && "rounded-lg bg-red-100"
+                      )}
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          Keterangan
+                        </label>
+                        {errors.keterangan ? (
+                          <p className="pr-0.5 text-xs text-red-500">
+                            {errors.keterangan.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Input
+                        disabled={lihat.modal}
+                        {...register("keterangan")}
+                      />
+                    </div>
+
+                    <div
+                      className={cn(errors.tanggal && "rounded-lg bg-red-100")}
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          Tanggal
+                        </label>
+                        {errors.tanggal ? (
+                          <p className="pr-0.5 text-xs text-red-500">
+                            {errors.tanggal.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Input
+                        disabled={lihat.modal}
+                        type="date"
+                        {...register("tanggal")}
+                      />
+                    </div>
+
+                    <div
                       className={cn(errors.id_depo && "rounded-lg bg-red-100")}
                     >
                       <div className="flex items-baseline justify-between">
@@ -830,9 +870,9 @@ const PermohonanDialog = ({
                           />
                         )}
                       />
-                    </div> */}
+                    </div>
 
-                    {/* <div
+                    <div
                       className={cn(errors.id_ref && "rounded-lg bg-red-100")}
                     >
                       <div className="flex items-baseline justify-between">
@@ -861,129 +901,7 @@ const PermohonanDialog = ({
                           />
                         )}
                       />
-                    </div> */}
-                    <div
-                      className={cn(errors.id_depo && "rounded-lg bg-red-100")}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Depo
-                        </label>
-                        {errors.id_depo ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.id_depo.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      <Controller
-                        control={control}
-                        name="id_depo"
-                        render={({ field: { onChange, value } }) => (
-                          <AsyncSelectInput
-                            isDisabled={lihat.modal}
-                            cacheOptions
-                            loadOptions={loadDepo}
-                            defaultOptions={depoOptions}
-                            value={depoOptions.find(
-                              (val) => val.value === value
-                            )}
-                            onChange={(option: MyOption | null) =>
-                              onChange(option?.value)
-                            }
-                            placeholder="Pilih Depo"
-                            maxMenuHeight={150}
-                          />
-                        )}
-                      />
                     </div>
-
-                    {/* <div
-                      className={cn(
-                        errors.pengiriman && "rounded-lg bg-red-100"
-                      )}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Biaya Pengiriman
-                        </label>
-                        {errors.pengiriman ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.pengiriman?.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      <Input
-                        type="number"
-                        disabled={lihat.modal}
-                        {...register("pengiriman", { valueAsNumber: true })}
-                      />
-                    </div>
-
-                    <div
-                      className={cn(errors.diskon && "rounded-lg bg-red-100")}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Diskon
-                        </label>
-                        {errors.diskon ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.diskon.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          className="pr-7"
-                          step="0.1"
-                          max={100}
-                          disabled={lihat.modal}
-                          {...register("diskon", { valueAsNumber: true })}
-                          onInput={(
-                            e: React.FocusEvent<HTMLInputElement, Element>
-                          ) => {
-                            +e.target.value < 0 && setValue("diskon", 0);
-                            +e.target.value > 100 && setValue("diskon", 100);
-                          }}
-                        />
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          %
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={cn(errors.ppn && "rounded-lg bg-red-100")}>
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          PPN
-                        </label>
-                        {errors.ppn ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.ppn.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          className="pr-7"
-                          step="0.1"
-                          max={100}
-                          disabled={lihat.modal}
-                          {...register("ppn", { valueAsNumber: true })}
-                          onInput={(
-                            e: React.FocusEvent<HTMLInputElement, Element>
-                          ) => {
-                            +e.target.value < 0 && setValue("ppn", 0);
-                            +e.target.value > 100 && setValue("ppn", 100);
-                          }}
-                        />
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          %
-                        </div>
-                      </div>
-                    </div> */}
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -1014,12 +932,9 @@ const PermohonanDialog = ({
                       <table className="min-w-full text-xs">
                         <thead>
                           <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
+                            <td className="px-4 py-2">Kode POA</td>
                             <td className="px-4 py-2">Obat</td>
-                            <td className="px-4 py-2">Satuan</td>
-                            <td className="px-4 py-2">Diskon</td>
-                            <td className="px-4 py-2">Harga</td>
                             <td className="px-4 py-2">Jumlah</td>
-                            <td className="px-4 py-2">Total</td>
                             <td
                               className={cn(
                                 "px-4 py-2 text-center",
@@ -1135,6 +1050,7 @@ const PermohonanDialog = ({
                       </table>
                     </div>
                   </div>
+
                   <div className="mt-4 flex gap-1">
                     {!lihat.modal ? (
                       <Button
@@ -1253,12 +1169,6 @@ const PermohonanDialog = ({
                               <ThDiv>Barang</ThDiv>
                             </Th>
                             <Th>
-                              <ThDiv>Satuan</ThDiv>
-                            </Th>
-                            <Th>
-                              <ThDiv>Diskon</ThDiv>
-                            </Th>
-                            <Th>
                               <ThDiv>Jumlah</ThDiv>
                             </Th>
                           </tr>
@@ -1278,12 +1188,6 @@ const PermohonanDialog = ({
                                 </td>
                                 <td>
                                   <p className="h-5 w-96 rounded bg-slate-200 dark:bg-slate-400"></p>
-                                </td>
-                                <td className="text-center">
-                                  <Input className="pointer-events-none w-40 py-1.5 opacity-50" />
-                                </td>
-                                <td className="text-center">
-                                  <Input className="pointer-events-none w-32 py-1.5 text-xs opacity-50" />
                                 </td>
                                 <td className="text-center">
                                   <Input className="pointer-events-none w-20 py-1.5 opacity-50" />

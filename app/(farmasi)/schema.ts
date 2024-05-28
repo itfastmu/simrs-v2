@@ -247,6 +247,35 @@ export type KFAPOA = KFAPOV & {
   merk: string | null;
 };
 
+export type TPenerimaanBarang = {
+  id: string;
+  user: string;
+  status: number;
+  created_at: string;
+  tempo: string;
+  faktur: [];
+};
+
+export type DetailPenerimaan = {
+  id: number;
+  id_sp_detail: number;
+  jumlah: number;
+  id_penerimaan: number;
+  batch: string | null;
+  expired: string | null;
+  harga: string;
+  id_barang: number;
+  satuan: string;
+  diskon: number | null;
+  id_sp: string;
+  nama: string;
+  id_pov: number;
+  merk: string;
+  generik: boolean;
+  id_produsen: number | null;
+  jumlah_diterima: number;
+};
+
 export type SuratPesanan = {
   id: string;
   id_suplier: number;
