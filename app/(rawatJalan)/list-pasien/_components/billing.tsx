@@ -11,7 +11,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { RiCheckLine, RiDeleteBin5Line } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { BillingAction, BillingState } from "./list-pasien";
-import { Billing, BillingSchema, ListTarif } from "@/app/(billing)/schema";
+import { Billing, BillingSchema, ListTarif } from "@/app/(keuangan)/schema";
 
 export default function BillingDialog({
   billing,

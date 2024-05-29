@@ -766,7 +766,7 @@ const JadwalDialog = ({
         const put = await fetch(`${APIURL}/rs/jadwal/${ubah.data?.id}`, {
           method: "PUT",
           headers: headers,
-          body: JSON.stringify(data),
+          body: JSON.stringify(data.jadwal),
         });
         const resp = await put.json();
         if (resp.status !== "Updated") throw new Error(resp.message);

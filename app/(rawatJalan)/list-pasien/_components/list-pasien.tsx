@@ -867,7 +867,7 @@ export default function ListPasienAsesmen({
                                       )}
                                     />
                                   </>
-                                ) : data.klinik === "Klinik Mata" ? (
+                                ) : data.klinik === "Klinik Psikologi" ? (
                                   <button
                                     type="button"
                                     onClick={() =>

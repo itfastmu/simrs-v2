@@ -139,20 +139,20 @@ export default function PermohonanMutasi() {
       setDataList(json?.data);
       setIsMutating(false);
       /* HIDUPKAN PAGINATION PAGE LANJUTAN */
-      // metaDispatch({
-      //   type: "setMeta",
-      //   setMeta: {
-      //     page: parseInt(json?.page.page),
-      //     perPage: parseInt(json?.page.perPage),
-      //     lastPage: parseInt(json?.page.lastPage),
-      //     total: parseInt(json?.page.total),
-      //   },
-      // });
-      /* KOMEN SETELAH META JALAN */
       metaDispatch({
-        type: "total",
-        total: 1,
+        type: "setMeta",
+        setMeta: {
+          page: parseInt(json?.page.page),
+          perPage: parseInt(json?.page.perPage),
+          lastPage: parseInt(json?.page.lastPage),
+          total: parseInt(json?.page.total),
+        },
       });
+      /* KOMEN SETELAH META JALAN */
+      // metaDispatch({
+      //   type: "total",
+      //   total: 1,
+      // });
     } catch (err) {
       const error = err as Error;
       metaDispatch({
