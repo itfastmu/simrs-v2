@@ -32,35 +32,16 @@ import { IoDocumentText } from "react-icons/io5";
 import { TbEdit, TbTrash } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import { DetailPesanan, SuratPesanan } from "../schema";
-
-type PenerimaanBarang = {
-  id: string;
-  user: string;
-  status: number;
-  created_at: string;
-  faktur: [];
-};
-
-type DPenerimaanBarang = {
-  id: number;
-  id_sp_detail: number;
-  jumlah: number;
-  id_penerimaan: number;
-  id_barang: number;
-  satuan: string;
-  diskon: number | null;
-  harga: number | null;
-  id_sp: string;
-  nama: string;
-  id_pov: number;
-  merk: string;
-  jumlah_diterima: number;
-};
+import {
+  DetailPenerimaan,
+  DetailPesanan,
+  SuratPesanan,
+  TPenerimaanBarang,
+} from "../schema";
 
 type LihatState = {
   modal: boolean;
-  data?: PenerimaanBarang;
+  data?: TPenerimaanBarang;
 };
 type LihatAction = { type: "setLihat"; lihat: LihatState };
 
@@ -70,6 +51,8 @@ export default function PenerimaanBarang() {
   headers.append("Authorization", token as string);
   headers.append("Content-Type", "application/json");
 
+  const [grupId] = useState(parseInt(Cookies.get("grupId")!));
+
   const [tanggal, setTanggal] = useState<Date | string>("");
   const memoizedTanggal = useMemo(
     () => (tanggal instanceof Date ? tanggal?.toLocaleDateString("fr-CA") : ""),
@@ -77,7 +60,7 @@ export default function PenerimaanBarang() {
   );
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
-  const [dataList, setDataList] = useState<PenerimaanBarang[]>([]);
+  const [dataList, setDataList] = useState<TPenerimaanBarang[]>([]);
 
   const [tambahDialog, setTambahDialog] = useState<boolean>(false);
   const lihatState = {
@@ -283,13 +266,15 @@ export default function PenerimaanBarang() {
             </div>
             <div className="flex items-baseline gap-1">
               <div className="flex gap-1">
-                <Button
-                  className="h-fit px-4 py-[7px]"
-                  color="slatesky"
-                  onClick={() => setTambahDialog(true)}
-                >
-                  Tambah
-                </Button>
+                {grupId !== 10 ? (
+                  <Button
+                    className="h-fit px-4 py-[7px]"
+                    color="slatesky"
+                    onClick={() => setTambahDialog(true)}
+                  >
+                    Tambah
+                  </Button>
+                ) : null}
               </div>
               <InputSearch
                 value={cari}
@@ -342,7 +327,7 @@ export default function PenerimaanBarang() {
                       key={i}
                     >
                       <td className="h-[36.5px]">
-                        <p className="mx-auto h-6 w-44 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-6 w-16 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       {/* <td>
                         <p className="mx-auto h-5 w-24 rounded bg-slate-200 dark:bg-slate-400"></p>
@@ -381,8 +366,7 @@ export default function PenerimaanBarang() {
                       <td className="border-b border-slate-200 py-1.5 dark:border-gray-700">
                         <p
                           className={cn(
-                            "mx-auto rounded-sm bg-slate-700 py-1 text-center text-xs font-medium tracking-wider text-slate-100",
-                            data.id.length < 5 ? "w-[45px]" : "w-[100px]"
+                            "mx-auto w-16 rounded-sm bg-slate-700 py-1 text-center text-xs font-medium tracking-wider text-slate-100"
                           )}
                         >
                           {data.id}
@@ -492,6 +476,7 @@ const PenerimaanDialog = ({
     faktur: z.custom<FileList>().refine((file) => file && file.length > 0, {
       message: "harus diinputkan",
     }),
+    tempo: z.string().min(1, "harus diisi"),
     detail: z
       .object({
         id_sp: z.string().nullish(),
@@ -500,6 +485,14 @@ const PenerimaanDialog = ({
           invalid_type_error: "harus diisi",
         }),
         nama: z.string(),
+        batch: z.string().nullish(),
+        expired: z.string().nullish(),
+        satuan_kecil: z.string(),
+        satuan_besar: z.string(),
+        jumlah_kecil: z.number({
+          required_error: "harus diisi",
+          invalid_type_error: "harus diisi",
+        }),
         jumlah: z.number({
           required_error: "harus diisi",
           invalid_type_error: "harus diisi",
@@ -516,6 +509,7 @@ const PenerimaanDialog = ({
     handleSubmit,
     setValue,
     reset,
+    register,
     watch,
     control,
     formState: { errors },
@@ -701,7 +695,7 @@ const PenerimaanDialog = ({
   const tableDivRef = useRef<HTMLDivElement>(null);
 
   const [penerimaan, setPenerimaan] = useState<
-    PenerimaanBarang & { total: string | null; detail: DPenerimaanBarang[] }
+    TPenerimaanBarang & { total: string | null; detail: DetailPenerimaan[] }
   >();
   const [faktur, setFaktur] = useState<string[]>([]);
   const loadPenerimaan = async () => {
@@ -716,9 +710,15 @@ const PenerimaanDialog = ({
   };
   useEffect(() => {
     if (!penerimaan) return;
+    setValue("tempo", new Date(penerimaan.tempo).toLocaleDateString("fr-CA"));
     setValue(
       "detail",
       penerimaan.detail.map((val) => ({
+        expired: "",
+        satuan_besar: "",
+        jumlah_kecil: NaN,
+        satuan_kecil: val.satuan,
+        batch: val.batch,
         id_sp_detail: val.id_sp_detail,
         id_sp: val.id_sp,
         nama: val.nama,
@@ -858,81 +858,107 @@ const PenerimaanDialog = ({
                       />
                     </div> */}
 
-                    <div
-                      className={cn(errors.faktur && "rounded-lg bg-red-100")}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Faktur
-                        </label>
-                        {errors.faktur ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.faktur.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      {!lihat.modal ? (
-                        <Controller
-                          control={control}
-                          name="faktur"
-                          render={({
-                            field: { ref, name, onChange, onBlur },
-                          }) => (
-                            <Input
-                              type="file"
-                              multiple
-                              className="cursor-pointer p-0 file:mr-3 file:border-0 file:px-3 file:py-2"
-                              accept="image/*,.pdf"
-                              ref={ref}
-                              onBlur={onBlur}
-                              name={name}
-                              onChange={(e) => onChange(e.target.files)}
-                            />
-                          )}
-                        />
-                      ) : (
-                        <div
-                          className={cn(
-                            "w-full overflow-hidden rounded shadow"
-                          )}
-                        >
-                          <table className="min-w-full text-xs">
-                            <thead>
-                              <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
-                                <td className="w-6 px-4 py-2">No.</td>
-                                <td className="px-4 py-2">Faktur</td>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                              {faktur?.map((val, idx) => (
-                                <tr
-                                  className={cn(
-                                    "bg-white hover:text-sky-600 dark:bg-slate-900"
-                                    //, "divide-x divide-gray-300 dark:divide-gray-800"
-                                  )}
-                                  key={idx}
-                                >
-                                  <td className="whitespace-pre-wrap px-4 py-2">
-                                    {idx + 1 + "."}
-                                  </td>
-                                  <td className="whitespace-pre-wrap px-4 py-2">
-                                    {val}
-                                  </td>
-                                </tr>
-                              ))}
-                              {!faktur || faktur?.length === 0 ? (
-                                <tr>
-                                  <td colSpan={8}>
-                                    <p className="px-4 py-2 text-center">
-                                      Belum ada faktur
-                                    </p>
-                                  </td>
-                                </tr>
-                              ) : null}
-                            </tbody>
-                          </table>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div
+                        className={cn(errors.faktur && "rounded-lg bg-red-100")}
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white">
+                            Faktur
+                          </label>
+                          {errors.faktur ? (
+                            <p className="pr-0.5 text-xs text-red-500">
+                              {errors.faktur.message}
+                            </p>
+                          ) : null}
                         </div>
-                      )}
+                        {!lihat.modal ? (
+                          <Controller
+                            control={control}
+                            name="faktur"
+                            render={({
+                              field: { ref, name, onChange, onBlur },
+                            }) => (
+                              <Input
+                                type="file"
+                                multiple
+                                className="cursor-pointer p-0 file:mr-3 file:border-0 file:px-3 file:py-2.5"
+                                accept="image/*,.pdf"
+                                ref={ref}
+                                onBlur={onBlur}
+                                name={name}
+                                onChange={(e) => onChange(e.target.files)}
+                              />
+                            )}
+                          />
+                        ) : (
+                          <div
+                            className={cn(
+                              "w-full overflow-hidden rounded shadow"
+                            )}
+                          >
+                            <table className="min-w-full text-xs">
+                              <thead>
+                                <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
+                                  <td className="w-6 px-4 py-2">No.</td>
+                                  <td className="px-4 py-2">Faktur</td>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {faktur?.map((val, idx) => (
+                                  <tr
+                                    className={cn(
+                                      "bg-white hover:text-sky-600 dark:bg-slate-900"
+                                      //, "divide-x divide-gray-300 dark:divide-gray-800"
+                                    )}
+                                    key={idx}
+                                  >
+                                    <td className="whitespace-pre-wrap px-4 py-2">
+                                      {idx + 1 + "."}
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2">
+                                      {val}
+                                    </td>
+                                  </tr>
+                                ))}
+                                {!faktur || faktur?.length === 0 ? (
+                                  <tr>
+                                    <td colSpan={8}>
+                                      <p className="px-4 py-2 text-center">
+                                        Belum ada faktur
+                                      </p>
+                                    </td>
+                                  </tr>
+                                ) : null}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+
+                      <div
+                        className={cn(errors?.tempo && "rounded-lg bg-red-100")}
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <label
+                            htmlFor="tgl"
+                            className="text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            Jatuh Tempo
+                          </label>
+                          {errors?.tempo ? (
+                            <p className="pr-0.5 text-xs text-red-500">
+                              {errors.tempo.message}
+                            </p>
+                          ) : null}
+                        </div>
+                        <Input
+                          id="tgl"
+                          type="date"
+                          disabled={lihat.modal}
+                          {...register("tempo")}
+                        />
+                      </div>
                     </div>
 
                     <div
@@ -948,7 +974,7 @@ const PenerimaanDialog = ({
                         <div className="absolute right-0 flex items-center gap-2">
                           {errors.detail ? (
                             <p className="pr-0.5 text-xs text-red-500">
-                              {errors.detail.message}
+                              harus diisi lengkap
                             </p>
                           ) : null}
                           {!lihat.modal ? (
@@ -971,6 +997,9 @@ const PenerimaanDialog = ({
                               <td className="px-4 py-2">Kode Pesanan</td>
                               <td className="px-4 py-2">Kode</td>
                               <td className="px-4 py-2">Nama</td>
+                              <td className="px-4 py-2">Satuan Kecil</td>
+                              <td className="px-4 py-2">Jumlah Kecil</td>
+                              <td className="px-4 py-2">Satuan Besar</td>
                               <td className="px-4 py-2">Jumlah</td>
                               <td
                                 className={cn(
@@ -999,6 +1028,15 @@ const PenerimaanDialog = ({
                                 </td>
                                 <td className="whitespace-pre-wrap px-4 py-2">
                                   {obat.nama}
+                                </td>
+                                <td className="whitespace-pre-wrap px-4 py-2">
+                                  {obat.satuan_kecil}
+                                </td>
+                                <td className="whitespace-pre-wrap px-4 py-2">
+                                  {obat.jumlah_kecil}
+                                </td>
+                                <td className="whitespace-pre-wrap px-4 py-2">
+                                  {obat.satuan_besar}
                                 </td>
                                 <td className="whitespace-pre-wrap px-4 py-2">
                                   {obat.jumlah}
@@ -1404,7 +1442,7 @@ const PenerimaanDialog = ({
                       leaveFrom="opacity-100 scale-100"
                       leaveTo="opacity-0 scale-95"
                     >
-                      <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
+                      <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
                         <Dialog.Title
                           as="p"
                           className="border-b border-slate-200 text-center font-medium leading-6 text-gray-900 dark:border-slate-300 dark:text-slate-100"
@@ -1424,6 +1462,9 @@ const PenerimaanDialog = ({
                                   <td className="px-4 py-2">Kode Pesanan</td>
                                   <td className="px-4 py-2">Kode</td>
                                   <td className="px-4 py-2">Nama</td>
+                                  <td className="px-4 py-2">Satuan Kecil</td>
+                                  <td className="px-4 py-2">Jumlah Kecil</td>
+                                  <td className="px-4 py-2">Satuan Besar</td>
                                   <td className="px-4 py-2">Jumlah</td>
                                 </tr>
                               </thead>
@@ -1468,6 +1509,11 @@ const PenerimaanDialog = ({
                                               ...(obat || []),
                                               {
                                                 id_sp_detail: dtl.id,
+                                                batch: "",
+                                                expired: "",
+                                                satuan_besar: "",
+                                                jumlah_kecil: NaN,
+                                                satuan_kecil: "",
                                                 nama: dtl.nama,
                                                 jumlah: dtl.jumlah,
                                               },
@@ -1502,6 +1548,11 @@ const PenerimaanDialog = ({
                                             ...(obat || []),
                                             {
                                               id_sp_detail: dtl.id,
+                                              batch: "",
+                                              expired: "",
+                                              satuan_besar: "",
+                                              jumlah_kecil: NaN,
+                                              satuan_kecil: "",
                                               nama: dtl.nama,
                                               jumlah: dtl.jumlah,
                                             },
@@ -1537,6 +1588,11 @@ const PenerimaanDialog = ({
                                             ...(obat || []),
                                             {
                                               id_sp_detail: dtl.id,
+                                              batch: "",
+                                              expired: "",
+                                              satuan_besar: "",
+                                              jumlah_kecil: NaN,
+                                              satuan_kecil: "",
                                               nama: dtl.nama,
                                               jumlah: dtl.jumlah,
                                             },
@@ -1572,6 +1628,11 @@ const PenerimaanDialog = ({
                                             ...(obat || []),
                                             {
                                               id_sp_detail: dtl.id,
+                                              batch: "",
+                                              expired: "",
+                                              satuan_besar: "",
+                                              jumlah_kecil: NaN,
+                                              satuan_kecil: "",
                                               nama: dtl.nama,
                                               jumlah: dtl.jumlah,
                                             },
@@ -1583,8 +1644,98 @@ const PenerimaanDialog = ({
                                     </td>
                                     <td className="whitespace-pre-wrap px-4 py-2 text-center">
                                       <Input
+                                        className="w-24 py-1 text-xs font-normal"
+                                        value={
+                                          obat?.find(
+                                            (val) => val.id_sp_detail === dtl.id
+                                          )?.satuan_kecil
+                                        }
+                                        onChange={(e) => {
+                                          const detailSatuanKecil = (
+                                            obat || []
+                                          ).map((val, idx) => {
+                                            if (idx === ubahObat.data?.idx) {
+                                              return {
+                                                ...val,
+                                                satuan_kecil: e.target.value,
+                                              };
+                                            }
+                                            return val;
+                                          });
+                                          setObat(detailSatuanKecil);
+                                        }}
+                                        disabled={
+                                          !(obat || [])?.some(
+                                            (val) => val.id_sp_detail === dtl.id
+                                          )
+                                        }
+                                      />
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <Input
                                         type="number"
-                                        className="w-40 py-1 text-xs font-normal"
+                                        className="w-20 py-1 text-xs font-normal"
+                                        value={
+                                          obat?.find(
+                                            (val) => val.id_sp_detail === dtl.id
+                                          )?.jumlah_kecil
+                                        }
+                                        onChange={(e) => {
+                                          const detailJumlahKecil = (
+                                            obat || []
+                                          ).map((val, idx) => {
+                                            if (idx === ubahObat.data?.idx) {
+                                              return {
+                                                ...val,
+                                                jumlah_kecil: parseInt(
+                                                  e.target.value
+                                                ),
+                                              };
+                                            }
+                                            return val;
+                                          });
+                                          setObat(detailJumlahKecil);
+                                        }}
+                                        disabled={
+                                          !(obat || [])?.some(
+                                            (val) => val.id_sp_detail === dtl.id
+                                          )
+                                        }
+                                      />
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <Input
+                                        className="w-24 py-1 text-xs font-normal"
+                                        value={
+                                          obat?.find(
+                                            (val) => val.id_sp_detail === dtl.id
+                                          )?.satuan_besar
+                                        }
+                                        onChange={(e) => {
+                                          const detailSatuanBesar = (
+                                            obat || []
+                                          ).map((val, idx) => {
+                                            if (idx === ubahObat.data?.idx) {
+                                              return {
+                                                ...val,
+                                                satuan_besar: e.target.value,
+                                              };
+                                            }
+                                            return val;
+                                          });
+                                          setObat(detailSatuanBesar);
+                                        }}
+                                        disabled={
+                                          !(obat || [])?.some(
+                                            (val) => val.id_sp_detail === dtl.id
+                                          )
+                                        }
+                                      />
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <Input
+                                        type="number"
+                                        className="w-20 py-1 text-xs font-normal"
                                         defaultValue={dtl.jumlah}
                                         value={
                                           obat?.find(
@@ -1645,6 +1796,7 @@ const PenerimaanDialog = ({
                                 ]);
                               }
                               setObat(null);
+                              setObatDialog(false);
                             }}
                           >
                             Simpan
@@ -1716,6 +1868,92 @@ const PenerimaanDialog = ({
                     >
                       Ubah Barang
                     </Dialog.Title>
+                    <div className="mt-1 flex flex-col">
+                      <label htmlFor="satuan_kecil" className="text-sm">
+                        Satuan Kecil
+                      </label>
+                      <Input
+                        value={
+                          watch("detail")?.find(
+                            (_, idx) => idx === ubahObat.data?.idx
+                          )?.satuan_kecil || ""
+                        }
+                        onChange={(e) => {
+                          const detailSatuanKecil = (watch("detail") || []).map(
+                            (val, idx) => {
+                              if (idx === ubahObat.data?.idx) {
+                                return {
+                                  ...val,
+                                  satuan_kecil: e.target.value,
+                                };
+                              }
+                              return val;
+                            }
+                          );
+                          setValue("detail", detailSatuanKecil);
+                        }}
+                        id="satuan_kecil"
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="mt-1 flex flex-col">
+                      <label htmlFor="jumlah_kecil" className="text-sm">
+                        Jumlah Kecil
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={
+                          watch("detail")?.find(
+                            (_, idx) => idx === ubahObat.data?.idx
+                          )?.jumlah_kecil || ""
+                        }
+                        onChange={(e) => {
+                          const detailJumlah = (watch("detail") || []).map(
+                            (val, idx) => {
+                              if (idx === ubahObat.data?.idx) {
+                                return {
+                                  ...val,
+                                  jumlah_kecil: parseInt(e.target.value),
+                                };
+                              }
+                              return val;
+                            }
+                          );
+                          setValue("detail", detailJumlah);
+                        }}
+                        id="jumlah_kecil"
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="mt-1 flex flex-col">
+                      <label htmlFor="satuan" className="text-sm">
+                        Satuan Besar
+                      </label>
+                      <Input
+                        value={
+                          watch("detail")?.find(
+                            (_, idx) => idx === ubahObat.data?.idx
+                          )?.satuan_besar || ""
+                        }
+                        onChange={(e) => {
+                          const detailSatuan = (watch("detail") || []).map(
+                            (val, idx) => {
+                              if (idx === ubahObat.data?.idx) {
+                                return {
+                                  ...val,
+                                  satuan: e.target.value,
+                                };
+                              }
+                              return val;
+                            }
+                          );
+                          setValue("detail", detailSatuan);
+                        }}
+                        id="satuan"
+                        className="text-sm"
+                      />
+                    </div>
                     <div className="mt-1 flex flex-col">
                       <label htmlFor="jumlah" className="text-sm">
                         Jumlah

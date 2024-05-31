@@ -981,7 +981,6 @@ export default function ListPasienAsesmen() {
 
 //   const submitHandler: SubmitHandler<Billing> = (data, e) => {
 //     e?.preventDefault();
-//     // console.log("febgtg");
 //     // console.log(data);
 //   };
 

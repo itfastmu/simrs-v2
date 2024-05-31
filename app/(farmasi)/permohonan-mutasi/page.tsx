@@ -3,7 +3,12 @@
 import css from "@/assets/css/scrollbar.module.css";
 import { Button } from "@/components/button";
 import { Input } from "@/components/form";
-import { MyOption, MyOptions, SelectInput } from "@/components/select";
+import {
+  AsyncSelectInput,
+  MyOption,
+  MyOptions,
+  SelectInput,
+} from "@/components/select";
 import {
   InputSearch,
   Pagination,
@@ -19,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import React, {
   Fragment,
+  useCallback,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -28,30 +34,26 @@ import React, {
 } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { AiOutlineEye } from "react-icons/ai";
-import { FaMinus } from "react-icons/fa6";
-import { GiMedicines } from "react-icons/gi";
+import { FaPlus } from "react-icons/fa6";
+import { IoDocumentText } from "react-icons/io5";
 import { TbEdit, TbTrash } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import {
-  Depo,
-  HasilTransaksiBarang,
-  KFAPOA,
-  TransaksiBarang,
-  TransaksiBarangSchema,
-} from "../schema";
+import { Depo, DetailMutasi, KFAPOA, PermohonanMutasi } from "../schema";
 
 type LihatState = {
   modal: boolean;
-  data?: TransaksiBarang;
+  data?: PermohonanMutasi;
 };
-type LihatAction = { type: "setLihat"; lihat: LihatState };
+type LihatAction = LihatState;
 
-export default function PenjualanObat() {
+export default function PermohonanMutasi() {
   const headers = new Headers();
   const [token] = useState(Cookies.get("token"));
   headers.append("Authorization", token as string);
   headers.append("Content-Type", "application/json");
+
+  const [grupId] = useState(parseInt(Cookies.get("grupId")!));
 
   const [tanggal, setTanggal] = useState<Date | string>("");
   const memoizedTanggal = useMemo(
@@ -60,63 +62,18 @@ export default function PenjualanObat() {
   );
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
-  const [dataList, setDataList] = useState<TransaksiBarang[]>([]);
+  const [dataList, setDataList] = useState<PermohonanMutasi[]>([]);
 
   const [tambahDialog, setTambahDialog] = useState<boolean>(false);
   const lihatState = {
     modal: false,
   };
   const lihatActs = (state: LihatState, action: LihatAction) => {
-    switch (action.type) {
-      case "setLihat": {
-        return {
-          ...action.lihat,
-        };
-      }
-    }
+    return {
+      ...action,
+    };
   };
   const [lihat, lihatDispatch] = useReducer(lihatActs, lihatState);
-
-  // type HapusState = {
-  //   modal: boolean;
-  //   data?: {
-  //     id?: number;
-  //     nama?: string;
-  //   };
-  // };
-  // type HapusAction = { type: "setHapus"; hapus: HapusState };
-  // const hapusState = {
-  //   modal: false,
-  //   data: {
-  //     id: undefined,
-  //     nama: undefined,
-  //   },
-  // };
-  // const hapusActs = (state: HapusState, action: HapusAction) => {
-  //   switch (action.type) {
-  //     case "setHapus": {
-  //       return {
-  //         ...action.hapus,
-  //       };
-  //     }
-  //   }
-  // };
-  // const [hapus, hapusDispatch] = useReducer(hapusActs, hapusState);
-  // const handleHapus = async () => {
-  //   try {
-  //     const resp = await fetch(`${APIURL}/rs/tarif/${hapus.data?.id}`, {
-  //       method: "DELETE",
-  //       headers: headers,
-  //     });
-  //     const data = await resp.json();
-  //     hapusDispatch({ type: "setHapus", hapus: { modal: false } });
-  //     toast.success(data?.message, {
-  //       onOpen: loadData,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const metaState: Meta = {
     page: 1,
@@ -164,7 +121,7 @@ export default function PenjualanObat() {
   const loadData = async (signal?: AbortSignal) => {
     try {
       setIsMutating(true);
-      const url = new URL(`${APIURL}/rs/farmasi/penjualan`);
+      const url = new URL(`${APIURL}/rs/farmasi/mutasi/permohonan`);
       const params = {
         page: meta.page,
         perPage: meta.perPage,
@@ -179,8 +136,9 @@ export default function PenjualanObat() {
       });
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
-      // console.log(json);
       setDataList(json?.data);
+      setIsMutating(false);
+      /* HIDUPKAN PAGINATION PAGE LANJUTAN */
       metaDispatch({
         type: "setMeta",
         setMeta: {
@@ -190,7 +148,11 @@ export default function PenjualanObat() {
           total: parseInt(json?.page.total),
         },
       });
-      setIsMutating(false);
+      /* KOMEN SETELAH META JALAN */
+      // metaDispatch({
+      //   type: "total",
+      //   total: 1,
+      // });
     } catch (err) {
       const error = err as Error;
       metaDispatch({
@@ -227,17 +189,17 @@ export default function PenjualanObat() {
           <div className="flex items-center border-b border-b-slate-200 pb-3">
             <div className="ml-3 flex items-center gap-3">
               <div className="relative">
-                <GiMedicines
+                <IoDocumentText
                   size="1.75rem"
                   className="text-gray-500 dark:text-slate-100"
                 />
-                <FaMinus
-                  size="0.625rem"
-                  className="absolute -bottom-0.5 -right-1 text-gray-500 dark:text-slate-100"
+                <FaPlus
+                  size="1rem"
+                  className="absolute -bottom-1 -right-3 text-gray-500 dark:text-slate-100"
                 />
               </div>
               <p className="text-xl uppercase text-gray-500 dark:text-slate-100">
-                Penjualan Bebas Obat
+                Permohonan Mutasi
               </p>
             </div>
           </div>
@@ -276,6 +238,7 @@ export default function PenjualanObat() {
                 </Button>
               </div>
               <InputSearch
+                value={cari}
                 onChange={(e) => {
                   metaDispatch({
                     type: "page",
@@ -298,19 +261,19 @@ export default function PenjualanObat() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>Tanggal</ThDiv>
+                    <ThDiv>Kode</ThDiv>
                   </Th>
                   <Th>
-                    <ThDiv>Penjualan</ThDiv>
+                    <ThDiv>Depo</ThDiv>
                   </Th>
-                  <Th>
+                  {/* <Th>
                     <ThDiv>Keterangan</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>Petugas</ThDiv>
-                  </Th>
+                  </Th> */}
                   <Th>
-                    <ThDiv>Tanggal Catat</ThDiv>
+                    <ThDiv>Tgl. Permohonan</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>*</ThDiv>
@@ -325,19 +288,19 @@ export default function PenjualanObat() {
                       key={i}
                     >
                       <td className="h-[36.5px]">
-                        <p className="mx-auto h-6 w-40 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-6 w-16 rounded-sm bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <p className="mx-auto h-5 w-24 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td>
-                      <td>
+                      {/* <td>
                         <p className="mx-auto h-5 w-28 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <p className="mx-auto h-5 w-56 rounded bg-slate-200 dark:bg-slate-400"></p>
-                      </td>
+                      </td> */}
                       <td>
-                        <p className="mx-auto h-4 w-56 rounded bg-slate-200 dark:bg-slate-400"></p>
+                        <p className="mx-auto h-4 w-32 rounded bg-slate-200 dark:bg-slate-400"></p>
                       </td>
                       <td>
                         <div className="flex flex-nowrap items-center justify-center gap-2  ">
@@ -362,30 +325,26 @@ export default function PenjualanObat() {
                       key={i}
                     >
                       <td className="border-b border-slate-200 py-1.5 dark:border-gray-700">
-                        <p className="mx-auto w-40 rounded-sm bg-slate-700 py-1 text-center text-xs font-medium tracking-wider text-slate-100">
-                          {data.created_at
-                            ? new Intl.DateTimeFormat("id-ID", {
-                                dateStyle: "long",
-                              }).format(new Date(data.created_at))
-                            : null}
+                        <p className="mx-auto w-16 rounded-sm bg-slate-700 py-1 text-center text-xs font-medium tracking-wider text-slate-100">
+                          {data.id}
                         </p>
                       </td>
                       <td className="border-b border-slate-200 text-center dark:border-gray-700">
-                        <p>{data.nama}</p>
+                        <p>{data.depo}</p>
                       </td>
-                      <td className="border-b border-slate-200 text-center dark:border-gray-700">
+                      {/* <td className="border-b border-slate-200 text-center dark:border-gray-700">
                         <p>{data.keterangan}</p>
                       </td>
                       <td className="border-b border-slate-200 text-center dark:border-gray-700">
                         <p className="text-xs">{data.user}</p>
-                      </td>
+                      </td> */}
                       <td className="border-b border-slate-200 text-center dark:border-gray-700">
                         <p className="text-xs">
-                          {data.created_at
+                          {data.tanggal
                             ? new Intl.DateTimeFormat("id-ID", {
                                 dateStyle: "long",
                                 timeStyle: "short",
-                              }).format(new Date(data.created_at))
+                              }).format(new Date(data.tanggal))
                             : null}
                         </p>
                       </td>
@@ -400,15 +359,12 @@ export default function PenjualanObat() {
                                 <button
                                   type="button"
                                   className="focus:outline-none"
-                                  onClick={() => {
+                                  onClick={() =>
                                     lihatDispatch({
-                                      type: "setLihat",
-                                      lihat: {
-                                        modal: true,
-                                        data: data,
-                                      },
-                                    });
-                                  }}
+                                      modal: true,
+                                      data: data,
+                                    })
+                                  }
                                 >
                                   <AiOutlineEye
                                     size="1.5rem"
@@ -425,44 +381,6 @@ export default function PenjualanObat() {
                               </Tooltip.Content>
                             </Tooltip.Root>
                           </Tooltip.Provider>
-
-                          {/* <Tooltip.Provider
-                            delayDuration={300}
-                            disableHoverableContent
-                          >
-                            <Tooltip.Root>
-                              <Tooltip.Trigger asChild>
-                                <button
-                                  type="button"
-                                  className="focus:outline-none"
-                                  onClick={() => {
-                                    hapusDispatch({
-                                      type: "setHapus",
-                                      hapus: {
-                                        modal: true,
-                                        data: {
-                                          id: data.id,
-                                          nama: data.nama,
-                                        },
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <TbTrash
-                                    size="1.5rem"
-                                    className="text-red-500 hover:text-red-600 active:text-red-700"
-                                  />
-                                </button>
-                              </Tooltip.Trigger>
-                              <Tooltip.Content
-                                side="left"
-                                sideOffset={0}
-                                className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
-                              >
-                                <p>Hapus</p>
-                              </Tooltip.Content>
-                            </Tooltip.Root>
-                          </Tooltip.Provider> */}
                         </div>
                       </td>
                     </tr>
@@ -482,93 +400,18 @@ export default function PenjualanObat() {
         </div>
       </main>
 
-      <PenjualanDialog
+      <PermohonanDialog
         tambahDialog={tambahDialog}
         setTambahDialog={setTambahDialog}
         lihat={lihat}
         lihatDispatch={lihatDispatch}
         loadData={loadData}
       />
-
-      {/* <Transition show={hapus.modal} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-[1001]"
-          onClose={() =>
-            hapusDispatch({
-              type: "setHapus",
-              hapus: {
-                modal: false,
-                data: hapus.data,
-              },
-            })
-          }
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-50"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
-                  <Dialog.Title
-                    as="p"
-                    className="font-medium leading-6 text-gray-900 dark:text-slate-100"
-                  >
-                    Hapus Tarif
-                  </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Hapus {hapus.data?.nama}
-                    </p>
-                  </div>
-                  <div className="mt-4 flex justify-end gap-1">
-                    <Button color="red100" onClick={handleHapus}>
-                      Hapus
-                    </Button>
-                    <Button
-                      color="red"
-                      onClick={() =>
-                        hapusDispatch({
-                          type: "setHapus",
-                          hapus: {
-                            modal: false,
-                            data: hapus.data,
-                          },
-                        })
-                      }
-                    >
-                      Tidak
-                    </Button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition> */}
     </>
   );
 }
 
-type PenjualanDialogProps = {
+type PermohonanDialogProps = {
   tambahDialog: boolean;
   setTambahDialog: React.Dispatch<React.SetStateAction<boolean>>;
   lihat: LihatState;
@@ -576,22 +419,65 @@ type PenjualanDialogProps = {
   loadData: () => Promise<void>;
 };
 
-const PenjualanDialog = ({
+const PermohonanDialog = ({
   tambahDialog,
   setTambahDialog,
   lihat,
   lihatDispatch,
   loadData,
-}: PenjualanDialogProps) => {
+}: PermohonanDialogProps) => {
+  const PermohonanSchema = z.object({
+    id_depo: z.number({
+      required_error: "harus dipilih",
+      invalid_type_error: "harus dipilih",
+    }),
+    id_ref: z.number({
+      required_error: "harus dipilih",
+      invalid_type_error: "harus dipilih",
+    }),
+    tanggal: z.string().min(1, "harus diisi"),
+    keterangan: z.string(),
+    detail: z
+      .object({
+        id: z.string().nullish(),
+        id_poa: z.number({
+          required_error: "harus dipilih",
+          invalid_type_error: "harus dipilih",
+        }),
+        nama: z.string(),
+        jumlah: z.number({
+          required_error: "harus diisi",
+          invalid_type_error: "harus diisi angka",
+        }),
+      })
+      .array(),
+  });
+
+  type PermohonanSchemaType = z.infer<typeof PermohonanSchema>;
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    control,
+    formState: { errors },
+  } = useForm<PermohonanSchemaType>({
+    resolver: zodResolver(PermohonanSchema),
+    defaultValues: {
+      detail: [],
+    },
+  });
+
   const tutup = () => {
+    setCari("");
     reset();
     tambahDialog
       ? setTambahDialog(false)
       : lihatDispatch({
-          type: "setLihat",
-          lihat: {
-            modal: false,
-          },
+          modal: false,
+          data: lihat.data,
         });
   };
 
@@ -603,36 +489,9 @@ const PenjualanDialog = ({
   const [judulLama, setJudulLama] = useState<string>("");
   const judul = useMemo(() => {
     if (!lihat.modal && !tambahDialog) return judulLama;
-    setJudulLama(lihat.modal ? "Lihat Penjualan" : "Tambah Penjualan");
-    return lihat.modal ? "Lihat Penjualan" : "Tambah Penjualan";
+    setJudulLama(lihat.modal ? "Lihat Permohonan" : "Tambah Permohonan");
+    return lihat.modal ? "Lihat Permohonan" : "Tambah Permohonan";
   }, [tambahDialog, lihat.modal]);
-
-  const PenjualanBebasSchema = TransaksiBarangSchema.pick({
-    id_depo: true,
-    keterangan: true,
-    detail: true,
-  }).merge(
-    z.object({
-      nama: z.string(),
-    })
-  );
-  type PenjualanBebasTSchema = z.infer<typeof PenjualanBebasSchema>;
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    trigger,
-    watch,
-    control,
-    formState: { errors },
-  } = useForm<PenjualanBebasTSchema>({
-    resolver: zodResolver(PenjualanBebasSchema),
-    defaultValues: {
-      detail: [],
-    },
-  });
 
   const metaState: Meta = {
     page: 1,
@@ -724,12 +583,12 @@ const PenjualanDialog = ({
   };
   const [obatDialog, setObatDialog] = useState<boolean>(false);
   const [obat, setObat] = useState<ArrayElementType<
-    PenjualanBebasTSchema["detail"]
+    PermohonanSchemaType["detail"]
   > | null>(null);
 
   type UbahObatState = {
     modal: boolean;
-    data?: ArrayElementType<PenjualanBebasTSchema["detail"]> & { idx: number };
+    data?: ArrayElementType<PermohonanSchemaType["detail"]> & { idx: number };
   };
   type UbahObatAction = { type: "setUbah"; ubah: UbahObatState };
 
@@ -773,61 +632,74 @@ const PenjualanDialog = ({
           return option;
         }) || [];
       setDepoOptions(data);
+      return data;
     } catch (error) {
       console.error(error);
+      return [];
     }
   };
 
-  const [penjualan, setPenjualan] = useState<HasilTransaksiBarang>();
-  const loadPenjualan = async () => {
+  const [permohonan, setPermohonan] = useState<DetailMutasi[]>();
+  const loadPermohonan = async () => {
     try {
-      const url = new URL(`${APIURL}/rs/farmasi/penjualan/${lihat.data?.id}`);
+      const url = new URL(
+        `${APIURL}/rs/farmasi/mutasi/permohonan/detail/${lihat.data?.id}`
+      );
       const resp = await fetch(url, { method: "GET", headers: headers });
       const json = await resp.json();
-      setPenjualan(json?.data);
+      setPermohonan(json?.data);
     } catch (error) {
       console.error(error);
     }
   };
   useEffect(() => {
-    if (!penjualan) return;
-    setValue("nama", penjualan.nama);
-    setValue("keterangan", penjualan.keterangan);
+    if (!permohonan || !lihat.data) return;
+    setValue("id_depo", lihat.data?.id_ref);
+    setValue("id_ref", lihat.data?.id_depo);
+    setValue("keterangan", lihat.data?.keterangan);
+    setValue(
+      "tanggal",
+      lihat.data?.tanggal
+        ? new Date(lihat.data?.tanggal).toLocaleDateString("fr-CA")
+        : ""
+    );
     setValue(
       "detail",
-      (penjualan.detail || []).map((val) => ({
+      (permohonan || []).map((val) => ({
+        id: val.id,
         id_poa: val.id_poa,
         nama: val.nama,
         jumlah: val.jumlah,
       }))
     );
-  }, [penjualan]);
+  }, [permohonan]);
 
   useEffect(() => {
     if (!lihat.modal && !tambahDialog) return;
     loadDepo("");
-    if (lihat.modal) loadPenjualan();
+    if (lihat.modal) loadPermohonan();
+    if (!lihat.data) return;
   }, [lihat, tambahDialog]);
 
   useEffect(() => {
     console.log(errors);
   }, [errors]);
 
-  // useEffect(() => {
-  //   const subscription = watch((value, { name, type }) =>
-  //     console.log(value, name, type)
-  //   );
-  //   return () => subscription.unsubscribe();
-  // }, [watch]);
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) =>
+      console.log(value, name, type)
+    );
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
-  const submitHandler: SubmitHandler<PenjualanBebasTSchema> = async (
+  const submitHandler: SubmitHandler<PermohonanSchemaType> = async (
     data,
     e
   ) => {
     try {
       e?.preventDefault();
-      // if (lihat.modal) {
-      //   const put = await fetch(`${APIURL}/rs/farmasi/penjualan/${lihat.data?.id}`, {
+      // if (ubah.modal) {
+      //   const put = await fetch(`${APIURL}/rs/farmasi/pesanan/${ubah.data?.id}`, {
       //     method: "PUT",
       //     headers: headers,
       //     body: JSON.stringify(data),
@@ -836,15 +708,46 @@ const PenjualanDialog = ({
       //   if (resp.status !== "Updated") throw new Error(resp.message);
       //   toast.success(resp.message);
       // } else {
-      const post = await fetch(`${APIURL}/rs/farmasi/penjualan`, {
+      const post = await fetch(`${APIURL}/rs/farmasi/mutasi/permohonan`, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          detail: watch("detail").map((val) => {
+            const { nama, ...data } = val;
+            return data;
+          }),
+        }),
       });
       const resp = await post.json();
       if (resp.status !== "Created") throw new Error(resp.message);
       toast.success(resp.message);
       // }
+      tutup();
+      loadData();
+    } catch (err) {
+      const error = err as Error;
+      toast.error(error.message);
+      console.error(error);
+    }
+  };
+
+  const validasiHandler = async (i: number) => {
+    try {
+      const url = new URL(`${APIURL}/rs/farmasi/mutasi/permohonan/${i}`);
+      const resp = await fetch(url, {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify({
+          detail: watch("detail").map((val) => {
+            const { nama, ...data } = val;
+            return data;
+          }),
+        }),
+      });
+      const json = await resp.json();
+      if (json.status !== "Updated") throw new Error(json.message);
+      toast.success(json.message);
       tutup();
       loadData();
     } catch (err) {
@@ -897,71 +800,6 @@ const PenjualanDialog = ({
                   className="mt-2 flex flex-col gap-3"
                 >
                   <div className="grid grid-cols-2 gap-2">
-                    <div className={cn(errors.nama && "rounded-lg bg-red-100")}>
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Nama Pembeli
-                        </label>
-                        {errors.nama ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.nama.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      <Input disabled={lihat.modal} {...register("nama")} />
-                    </div>
-
-                    {!lihat.modal ? (
-                      <div
-                        className={cn(
-                          errors.id_depo && "rounded-lg bg-red-100"
-                        )}
-                      >
-                        <div className="flex items-baseline justify-between">
-                          <label className="text-sm font-medium text-gray-900 dark:text-white">
-                            Depo Farmasi
-                          </label>
-                          {errors.id_depo ? (
-                            <p className="pr-0.5 text-xs text-red-500">
-                              {errors.id_depo.message}
-                            </p>
-                          ) : null}
-                        </div>
-                        <Controller
-                          control={control}
-                          name="id_depo"
-                          render={({ field: { onChange, value } }) => (
-                            <SelectInput
-                              isDisabled={lihat.modal}
-                              noOptionsMessage={(e) => "Tidak ada pilihan"}
-                              onChange={(val: any) => onChange(val.value)}
-                              options={depoOptions}
-                              value={depoOptions.find(
-                                (c: any) => c.value === value
-                              )}
-                              placeholder="Pilih Depo"
-                            />
-                          )}
-                        />
-                      </div>
-                    ) : null}
-
-                    {/* <div
-                      className={cn(errors.tanggal && "rounded-lg bg-red-100")}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Tanggal
-                        </label>
-                        {errors.tanggal ? (
-                          <p className="pr-0.5 text-xs text-red-500">
-                            {errors.tanggal.message}
-                          </p>
-                        ) : null}
-                      </div>
-                      <Input type="date" {...register("tanggal")} />
-                    </div> */}
-
                     <div
                       className={cn(
                         errors.keterangan && "rounded-lg bg-red-100"
@@ -980,6 +818,88 @@ const PenjualanDialog = ({
                       <Input
                         disabled={lihat.modal}
                         {...register("keterangan")}
+                      />
+                    </div>
+
+                    <div
+                      className={cn(errors.tanggal && "rounded-lg bg-red-100")}
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          Tanggal
+                        </label>
+                        {errors.tanggal ? (
+                          <p className="pr-0.5 text-xs text-red-500">
+                            {errors.tanggal.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Input
+                        disabled={lihat.modal}
+                        type="date"
+                        {...register("tanggal")}
+                      />
+                    </div>
+
+                    <div
+                      className={cn(errors.id_depo && "rounded-lg bg-red-100")}
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          Menuju Depo
+                        </label>
+                        {errors.id_depo ? (
+                          <p className="pr-0.5 text-xs text-red-500">
+                            {errors.id_depo.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Controller
+                        control={control}
+                        name="id_depo"
+                        render={({ field: { onChange, value } }) => (
+                          <SelectInput
+                            isDisabled={lihat.modal}
+                            noOptionsMessage={(e) => "Tidak ada pilihan"}
+                            onChange={(val: any) => onChange(val.value)}
+                            options={depoOptions}
+                            value={depoOptions.find(
+                              (c: any) => c.value === value
+                            )}
+                            placeholder="Pilih Depo"
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div
+                      className={cn(errors.id_ref && "rounded-lg bg-red-100")}
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          Dari Depo
+                        </label>
+                        {errors.id_ref ? (
+                          <p className="pr-0.5 text-xs text-red-500">
+                            {errors.id_ref.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Controller
+                        control={control}
+                        name="id_ref"
+                        render={({ field: { onChange, value } }) => (
+                          <SelectInput
+                            isDisabled={lihat.modal}
+                            noOptionsMessage={(e) => "Tidak ada pilihan"}
+                            onChange={(val: any) => onChange(val.value)}
+                            options={depoOptions}
+                            value={depoOptions.find(
+                              (c: any) => c.value === value
+                            )}
+                            placeholder="Pilih Depo"
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -1012,6 +932,7 @@ const PenjualanDialog = ({
                       <table className="min-w-full text-xs">
                         <thead>
                           <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
+                            <td className="px-4 py-2">Kode POA</td>
                             <td className="px-4 py-2">Obat</td>
                             <td className="px-4 py-2">Jumlah</td>
                             <td
@@ -1034,6 +955,9 @@ const PenjualanDialog = ({
                               key={idx}
                             >
                               <td className="whitespace-pre-wrap px-4 py-2">
+                                {obat.id_poa}
+                              </td>
+                              <td className="whitespace-pre-wrap px-4 py-2">
                                 {obat.nama}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
@@ -1054,7 +978,6 @@ const PenjualanDialog = ({
                                       <Tooltip.Trigger asChild>
                                         <button
                                           type="button"
-                                          disabled={lihat.modal}
                                           className="focus:outline-none"
                                           onClick={() => {
                                             ubahObatDispatch({
@@ -1080,7 +1003,7 @@ const PenjualanDialog = ({
                                         sideOffset={0}
                                         className="border border-slate-200 bg-white text-xs dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
                                       >
-                                        <p>Lihat</p>
+                                        <p>Ubah</p>
                                       </Tooltip.Content>
                                     </Tooltip.Root>
                                   </Tooltip.Provider>
@@ -1127,12 +1050,26 @@ const PenjualanDialog = ({
                       </table>
                     </div>
                   </div>
+
                   <div className="mt-4 flex gap-1">
                     {!lihat.modal ? (
-                      <Button type="submit" color="green100">
-                        Tambah
+                      <Button
+                        type="submit"
+                        color={
+                          judul === "Tambah Permohonan" ? "green100" : "cyan100"
+                        }
+                      >
+                        {judul}
                       </Button>
-                    ) : null}
+                    ) : (
+                      <Button
+                        onClick={() => validasiHandler(lihat.data?.id!)}
+                        color="green100"
+                        // disabled={lihat.data?.status! > 1}
+                      >
+                        Validasi
+                      </Button>
+                    )}
                     <Button
                       className="w-fit border border-transparent text-sm font-medium focus:ring-0"
                       color="red"
@@ -1153,7 +1090,6 @@ const PenjualanDialog = ({
             className="relative z-[1001]"
             onClose={() => {
               setObatDialog(false);
-              setCari("");
             }}
           >
             <Transition.Child
@@ -1204,6 +1140,7 @@ const PenjualanDialog = ({
                       </div>
                       <div className="flex items-baseline gap-1">
                         <InputSearch
+                          value={cari}
                           onChange={(e) => {
                             metaDispatch({
                               type: "page",
@@ -1250,16 +1187,7 @@ const PenjualanDialog = ({
                                   />
                                 </td>
                                 <td>
-                                  <p className="h-5 w-24 rounded bg-slate-200 dark:bg-slate-400"></p>
-                                </td>
-                                <td className="text-center">
-                                  <Input className="pointer-events-none w-40 py-1.5 opacity-50" />
-                                </td>
-                                <td className="text-center">
-                                  <Input
-                                    type="date"
-                                    className="pointer-events-none w-32 py-1.5 text-xs opacity-50"
-                                  />
+                                  <p className="h-5 w-96 rounded bg-slate-200 dark:bg-slate-400"></p>
                                 </td>
                                 <td className="text-center">
                                   <Input className="pointer-events-none w-20 py-1.5 opacity-50" />
@@ -1322,8 +1250,8 @@ const PenjualanDialog = ({
                                     className="w-20 py-1.5 text-xs font-normal"
                                     value={
                                       obat?.id_poa === data.id
-                                        ? obat?.jumlah || NaN
-                                        : NaN
+                                        ? obat?.jumlah || ""
+                                        : ""
                                     }
                                     onChange={(e) => {
                                       setObat({
@@ -1354,7 +1282,6 @@ const PenjualanDialog = ({
                         color="green"
                         onClick={() => {
                           setObatDialog(false);
-                          setCari("");
                           if (!!obat?.id_poa) {
                             setValue("detail", [...watch("detail"), obat]);
                           }
@@ -1368,7 +1295,6 @@ const PenjualanDialog = ({
                         color="red"
                         onClick={() => {
                           setObatDialog(false);
-                          setCari("");
                           setObat(null);
                         }}
                       >
@@ -1436,7 +1362,7 @@ const PenjualanDialog = ({
                         value={
                           watch("detail")?.find(
                             (_, idx) => idx === ubahObat.data?.idx
-                          )?.jumlah || NaN
+                          )?.jumlah || ""
                         }
                         onChange={(e) => {
                           const detailJumlah = (watch("detail") || []).map(

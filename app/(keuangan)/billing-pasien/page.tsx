@@ -1,7 +1,6 @@
 "use client";
 
 import css from "@/assets/css/scrollbar.module.css";
-import FastabiqLogo from "@/assets/img/fastabiq-logo.png";
 import { Button } from "@/components/button";
 import { Input } from "@/components/form";
 import {
@@ -14,9 +13,8 @@ import {
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
 import { ArrayElementType, cn, getAge } from "@/lib/utils";
-import { Dialog, Listbox, Transition } from "@headlessui/react";
+import { Dialog, Listbox, Popover, Transition } from "@headlessui/react";
 import Cookies from "js-cookie";
-import Image from "next/image";
 import {
   Fragment,
   useCallback,
@@ -27,19 +25,20 @@ import {
   useRef,
   useState,
 } from "react";
-import { IoDocumentTextOutline } from "react-icons/io5";
+import { IoDocumentTextOutline, IoPrint } from "react-icons/io5";
 import { RiArrowDropDownLine, RiCheckLine, RiCloseLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { Billing, ListBilling, ListTarif, TBillingPasien } from "../schema";
-import { FaCheck } from "react-icons/fa6";
+import { FaCheck, FaChevronDown } from "react-icons/fa6";
 import { useReactToPrint } from "react-to-print";
 import { TbTrash } from "react-icons/tb";
+import CetakBilling from "./_components/cetak-billing";
 
-type BillingState = {
+export type BillingState = {
   modal: boolean;
   data?: ListBilling;
 };
-type BillingAction = { type: "setBilling"; billing: BillingState };
+export type BillingAction = { type: "setBilling"; billing: BillingState };
 
 export default function ListPasienBilling() {
   const headers = new Headers();
@@ -235,7 +234,7 @@ export default function ListPasienBilling() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>No. R.M.</ThDiv>
@@ -447,18 +446,32 @@ const BillingDialog = ({
     }
   };
 
-  const cetakRef = useRef(null);
+  const cetakRef1 = useRef(null);
+  const cetakRef2 = useRef(null);
   const onBeforeGetContentResolve = useRef<Promise<void> | null>(null);
   const handleOnBeforeGetContent = useCallback(async () => {
     await onBeforeGetContentResolve.current;
   }, [billing]);
 
-  const reactToPrintContent = useCallback(() => {
-    return cetakRef.current;
-  }, [cetakRef.current]);
+  const reactToPrintContent1 = useCallback(() => {
+    return cetakRef1.current;
+  }, [cetakRef1.current]);
+  const reactToPrintContent2 = useCallback(() => {
+    return cetakRef2.current;
+  }, [cetakRef2.current]);
 
-  const handlePrint = useReactToPrint({
-    content: reactToPrintContent,
+  const handlePrint1 = useReactToPrint({
+    content: reactToPrintContent1,
+    documentTitle: `Billing ${billing.data?.kodebooking}`,
+    onBeforeGetContent: handleOnBeforeGetContent,
+    onPrintError: (_, err) => {
+      toast.error(err.message);
+    },
+    removeAfterPrint: true,
+  });
+
+  const handlePrint2 = useReactToPrint({
+    content: reactToPrintContent2,
     documentTitle: `Billing ${billing.data?.kodebooking}`,
     onBeforeGetContent: handleOnBeforeGetContent,
     onPrintError: (_, err) => {
@@ -994,13 +1007,63 @@ const BillingDialog = ({
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end gap-1">
-                  <Button
-                    color="cyan"
-                    disabled={isEditing}
-                    onClick={handlePrint}
-                  >
-                    Print
-                  </Button>
+                  <Popover className="relative">
+                    <Popover.Button
+                      className={cn(
+                        "inline-flex items-center rounded p-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-0 disabled:opacity-50",
+                        "bg-cyan-500 enabled:hover:bg-cyan-600 enabled:active:bg-cyan-700",
+                        "justify-between gap-4"
+                      )}
+                    >
+                      Print
+                      <FaChevronDown />
+                    </Popover.Button>
+                    <Transition
+                      as={Fragment}
+                      enter="transition ease-out duration-200"
+                      enterFrom="opacity-0 translate-y-1"
+                      enterTo="opacity-100 translate-y-0"
+                      leave="transition ease-in duration-150"
+                      leaveFrom="opacity-100 translate-y-0"
+                      leaveTo="opacity-0 translate-y-1"
+                    >
+                      <Popover.Panel
+                        className={cn(
+                          // "absolute left-1/2 z-[1010] mt-1.5 max-h-36 w-80 origin-top-left -translate-x-1/2 overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-700",
+                          "fixed z-[1020] mt-2 max-h-32 w-32 origin-top-right overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-700",
+                          // "-top-2 mb-2 mt-0 -translate-y-full",
+                          css.scrollbar
+                        )}
+                      >
+                        <div className="p-0.5">
+                          <button
+                            type="button"
+                            className={cn(
+                              "flex w-full items-center rounded-md px-2 py-2 text-[11px]/[12px]",
+                              "gap-4"
+                            )}
+                            onClick={handlePrint1}
+                          >
+                            <IoPrint className="size-3" />
+                            Print Besar
+                          </button>
+                        </div>
+                        <div className="p-0.5">
+                          <button
+                            type="button"
+                            className={cn(
+                              "flex w-full items-center rounded-md px-2 py-2 text-[11px]/[12px]",
+                              "gap-4"
+                            )}
+                            onClick={handlePrint2}
+                          >
+                            <IoPrint className="size-3" />
+                            Print Kecil
+                          </button>
+                        </div>
+                      </Popover.Panel>
+                    </Transition>
+                  </Popover>
                   {billing.data?.status === 1 ? (
                     <Button
                       color="green"
@@ -1024,159 +1087,17 @@ const BillingDialog = ({
                   </Button>
                 </div>
                 <div className="hidden">
-                  <div className="p-2 font-[Arial]" ref={cetakRef}>
-                    <div className="grid grid-cols-5 justify-center">
-                      <Image
-                        src={FastabiqLogo}
-                        width={80}
-                        className="w-20 object-scale-down"
-                        alt="Logo Fastabiq"
-                        priority
-                      />
-                      <div className="col-span-3 flex flex-col text-center text-sm">
-                        <p className="text-xl font-medium">
-                          RSU Fastabiq Sehat PKU Muhammadiyah
-                        </p>
-                        <p>
-                          Jl. Pati - Tayu Km. 03, Tambaharjo, Kec. Pati, Pati,
-                          Jawa Tengah
-                        </p>
-                        <p>
-                          (0295) 4199008, Fax (0295) 4101177, E-mail:
-                          rsfastabiqsehat@gmail.com
-                        </p>
-                        <p className="my-1 text-base uppercase">BILLING</p>
-                      </div>
-                      <p className="self-center pl-5 text-base uppercase">
-                        {billing.data?.cara_bayar}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-0.5 text-sm">
-                      <div className="flex">
-                        <p className="w-44">No. Kunjungan</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>{billing.data?.kodebooking}</p>
-                      </div>
-                      <div className="flex">
-                        <p className="w-44">Unit/Instansi</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>{billing.data?.instansi}</p>
-                      </div>
-                      <div className="flex">
-                        <p className="w-44">Tanggal & Jam</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>
-                          {billing.data?.created_at
-                            ? new Intl.DateTimeFormat("id-ID", {
-                                dateStyle: "long",
-                                timeStyle: "long",
-                              }).format(new Date(billing.data.created_at))
-                            : ""}
-                        </p>
-                      </div>
-                      <div className="flex">
-                        <p className="w-44">No. RM</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>{billing.data?.nomer}</p>
-                      </div>
-                      <div className="flex">
-                        <p className="w-44">Nama Pasien</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>
-                          {billing.data?.nama} (
-                          {getAge(new Date(billing.data?.tanggal_lahir!))}{" "}
-                          Tahun)
-                        </p>
-                      </div>
-                      <div className="flex">
-                        <p className="w-44">Alamat Pasien</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>{billing.data?.alamat}</p>
-                      </div>
-                      <div className="flex">
-                        <p className="w-44">Dokter</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p>{billing.data?.dokter}</p>
-                      </div>
-                      {/* <div className="flex">
-                        <p className="w-44">Administrasi Rekam Medis</p>
-                        <p className="px-1.5 align-top">:</p>
-                        <p className="ml-auto">Rp 23.000,00</p>
-                      </div> */}
-                      <table className="w-full">
-                        <tbody>
-                          <tr>
-                            <td
-                              className="w-44 align-top"
-                              rowSpan={
-                                (billingPasien?.detail ?? [])?.length + 1
-                              }
-                            >
-                              Tarif
-                            </td>
-                          </tr>
-                          {billingPasien?.detail?.map((val, idx) => (
-                            <tr key={idx.toString()}>
-                              <td className="pl-1.5">{val.nama_tarif}</td>
-                              <td className="text-xs">1</td>
-                              <td className="text-right">
-                                {val.nominal?.replace("Rp", "Rp ")}
-                              </td>
-                            </tr>
-                          ))}
-
-                          <tr>
-                            <td
-                              className="w-44 align-top"
-                              rowSpan={(billingPasien?.obat ?? [])?.length + 1}
-                            >
-                              Obat
-                            </td>
-                          </tr>
-                          {billingPasien?.obat?.map((val, idx) => (
-                            <tr key={idx.toString()}>
-                              <td className="pl-1.5">{val.nama}</td>
-                              <td className="text-xs">{val.jumlah}</td>
-                              <td className="text-right">
-                                {!!val.total
-                                  ? new Intl.NumberFormat("id-ID", {
-                                      style: "currency",
-                                      currency: "IDR",
-                                    }).format(val.total)
-                                  : ""}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      <div className="flex justify-between font-semibold">
-                        <p>TOTAL TAGIHAN</p>
-                        <p>
-                          {!!billingPasien?.total
-                            ? new Intl.NumberFormat("id-ID", {
-                                style: "currency",
-                                currency: "IDR",
-                              }).format(billingPasien.total)
-                            : ""}
-                        </p>
-                      </div>
-                      <div className="flex justify-between font-semibold">
-                        <p>PPN</p>
-                        <p>Rp 0,00</p>
-                      </div>
-                      <div className="flex items-start justify-between font-semibold">
-                        <p>TOTAL BAYAR</p>
-                        <p className="text-lg">
-                          {!!billingPasien?.total
-                            ? new Intl.NumberFormat("id-ID", {
-                                style: "currency",
-                                currency: "IDR",
-                              }).format(billingPasien.total)
-                            : ""}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <CetakBilling
+                    billing={billing}
+                    billingPasien={billingPasien}
+                    ref={cetakRef1}
+                  />
+                  <CetakBilling
+                    billing={billing}
+                    billingPasien={billingPasien}
+                    small
+                    ref={cetakRef2}
+                  />
                 </div>
                 {/* </form> */}
               </Dialog.Panel>

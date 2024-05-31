@@ -1,16 +1,27 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { RiAddCircleLine, RiDeleteBin5Line } from "react-icons/ri";
 import { useFormContext, Controller } from "react-hook-form";
 import { Transition } from "@headlessui/react";
 import { Input, InputArea, LabelButton } from "@/components/form";
-import { MyOption, MyOptions, SelectInput } from "@/components/select";
+import {
+  AsyncSelectInput,
+  MyOption,
+  MyOptions,
+  SelectInput,
+} from "@/components/select";
 import { Button } from "@/components/button";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
-import { KlinikAsesmen, TAsesmenPer, TFormImunisasi } from "../../schema";
+import {
+  DiagnosisKeperawatan,
+  KlinikAsesmen,
+  TAsesmenPer,
+  TFormImunisasi,
+} from "../../schema";
 import { useParams } from "next/navigation";
 import { HasilSkrining } from "../../_components/skrining-perawat";
+import { APIURL } from "@/lib/connection";
 
 export const SubjektifPer = ({
   listImunisasi,
@@ -665,11 +676,12 @@ export const ObjektifPer = ({
                       {...register("fisik.td.0", {
                         valueAsNumber: true,
                       })}
+                      min={50}
+                      step={5}
                       onWheel={(e) => e.currentTarget.blur()}
                       onInput={(
                         e: React.FocusEvent<HTMLInputElement, Element>
                       ) => {
-                        +e.target.value < 0 && setValue("fisik.td.0", 0);
                         +e.target.value > 250 && setValue("fisik.td.0", 250);
                       }}
                     />
@@ -686,11 +698,12 @@ export const ObjektifPer = ({
                       {...register("fisik.td.1", {
                         valueAsNumber: true,
                       })}
+                      min={10}
+                      step={5}
                       onWheel={(e) => e.currentTarget.blur()}
                       onInput={(
                         e: React.FocusEvent<HTMLInputElement, Element>
                       ) => {
-                        +e.target.value < 0 && setValue("fisik.td.1", 0);
                         +e.target.value > 180 && setValue("fisik.td.1", 180);
                       }}
                     />
@@ -714,11 +727,11 @@ export const ObjektifPer = ({
                     type="number"
                     className="mb-2 py-1 pl-2 pr-10 text-xs"
                     {...register("fisik.hr", { valueAsNumber: true })}
+                    min={20}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.hr", 0);
                       +e.target.value > 300 && setValue("fisik.hr", 300);
                     }}
                   />
@@ -774,11 +787,11 @@ export const ObjektifPer = ({
                     type="number"
                     className="mb-2 py-1 pl-2 pr-10 text-xs"
                     {...register("fisik.rr", { valueAsNumber: true })}
+                    min={10}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.rr", 0);
                       +e.target.value > 40 && setValue("fisik.rr", 40);
                     }}
                   />
@@ -803,11 +816,11 @@ export const ObjektifPer = ({
                     {...register("fisik.saturasi", {
                       valueAsNumber: true,
                     })}
+                    min={50}
                     onWheel={(e) => e.currentTarget.blur()}
                     onInput={(
                       e: React.FocusEvent<HTMLInputElement, Element>
                     ) => {
-                      +e.target.value < 0 && setValue("fisik.saturasi", 0);
                       +e.target.value > 100 && setValue("fisik.saturasi", 100);
                     }}
                   />
@@ -876,7 +889,7 @@ export const ObjektifPer = ({
                 </label>
                 <InputArea
                   className="mb-2 px-2 py-1 text-xs"
-                  placeholder="(GDS, Luka, HPM, ...)"
+                  placeholder="(Pemeriksaan Fisik Lain, Pemeriksaan Penunjang, ...)"
                   {...register("fisik.tambahan")}
                 />
               </div>
@@ -953,43 +966,259 @@ export const ObjektifPer = ({
 };
 
 export const AsesmenPer = ({
+  isUpdate,
   setTabIdx,
   panelDivRef,
 }: {
+  isUpdate: boolean;
   setTabIdx: React.Dispatch<React.SetStateAction<number>>;
   panelDivRef: React.RefObject<HTMLElement>;
 }) => {
+  const headers = new Headers();
+  const token = Cookies.get("token");
+  headers.append("Authorization", token as string);
+  headers.append("Content-Type", "application/json");
+
   const {
-    register,
+    watch,
+    setValue,
     trigger,
     formState: { errors },
   } = useFormContext<TAsesmenPer>();
+
+  const [katDiagPerOptions, setKatDiagPerOptions] = useState<MyOptions>([]);
+  const [selKatDiag, setSelKatDiag] = useState<MyOption | null>(null);
+  const loadKatDiagPer = async () => {
+    try {
+      const url = `${APIURL}/rs/diagnosa/perawat/kategori/`;
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+      const json = await resp.json();
+      if (json.status !== "Ok") throw new Error(json.message);
+      setKatDiagPerOptions(
+        json?.data.map((val: Pick<DiagnosisKeperawatan, "id" | "nama">) => ({
+          value: val.id,
+          label: val.nama,
+        }))
+      );
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === "Data tidak ditemukan") return;
+      toast.error(error.message);
+      console.error(error);
+    }
+  };
+
+  const initialized = useRef<boolean>(false);
+  useEffect(() => {
+    if (!initialized.current) {
+      loadKatDiagPer();
+      loadDiagnosisPer("");
+      initialized.current = true;
+    }
+  }, []);
+
+  const [subKatDiagPerOptions, setSubKatDiagPerOptions] = useState<MyOptions>(
+    []
+  );
+  const [selSubKatDiag, setSelSubKatDiag] = useState<MyOption | null>(null);
+  const loadSubKatDiagPer = async (id: number) => {
+    try {
+      const url = `${APIURL}/rs/diagnosa/perawat/subkategori/${id}`;
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+      const json = await resp.json();
+      if (json.status !== "Ok") throw new Error(json.message);
+      setSubKatDiagPerOptions(
+        json?.data.map((val: DiagnosisKeperawatan) => ({
+          value: val.id,
+          label: val.nama,
+        }))
+      );
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === "Data tidak ditemukan") return;
+      toast.error(error.message);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selKatDiag?.value) loadSubKatDiagPer(selKatDiag.value as number);
+  }, [selKatDiag]);
+
+  const [diagPerOptions, setDiagPerOptions] = useState<MyOptions>([]);
+  const [selDiagnosis, setSelDiagnosis] = useState<MyOption | null>(null);
+  const loadDiagnosisPer = async (inputSearch: string) => {
+    try {
+      const url = new URL(
+        `${APIURL}/rs/diagnosa/perawat/${selSubKatDiag?.value || ""}`
+      );
+      const params = {
+        keyword: inputSearch?.trimStart(),
+      };
+      url.search = new URLSearchParams(params as any).toString();
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+      const json = await resp.json();
+      if (json.status !== "Ok") throw new Error(json.message);
+      const options = json?.data.map((val: DiagnosisKeperawatan) => ({
+        value: val.kode,
+        label: val.nama,
+      }));
+      setDiagPerOptions(options);
+      return options;
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === "Data tidak ditemukan") return [];
+      toast.error(error.message);
+      console.error(error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    if (selSubKatDiag?.value) loadDiagnosisPer("");
+  }, [selSubKatDiag]);
+
+  const diagnosis = watch("keperawatan.diagnosis") || [];
+  const addDiagnosis = () => {
+    if (!selDiagnosis) return toast.warning("Pilih diagnosis terlebih dahulu!");
+    const newDiag = diagnosis;
+    newDiag.push({
+      id_diagnosis: selDiagnosis.value as string,
+      nama: selDiagnosis.label,
+    });
+    setValue("keperawatan.diagnosis", [...newDiag]);
+    trigger("keperawatan.diagnosis");
+  };
+
+  const delDiagnosis = (id: number) => {
+    setValue(
+      "keperawatan.diagnosis",
+      diagnosis?.filter((_, i) => id !== i)
+    );
+    trigger("keperawatan.diagnosis");
+  };
   return (
     <>
       <div className={cn("mb-2")}>
         <div className="pr-1">
           <div className="select-none rounded-t bg-cyan-600 py-1.5 text-center text-sm uppercase tracking-normal text-slate-50 dark:bg-sky-700">
-            Diagnosis/Masalah Medis
+            Diagnosis/Masalah Keperawatan
           </div>
           <div className="flex h-[calc(100%-32px)] flex-col items-center justify-center rounded-b bg-slate-200 p-2 text-xs shadow-md dark:bg-gray-800">
             <div
               className={cn(
-                "relative flex w-6/12 justify-center",
+                "relative w-full justify-center gap-1",
                 errors.keperawatan?.diagnosis &&
                   "rounded-lg bg-red-300 p-2 pt-4 dark:bg-red-500/50"
               )}
             >
+              <small className="text-sky-700 dark:text-sky-400">
+                Catatan: Klik (+) untuk menambah item
+              </small>
               {errors.keperawatan?.diagnosis ? (
                 <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
                   {errors.keperawatan.diagnosis.message}
                 </p>
               ) : null}
-              <InputArea
-                className="px-2 py-1 text-xs"
-                placeholder="Diagnosis/Masalah Keperawatan"
-                {...register("keperawatan.diagnosis")}
-              />
+              <div className="flex w-full gap-2">
+                <SelectInput
+                  isClearable
+                  noOptionsMessage={(e) => "Tidak ada pilihan"}
+                  size="sm"
+                  options={katDiagPerOptions}
+                  placeholder="Pilih Kategori"
+                  value={selKatDiag}
+                  onChange={(option) =>
+                    setSelKatDiag(option as MyOption | null)
+                  }
+                  maxMenuHeight={200}
+                />
+                <SelectInput
+                  isClearable
+                  noOptionsMessage={(e) => "Pilih kategori terlebih dahulu"}
+                  size="sm"
+                  options={subKatDiagPerOptions}
+                  placeholder="Pilih Subkategori"
+                  value={selSubKatDiag}
+                  onChange={(option) =>
+                    setSelSubKatDiag(option as MyOption | null)
+                  }
+                  maxMenuHeight={200}
+                />
+                <AsyncSelectInput
+                  noOptionsMessage={(e) => "Pilih diagnosis"}
+                  className="w-full flex-1"
+                  size="sm"
+                  loadOptions={loadDiagnosisPer}
+                  // options={diagPerOptions}
+                  placeholder="Pilih Diagnosis"
+                  value={selDiagnosis}
+                  onChange={(option) =>
+                    setSelDiagnosis(option as MyOption | null)
+                  }
+                  maxMenuHeight={200}
+                />
+                <button type="button" onClick={addDiagnosis}>
+                  <RiAddCircleLine
+                    size="1.5rem"
+                    className="text-blue-600 dark:text-blue-400"
+                  />
+                </button>
+              </div>
             </div>
+            <Transition
+              show={diagnosis?.length !== 0}
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 -translate-y-1"
+              enterTo="opacity-100"
+              leave="ease-in duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className={cn("mt-2 w-full overflow-hidden rounded shadow")}>
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="divide-x divide-slate-50 bg-slate-100 dark:bg-gray-700">
+                      <td className={cn("px-4 py-2")}>No.</td>
+                      <td className={cn("px-4 py-2")}>Diagnosis</td>
+                      <td className={cn("px-4 py-2")}>*</td>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {diagnosis?.map((diag, idx) => (
+                      <tr
+                        className="bg-white hover:text-sky-600 dark:bg-slate-900"
+                        key={idx}
+                      >
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          {idx + 1 + "."}
+                        </td>
+                        <td className="whitespace-pre-wrap px-4 py-2">
+                          {diag.nama}
+                        </td>
+                        <td className="text-center">
+                          <RiDeleteBin5Line
+                            className="inline text-amber-500 hover:cursor-pointer"
+                            size="1.2rem"
+                            onClick={() => delDiagnosis(idx)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Transition>
           </div>
         </div>
       </div>
@@ -1054,6 +1283,8 @@ export const PlanningTargetPer = ({
                       ? "keperawatan.rencana_asuhan"
                       : "kebidanan.rencana_asuhan"
                   )}
+                  rows={3}
+                  // placeholder="(Tuliskan pokok rencana asuhan yang akan diberikan. Misal: Pengobatan rawat jalan, rawat inap, tindakan, dsb.)"
                 />
               </div>
               <div
@@ -1075,6 +1306,8 @@ export const PlanningTargetPer = ({
                   {...register(
                     !klinik.isObg ? "keperawatan.target" : "kebidanan.target"
                   )}
+                  rows={3}
+                  // placeholder="(Tuliskan target objektif dari rencana asuhan. Misal: TD Sistolik < 140mmHg, atau sesak berkurang, atau GDS < 200mg/dL)"
                 />
               </div>
             </div>

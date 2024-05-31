@@ -78,7 +78,8 @@ export type KunjunganPenunjang = {
   id_asuransi: number;
   asuransi: string;
   id_kunjungan: string;
-  tanggal: Date;
+  tanggal_lahir: string;
+  tanggal: string;
 };
 
 export const KunjunganPenunjangSchema = z.object({

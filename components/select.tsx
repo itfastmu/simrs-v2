@@ -46,7 +46,7 @@ export function SelectInput({
 
   return (
     <Select
-      noOptionsMessage={() => "Tidak ada pilihan"}
+      noOptionsMessage={noOptionsMessage || ((e) => "Tidak ada pilihan")}
       styles={{
         control: (base, props) => ({
           ...base,
@@ -194,6 +194,7 @@ export function CreatableSelectInput<
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >({
+  noOptionsMessage,
   size = "md",
   withSpan = false,
   ...props
@@ -223,7 +224,7 @@ export function CreatableSelectInput<
 
   return (
     <CreatableSelect
-      noOptionsMessage={() => "Tidak ada pilihan"}
+      noOptionsMessage={noOptionsMessage || ((e) => "Tidak ada pilihan")}
       styles={{
         control: (base, props) => ({
           ...base,
@@ -371,6 +372,7 @@ export function AsyncSelectInput<
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >({
+  noOptionsMessage,
   size = "md",
   withSpan,
   ...props
@@ -400,7 +402,7 @@ export function AsyncSelectInput<
 
   return (
     <AsyncSelect
-      noOptionsMessage={() => "Tidak ada pilihan"}
+      noOptionsMessage={noOptionsMessage || ((e) => "Tidak ada pilihan")}
       styles={{
         control: (base, props) => ({
           ...base,

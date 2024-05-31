@@ -84,6 +84,34 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
+type AnchorProps = {
+  children?: React.ReactNode;
+  disabled?: boolean;
+  className?: string;
+  color?: string;
+} & React.ComponentProps<"a"> &
+  VariantProps<typeof colorButtonVariant>;
+
+const LinkButton = React.forwardRef<HTMLAnchorElement, AnchorProps>(
+  ({ children, disabled, className = "", type, color, ...props }, ref) => {
+    return (
+      <a
+        {...props}
+        type={type || "button"}
+        className={cn(
+          "inline-flex items-center rounded p-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-0 disabled:opacity-50",
+          colorButtonVariant({ color }),
+          className
+        )}
+        ref={ref}
+      >
+        {children}
+      </a>
+    );
+  }
+);
+LinkButton.displayName = "LinkButton";
+
 type ButtonTransparentProps = {
   children?: React.ReactNode;
   disabled?: boolean;
@@ -155,4 +183,4 @@ const ButtonTransparent = React.forwardRef<
 );
 ButtonTransparent.displayName = "ButtonTransparent";
 
-export { Button, ButtonTransparent };
+export { Button, ButtonTransparent, LinkButton };

@@ -226,15 +226,16 @@ export default function StokOpnameDialog({
       //       check: false,
       //     })),
       // ]);
-      setValue("so", [
-        ...data.map((val) => ({
+      setValue(
+        "so",
+        data.map((val) => ({
           id_poa: val.id_poa,
           nama: val.nama,
           stok_awal: val.stok,
           jumlah: val.stok,
           check: false,
-        })),
-      ]);
+        })) || []
+      );
     } catch (error) {
       console.error(error);
     }
@@ -306,18 +307,22 @@ export default function StokOpnameDialog({
   ) => {
     try {
       e?.preventDefault();
+      const soPartial = watch("so").filter((val) => val.check);
       const post = await fetch(`${APIURL}/rs/farmasi/insert_so`, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify({ id_so: watch("id_so"), so: watch("so") }),
+        body: JSON.stringify({
+          id_so: watch("id_so"),
+          so: soPartial,
+        }),
       });
       const resp = await post.json();
       if (resp.status !== "Created") throw new Error(resp.message);
       toast.success(resp.message);
-      obatDepoDispatch({ modal: false });
+      // obatDepoDispatch({ modal: false });
       setValue(
         "so",
-        watch("so")?.filter((val) => val.check === false)
+        watch("so")?.filter((val) => !val.check)
       );
       loadData();
     } catch (err) {
@@ -817,6 +822,7 @@ export default function StokOpnameDialog({
                         <Button
                           color="green"
                           disabled={
+                            !watch("so") ||
                             watch("so")?.length === 0 ||
                             watch("so")?.find((val) => val.check === true)
                               ?.check ||
@@ -828,9 +834,10 @@ export default function StokOpnameDialog({
                         </Button>
                         <Button
                           color="green100"
-                          disabled={watch("so")?.every(
-                            (val) => val.check === false
-                          )}
+                          disabled={
+                            !watch("so") ||
+                            watch("so")?.every((val) => val.check === false)
+                          }
                           onClick={submitPartiallyHandler}
                         >
                           Kirim
@@ -852,160 +859,6 @@ export default function StokOpnameDialog({
             </div>
           </Dialog>
         </Transition>
-
-        {/* <Transition show={ubahObat.modal} as={Fragment}>
-          <Dialog
-            as="div"
-            className="relative z-[1005]"
-            onClose={() => {
-              ubahObatDispatch({
-                type: "setUbah",
-                ubah: {
-                  ...ubahObat,
-                  modal: false,
-                },
-              });
-            }}
-          >
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-25" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-50"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
-                    <Dialog.Title
-                      as="p"
-                      className="border-b border-slate-200 text-center font-medium leading-6 text-gray-900 dark:border-slate-300 dark:text-slate-100"
-                    >
-                      Ubah Obat
-                    </Dialog.Title>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="batch" className="text-sm">
-                        Batch
-                      </label>
-                      <Input
-                        value={
-                          watch("detail")?.find(
-                            (_, idx) => idx === ubahObat.data?.idx
-                          )?.batch || ""
-                        }
-                        onChange={(e) => {
-                          const detailBatch = (watch("detail") || []).map(
-                            (val, idx) => {
-                              if (idx === ubahObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  batch: e.target.value,
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("detail", detailBatch);
-                        }}
-                        id="batch"
-                        className="text-sm"
-                      />
-                    </div>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="kadaluarsa" className="text-sm">
-                        Kadaluarsa
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          watch("detail")?.find(
-                            (_, idx) => idx === ubahObat.data?.idx
-                          )?.kadaluarsa || ""
-                        }
-                        onChange={(e) => {
-                          const detailKadaluarsa = (watch("detail") || []).map(
-                            (val, idx) => {
-                              if (idx === ubahObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  kadaluarsa: e.target.value,
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("detail", detailKadaluarsa);
-                        }}
-                        id="kadaluarsa"
-                        className="text-sm"
-                      />
-                    </div>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="jumlah" className="text-sm">
-                        Jumlah
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        value={
-                          watch("detail")?.find(
-                            (_, idx) => idx === ubahObat.data?.idx
-                          )?.jumlah || NaN
-                        }
-                        onChange={(e) => {
-                          const detailJumlah = (watch("detail") || []).map(
-                            (val, idx) => {
-                              if (idx === ubahObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  jumlah: parseInt(e.target.value),
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("detail", detailJumlah);
-                        }}
-                        id="jumlah"
-                        className="text-sm"
-                      />
-                    </div>
-                    <div className="mt-4 flex justify-end gap-1">
-                      <Button
-                        color="red"
-                        onClick={() => {
-                          ubahObatDispatch({
-                            type: "setUbah",
-                            ubah: {
-                              ...ubahObat,
-                              modal: false,
-                            },
-                          });
-                        }}
-                      >
-                        Tutup
-                      </Button>
-                    </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition> */}
       </Dialog>
     </Transition>
   );

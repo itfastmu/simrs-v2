@@ -21,7 +21,7 @@ import { ImMenu3 } from "react-icons/im";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { useReactToPrint } from "react-to-print";
 import { toast } from "react-toastify";
-import { THasilDokter, THasilPerawat } from "../../../schema";
+import { THasilDokter, THasilPerawat, THasilPsikolog } from "../../../schema";
 import HasilBidan from "./hasil-bidan";
 import HasilPerawat from "./hasil-perawat";
 import RiwayatDiagnosis from "./riwayat-diagnosis";
@@ -29,6 +29,7 @@ import RiwayatDokter from "./riwayat-dokter";
 import RiwayatRadiologi from "./riwayat-radiologi";
 import RiwayatResep from "./riwayat-resep";
 import RiwayatTindakan from "./riwayat-tindakan";
+import RiwayatPsikolog from "./riwayat-psikolog";
 
 type TRiwayatPemeriksaanRajal = {
   id: string;
@@ -50,7 +51,7 @@ export type RiwDokterState = {
   modal: boolean;
   data?: TRiwayatPemeriksaanRajal;
 };
-export type RiwDokterAction = { riwDokter: RiwDokterState };
+export type RiwDokterAction = RiwDokterState;
 
 export default function RiwayatPemeriksaan() {
   const headers = new Headers();
@@ -171,7 +172,7 @@ export default function RiwayatPemeriksaan() {
     modal: false,
   };
   const riwDokterActs = (state: RiwDokterState, action: RiwDokterAction) => {
-    return action.riwDokter;
+    return action;
   };
   const [riwDokter, riwDokterDispatch] = useReducer(
     riwDokterActs,
@@ -200,6 +201,59 @@ export default function RiwayatPemeriksaan() {
     if (!riwDokter.data || !riwDokter.modal) return;
     loadAsesDokter();
   }, [riwDokter]);
+
+  const riwPsikologState = {
+    modal: false,
+  };
+  const riwPsikologActs = (state: RiwDokterState, action: RiwDokterAction) => {
+    return action;
+  };
+  const [riwPsikolog, riwPsikologDispatch] = useReducer(
+    riwPsikologActs,
+    riwPsikologState
+  );
+  const [hasilPsikolog] = useState<THasilPsikolog>({
+    id_kunjungan: "202433312321",
+    penyakit: {
+      keluhan_fisik: "Keluhan Fisik Contoh",
+      keluhan_psikologis: "Keluhan Psikologis Contoh",
+      diagnosis_dokter: "Diagnosis Dokter Contoh",
+    },
+    observasi: {
+      penampilan: "Terawat",
+      sikap: "Kooperatif",
+      afek: "Normal",
+      muka: "Wajar",
+      pikir: "Realistik",
+      persepsi: "Tidak Ada",
+      emosi: "Stabil",
+      perilaku: "Normal",
+    },
+    kognitif: {
+      memori: false,
+      konsentrasi: false,
+      orientasi: false,
+      verbal: false,
+      memori_ket: "",
+      konsentrasi_ket: "",
+      orientasi_ket: "",
+      verbal_ket: "",
+    },
+    psikotes: { tes: [], hasil: "" },
+    simpton: [],
+    dinamika: "Dinamika Psikologi Contoh",
+    diagnosis_psikologi: "Diagnosis Psikologi Contoh",
+    rencana: "Rencana Intervensi Contoh",
+    intervensi: "Intervensi Contoh",
+    diagnosis: [
+      {
+        id: 12,
+        diagnosis: "Diagnosis Utama Anxiety",
+        icd10: { id: "AA.00", nama: "AA.00 - Anxiety Disorder" },
+        primer: true,
+      },
+    ],
+  });
 
   const printRef = useRef<HTMLDivElement>(null);
   const reactToPrintContent = useCallback(() => {
@@ -366,7 +420,8 @@ export default function RiwayatPemeriksaan() {
                           disabled={parseInt(val.proses) < 5}
                           onClick={() =>
                             riwDokterDispatch({
-                              riwDokter: { modal: true, data: val },
+                              modal: true,
+                              data: val,
                             })
                           }
                           className="w-20 justify-center py-1.5 text-xs"
@@ -381,6 +436,30 @@ export default function RiwayatPemeriksaan() {
               ))}
             </>
           ) : null}
+          <div className="relative flex flex-col gap-0.5 border border-gray-300 bg-gray-50 px-2 py-1.5 pr-24 text-left shadow hover:-translate-y-0.5 dark:border-slate-400 dark:bg-slate-700">
+            <p className="mb-1 text-sm font-semibold">
+              {new Intl.DateTimeFormat("id-ID", {
+                dateStyle: "long",
+              }).format(new Date())}
+            </p>
+            <p>Rawat Jalan</p>
+            <p>Klinik Psikologi</p>
+            {/* <p>{val.dokter}</p> */}
+            <div className="absolute right-2 flex flex-col items-center justify-center gap-1">
+              <Button
+                // disabled={parseInt(val.proses) < 5}
+                onClick={() =>
+                  riwPsikologDispatch({
+                    modal: true /* data: val */,
+                  })
+                }
+                className="w-20 justify-center py-1.5 text-xs"
+                color="slatesky"
+              >
+                Psikolog
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -481,6 +560,12 @@ export default function RiwayatPemeriksaan() {
         riwDokter={riwDokter}
         riwDokterDispatch={riwDokterDispatch}
         hasilDokter={hasilDokter}
+      />
+
+      <RiwayatPsikolog
+        riwPsikolog={riwPsikolog}
+        riwPsikologDispatch={riwPsikologDispatch}
+        hasilPsikolog={hasilPsikolog}
       />
 
       <RiwayatResep

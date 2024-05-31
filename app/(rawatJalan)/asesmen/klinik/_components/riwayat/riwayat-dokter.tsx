@@ -75,7 +75,7 @@ export default function RiwayatDokter({
       <Dialog
         as="div"
         className="relative z-[1001]"
-        onClose={() => riwDokterDispatch({ riwDokter: { modal: false } })}
+        onClose={() => riwDokterDispatch({ modal: false })}
       >
         <Transition.Child
           as={Fragment}
@@ -120,12 +120,13 @@ export default function RiwayatDokter({
                           type="button"
                           onClick={() => {
                             riwDokterDispatch({
-                              riwDokter: { ...riwDokter, modal: false },
+                              ...riwDokter,
+                              modal: false,
                             });
                             setTimeout(
                               () =>
                                 riwDokterDispatch({
-                                  riwDokter: { modal: false },
+                                  modal: false,
                                 }),
                               250
                             );
@@ -710,7 +711,7 @@ export default function RiwayatDokter({
                     <p className="mb-1 text-center text-sm">Diagnosis</p>
                     <div
                       className={cn(
-                        "mt-1 w-full overflow-hidden rounded text-sm shadow"
+                        "mt-1 w-full overflow-hidden rounded text-xs shadow"
                       )}
                     >
                       <table className="min-w-full">
@@ -749,7 +750,7 @@ export default function RiwayatDokter({
                   </div>
                   <div className="rounded bg-slate-50 p-2 shadow-sm">
                     <p className="pb-1.5 text-sky-900">Planning & Target</p>
-                    <div className="grid grid-cols-2 overflow-hidden rounded text-sm shadow ">
+                    <div className="grid grid-cols-2 overflow-hidden rounded text-xs shadow ">
                       <div>
                         <p className="mb-0.5 bg-slate-300/70 px-4 py-2">
                           Rencana Asuhan
@@ -775,7 +776,7 @@ export default function RiwayatDokter({
                         <p className="mb-1 text-center text-sm">Tindakan</p>
                         <div
                           className={cn(
-                            "mt-1 w-full overflow-hidden rounded text-sm shadow"
+                            "mt-1 w-full overflow-hidden rounded text-xs shadow"
                           )}
                         >
                           <table className="min-w-full">
@@ -852,7 +853,8 @@ export default function RiwayatDokter({
                                       </td>
                                     </tr>
                                   ))}
-                                  {hasilDokter?.nonracik?.length === 0 ? (
+                                  {!hasilDokter?.nonracik ||
+                                  hasilDokter?.nonracik?.length === 0 ? (
                                     <tr>
                                       <td colSpan={8}>
                                         <p className="px-4 py-2 text-center">
@@ -1040,7 +1042,8 @@ export default function RiwayatDokter({
                                       )}
                                     </>
                                   ))}
-                                  {hasilDokter?.racik?.length === 0 ? (
+                                  {!hasilDokter?.racik ||
+                                  hasilDokter?.racik?.length === 0 ? (
                                     <tr>
                                       <td colSpan={12}>
                                         <p className="px-4 py-2 text-center">

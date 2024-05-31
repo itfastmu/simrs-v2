@@ -23,7 +23,7 @@ import {
 import { FaBoxOpen } from "react-icons/fa6";
 import { RiArrowDropDownLine, RiCheckLine } from "react-icons/ri";
 import { toast } from "react-toastify";
-import { Depo } from "../schema";
+import { Depo, StokBarangDepo } from "../schema";
 
 export default function SemuaKunjungan() {
   const headers = new Headers();
@@ -130,18 +130,6 @@ export default function SemuaKunjungan() {
     }
   };
 
-  type StokBarangDepo = {
-    id: number;
-    id_depo: number;
-    id_poa: number;
-    stok: number;
-    nama: string;
-    id_unit: number;
-    aktif: boolean;
-    id_pov: number;
-    merk: string;
-    depo: string;
-  };
   const [listBarangDepo, setListBarangDepo] = useState<StokBarangDepo[]>([]);
   const loadBarangDepo = async () => {
     try {

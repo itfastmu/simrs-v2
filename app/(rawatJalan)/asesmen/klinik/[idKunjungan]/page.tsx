@@ -8,6 +8,7 @@ import { TData } from "../../schema";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
+import AsesmenPsikologi from "../_components/asesmen-psikologi";
 
 export default function AsesmenKlinik() {
   const headers = new Headers();
@@ -57,6 +58,10 @@ export default function AsesmenKlinik() {
       isObg: data?.kode_klinik === "OBG",
       isOrt: data?.kode_klinik === "ORT",
       isGigi: data?.kode_klinik === "GIG" || data?.kode_klinik === "END",
+      isDerma: data?.kode_klinik === "KLT",
+      isPsi: data?.klinik === "Klinik Psikologi",
+      isJiwa: data?.klinik === "Klinik Jiwa",
+      isWicara: data?.klinik === "Terapi Wicara",
     }),
     [data]
   );
@@ -65,6 +70,8 @@ export default function AsesmenKlinik() {
     <Suspense>
       {userGroup === "Perawat Rajal" ? (
         <AsesmenPerawat data={data} klinik={klinik} />
+      ) : klinik.isPsi ? (
+        <AsesmenPsikologi data={data} klinik={klinik} />
       ) : (
         <AsesmenDokter data={data} klinik={klinik} />
       )}

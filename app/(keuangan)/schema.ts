@@ -1,3 +1,4 @@
+import { MyOptions } from "@/components/select";
 import { z } from "zod";
 
 export type ListBilling = {
@@ -155,3 +156,20 @@ export type TarifKelas = {
   aktif: boolean;
   kelas: string;
 };
+
+export type TipeHargaObat = "alkes" | "obat" | "bahan-medis";
+
+export type THargaObat = {
+  id: number;
+  asuransi: number[];
+  nama_asuransi: string[];
+  generik: boolean;
+  tipe: TipeHargaObat[];
+  status: number;
+};
+
+export const tipeHargaOptions = [
+  { label: "Alkes", value: "alkes" },
+  { label: "Obat", value: "obat" },
+  { label: "Bahan Medis", value: "bahan-medis" },
+] as MyOptions;

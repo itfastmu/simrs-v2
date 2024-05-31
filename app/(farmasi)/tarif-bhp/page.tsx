@@ -41,7 +41,7 @@ import { Pegawai } from "@/app/(pegawai)/schema";
 import { BsCashStack, BsListUl } from "react-icons/bs";
 import { Unit } from "@/app/(referensi)/list-unit/page";
 import { GiMedicalDrip } from "react-icons/gi";
-import { MasterTarif } from "../../(billing)/master-tarif/page";
+import { MasterTarif } from "../../(keuangan)/master-tarif/page";
 import { RiArrowDropDownLine, RiCheckLine } from "react-icons/ri";
 import { PiPillDuotone } from "react-icons/pi";
 import BarangBHPDialog from "./_components/tarif-bhp-barang";

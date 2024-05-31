@@ -43,6 +43,7 @@ import {
   HasilTransaksiBarang,
   Jenis,
   KFAPOA,
+  StokBarangDepo,
   TransaksiBarang,
   TransaksiBarangSchema,
   TransaksiBarangTSchema,
@@ -83,47 +84,6 @@ export default function PemasukanObat() {
     }
   };
   const [lihat, lihatDispatch] = useReducer(lihatActs, lihatState);
-
-  // type HapusState = {
-  //   modal: boolean;
-  //   data?: {
-  //     id?: number;
-  //     nama?: string;
-  //   };
-  // };
-  // type HapusAction = { type: "setHapus"; hapus: HapusState };
-  // const hapusState = {
-  //   modal: false,
-  //   data: {
-  //     id: undefined,
-  //     nama: undefined,
-  //   },
-  // };
-  // const hapusActs = (state: HapusState, action: HapusAction) => {
-  //   switch (action.type) {
-  //     case "setHapus": {
-  //       return {
-  //         ...action.hapus,
-  //       };
-  //     }
-  //   }
-  // };
-  // const [hapus, hapusDispatch] = useReducer(hapusActs, hapusState);
-  // const handleHapus = async () => {
-  //   try {
-  //     const resp = await fetch(`${APIURL}/rs/tarif/${hapus.data?.id}`, {
-  //       method: "DELETE",
-  //       headers: headers,
-  //     });
-  //     const data = await resp.json();
-  //     hapusDispatch({ type: "setHapus", hapus: { modal: false } });
-  //     toast.success(data?.message, {
-  //       onOpen: loadData,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const metaState: Meta = {
     page: 1,
@@ -637,12 +597,15 @@ const PemasukanDialog = ({
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
   const [isMutating, setIsMutating] = useState<boolean>(false);
-  const [listObat, setListObat] = useState<KFAPOA[]>();
+  const [listObat, setListObat] = useState<(KFAPOA & { stok?: number })[]>();
 
   const loadObat = async () => {
     try {
       setIsMutating(true);
-      const url = new URL(`${APIURL}/rs/kfa/poa`);
+      const masuk = watch("id_jenis") === 6 && !!watch("id_ref");
+      const url = masuk
+        ? new URL(`${APIURL}/rs/farmasi/stok/depo/${watch("id_ref")}`)
+        : new URL(`${APIURL}/rs/kfa/poa`);
       const params = {
         page: meta.page,
         perPage: meta.perPage,
@@ -653,7 +616,27 @@ const PemasukanDialog = ({
       const resp = await fetch(url, { method: "GET", headers: headers });
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
-      setListObat(json?.data);
+      setListObat(
+        masuk
+          ? json?.data.map((data: StokBarangDepo) => ({
+              id: data.id_poa,
+              nama: data.nama,
+              id_pov: data.id_pov,
+              merk: data.merk,
+              id_bza: "",
+              numerator: NaN,
+              satuan: "",
+              denominator: NaN,
+              satuan_denom: "",
+              id_sediaan: "",
+              id_hl7: "",
+              nama_hl7: "",
+              nama_indo: "",
+              sediaan: "",
+              stok: data.stok,
+            }))
+          : json?.data
+      );
       metaDispatch({
         type: "setMeta",
         setMeta: {
@@ -821,9 +804,6 @@ const PemasukanDialog = ({
       (pemasukan.detail || []).map((val) => ({
         id_poa: val.id_poa,
         nama: val.nama,
-        batch: "",
-        kadaluarsa: "",
-        harga: val.nominal || NaN,
         jumlah: val.jumlah,
       }))
     );
@@ -1164,11 +1144,7 @@ const PemasukanDialog = ({
                         <thead>
                           <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
                             <td className="px-4 py-2">Obat</td>
-                            <td className="px-4 py-2">Batch</td>
-                            <td className="px-4 py-2">Kadaluarsa</td>
-                            <td className="px-4 py-2">Harga</td>
                             <td className="px-4 py-2">Jumlah</td>
-                            <td className="px-4 py-2">Total</td>
                             <td
                               className={cn(
                                 "px-4 py-2 text-center",
@@ -1192,25 +1168,7 @@ const PemasukanDialog = ({
                                 {obat.nama}
                               </td>
                               <td className="whitespace-pre-wrap px-4 py-2">
-                                {obat.batch}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
-                                {obat.kadaluarsa
-                                  ? new Date(
-                                      obat.kadaluarsa
-                                    ).toLocaleDateString("id-ID")
-                                  : null}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
-                                {(obat.harga || 0).toLocaleString("id-ID")}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
                                 {obat.jumlah}
-                              </td>
-                              <td className="whitespace-pre-wrap px-4 py-2">
-                                {(
-                                  (obat.harga || 0) * obat.jumlah
-                                ).toLocaleString("id-ID")}
                               </td>
                               <td
                                 className={cn(
@@ -1295,6 +1253,15 @@ const PemasukanDialog = ({
                               </td>
                             </tr>
                           ))}
+                          {!watch("detail") || watch("detail")?.length === 0 ? (
+                            <tr>
+                              <td colSpan={8}>
+                                <p className="px-4 py-2 text-center">
+                                  Belum ada barang
+                                </p>
+                              </td>
+                            </tr>
+                          ) : null}
                         </tbody>
                       </table>
                     </div>
@@ -1407,12 +1374,11 @@ const PemasukanDialog = ({
                             <Th>
                               <ThDiv>Barang</ThDiv>
                             </Th>
-                            <Th>
-                              <ThDiv>Batch</ThDiv>
-                            </Th>
-                            <Th>
-                              <ThDiv>Kadaluarsa</ThDiv>
-                            </Th>
+                            {watch("id_jenis") === 6 && !!watch("id_ref") ? (
+                              <Th>
+                                <ThDiv>Stok</ThDiv>
+                              </Th>
+                            ) : null}
                             <Th>
                               <ThDiv>Jumlah</ThDiv>
                             </Th>
@@ -1443,6 +1409,12 @@ const PemasukanDialog = ({
                                     className="pointer-events-none w-32 py-1.5 text-xs opacity-50"
                                   />
                                 </td>
+                                {watch("id_jenis") === 6 &&
+                                !!watch("id_ref") ? (
+                                  <td>
+                                    <p className="h-5 w-8 rounded bg-slate-200 dark:bg-slate-400"></p>
+                                  </td>
+                                ) : null}
                                 <td className="text-center">
                                   <Input className="pointer-events-none w-20 py-1.5 opacity-50" />
                                 </td>
@@ -1475,10 +1447,7 @@ const PemasukanDialog = ({
                                         : setObat({
                                             id_poa: data.id,
                                             nama: data.nama,
-                                            batch: "",
-                                            harga: 0,
                                             jumlah: 1,
-                                            kadaluarsa: "",
                                           });
                                     }}
                                   />
@@ -1494,50 +1463,29 @@ const PemasukanDialog = ({
                                       : setObat({
                                           id_poa: data.id,
                                           nama: data.nama,
-                                          batch: "",
-                                          harga: 0,
                                           jumlah: 1,
-                                          kadaluarsa: "",
                                         })
                                   }
                                 >
                                   <p>{data.nama}</p>
                                 </td>
-                                <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
-                                  <Input
-                                    className="w-40 py-1.5 text-xs font-normal"
-                                    value={
+                                {watch("id_jenis") === 6 &&
+                                !!watch("id_ref") ? (
+                                  <td
+                                    className="cursor-pointer border-b border-slate-200 p-2 text-center dark:border-gray-700"
+                                    onClick={() =>
                                       obat?.id_poa === data.id
-                                        ? obat?.batch || ""
-                                        : ""
+                                        ? setObat(null)
+                                        : setObat({
+                                            id_poa: data.id,
+                                            nama: data.nama,
+                                            jumlah: 1,
+                                          })
                                     }
-                                    onChange={(e) => {
-                                      setObat({
-                                        ...obat!,
-                                        batch: e.target.value,
-                                      });
-                                    }}
-                                    disabled={obat?.id_poa !== data.id}
-                                  />
-                                </td>
-                                <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
-                                  <Input
-                                    type="date"
-                                    className="w-32 py-1.5 text-xs font-normal"
-                                    value={
-                                      obat?.id_poa === data.id
-                                        ? obat?.kadaluarsa || ""
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      setObat({
-                                        ...obat!,
-                                        kadaluarsa: e.target.value,
-                                      });
-                                    }}
-                                    disabled={obat?.id_poa !== data.id}
-                                  />
-                                </td>
+                                  >
+                                    <p>{"stok" in data && data.stok}</p>
+                                  </td>
+                                ) : null}
                                 <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
                                   <Input
                                     type="number"
@@ -1549,9 +1497,18 @@ const PemasukanDialog = ({
                                         : ""
                                     }
                                     onChange={(e) => {
+                                      const stok = data.stok || 0;
+                                      const jumlah =
+                                        parseInt(e.target.value) > stok
+                                          ? stok
+                                          : parseInt(e.target.value);
                                       setObat({
                                         ...obat!,
-                                        jumlah: parseInt(e.target.value),
+                                        jumlah:
+                                          watch("id_jenis") === 6 &&
+                                          !!watch("id_ref")
+                                            ? jumlah
+                                            : parseInt(e.target.value),
                                       });
                                     }}
                                     disabled={obat?.id_poa !== data.id}
@@ -1563,14 +1520,20 @@ const PemasukanDialog = ({
                         </tbody>
                       </table>
                     </div>
-                    <Pagination
-                      meta={meta}
-                      mutating={isMutating}
-                      setPage={(pageVal: number) => {
-                        metaDispatch({ type: "page", page: pageVal });
-                        tableDivRef.current?.scrollTo(0, 0);
-                      }}
-                    />
+                    <div className="relative">
+                      <p className="absolute -top-2 left-0 text-[10px]/[14px]">
+                        Catatan: Tekan tambah dibawah setelah memilih dan
+                        mengisi detail barang
+                      </p>
+                      <Pagination
+                        meta={meta}
+                        mutating={isMutating}
+                        setPage={(pageVal: number) => {
+                          metaDispatch({ type: "page", page: pageVal });
+                          tableDivRef.current?.scrollTo(0, 0);
+                        }}
+                      />
+                    </div>
                     <div className="mt-2 flex gap-1">
                       <Button
                         className="py-1"
@@ -1647,63 +1610,6 @@ const PemasukanDialog = ({
                     >
                       Ubah Obat
                     </Dialog.Title>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="batch" className="text-sm">
-                        Batch
-                      </label>
-                      <Input
-                        value={
-                          watch("detail")?.find(
-                            (_, idx) => idx === ubahObat.data?.idx
-                          )?.batch || ""
-                        }
-                        onChange={(e) => {
-                          const detailBatch = (watch("detail") || []).map(
-                            (val, idx) => {
-                              if (idx === ubahObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  batch: e.target.value,
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("detail", detailBatch);
-                        }}
-                        id="batch"
-                        className="text-sm"
-                      />
-                    </div>
-                    <div className="mt-1 flex flex-col">
-                      <label htmlFor="kadaluarsa" className="text-sm">
-                        Kadaluarsa
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          watch("detail")?.find(
-                            (_, idx) => idx === ubahObat.data?.idx
-                          )?.kadaluarsa || ""
-                        }
-                        onChange={(e) => {
-                          const detailKadaluarsa = (watch("detail") || []).map(
-                            (val, idx) => {
-                              if (idx === ubahObat.data?.idx) {
-                                return {
-                                  ...val,
-                                  kadaluarsa: e.target.value,
-                                };
-                              }
-                              return val;
-                            }
-                          );
-                          setValue("detail", detailKadaluarsa);
-                        }}
-                        id="kadaluarsa"
-                        className="text-sm"
-                      />
-                    </div>
                     <div className="mt-1 flex flex-col">
                       <label htmlFor="jumlah" className="text-sm">
                         Jumlah

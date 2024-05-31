@@ -1,6 +1,6 @@
 "use client";
 
-import { ListTarif } from "@/app/(billing)/schema";
+import { ListTarif } from "@/app/(keuangan)/schema";
 import css from "@/assets/css/scrollbar.module.css";
 import { Button } from "@/components/button";
 import { Input, InputArea } from "@/components/form";

@@ -299,7 +299,7 @@ export default function KunjunganLaborat() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>No. R.M.</ThDiv>

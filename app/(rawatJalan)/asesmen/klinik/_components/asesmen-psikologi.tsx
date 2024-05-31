@@ -2,17 +2,6 @@
 
 import { DataPesertaBPJS } from "@/app/(pendaftaran)/schema";
 import css from "@/assets/css/scrollbar.module.css";
-import anatomiAnak from "@/assets/img/anak.png";
-import anatomiUmum from "@/assets/img/anatomi-umum.png";
-import anatomiGigi from "@/assets/img/gigi.png";
-import anatomiJantung from "@/assets/img/jantung.png";
-import anatomiObg from "@/assets/img/kandungan.png";
-import anatomiMata from "@/assets/img/mata.png";
-import anatomiOrto from "@/assets/img/ortopedi.png";
-import anatomiParu from "@/assets/img/paru.png";
-import anatomiPD from "@/assets/img/penyakit-dalam.png";
-import anatomiSaraf from "@/assets/img/saraf.png";
-import anatomiTHT from "@/assets/img/tht-kl.png";
 import { Button, LinkButton } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
@@ -28,31 +17,22 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { RiCheckFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import {
-  AsesmenDokSchema,
+  AsesmenPsiSchema,
   KlinikAsesmen,
   TAsesmenDok,
+  TAsesmenPsi,
   TData,
   THasilDokter,
   THasilPerawat,
   listPenyakit,
 } from "../../schema";
-import {
-  AsesmenDr,
-  InstruksiDr,
-  ObjektifDr,
-  PlanningTargetDr,
-  SubjektifDr,
-} from "./dokter";
-import { AsesmenJiwa, ObjektifJiwa } from "./jiwa";
-import { ObjektifDerma } from "./kulit";
-import { ObjektifRehabMedik } from "./rehab-medik";
 import HasilBidan from "./riwayat/hasil-bidan";
 import HasilPerawat from "./riwayat/hasil-perawat";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
-import AsesmenPsikologi from "./psikologi";
+import FormPsikologi from "./psikologi";
 import DataPasien from "./data-pasien";
 
-export default function AsesmenDokter({
+export default function AsesmenPsikologi({
   data,
   klinik,
 }: {
@@ -95,47 +75,30 @@ export default function AsesmenDokter({
     }
   };
 
-  const menues = [
-    "Subjektif",
-    "Objektif",
-    "Asesmen",
-    "Planning & Target",
-    "Instruksi",
-  ];
-
-  type Indexable = {
-    [key: string]: any;
-  };
-  const imgSrc: Indexable = {
-    ANA: anatomiAnak, // ANAK
-    BED: anatomiUmum, // BEDAH
-    U0025: anatomiPD, // DIVA
-    GIG: anatomiGigi, // GIGI
-    END: anatomiGigi, // GIGI KONSERVASI
-    JAN: anatomiJantung, // JANTUNG
-    MTA: anatomiMata, // MATA
-    MCU: anatomiPD, // MCU
-    PAR: anatomiParu, // PARU
-    OBG: anatomiObg, // OBG
-    ORT: anatomiOrto, // ORTHO
-    INT: anatomiPD, // PENYAKIT DALAM
-    IRM: anatomiUmum, // REHAB MEDIK
-    KLT: anatomiUmum, // DERMA
-    SAR: anatomiSaraf, // SARAF
-    THT: anatomiTHT, // THT
-  };
-  const anatomiImg = imgSrc[data?.kode_klinik || "BED"];
-
-  const [tabIdx, setTabIdx] = useState(0);
-
-  const methods = useForm<TAsesmenDok>({
-    resolver: zodResolver(AsesmenDokSchema),
+  const methods = useForm<TAsesmenPsi>({
+    resolver: zodResolver(AsesmenPsiSchema),
     defaultValues: {
       id_kunjungan: params.idKunjungan as string,
-      anamnesis: {
-        riwayat: [],
-        riwayat_keluarga: [],
+      observasi: {
+        penampilan: "Terawat",
+        sikap: "Kooperatif",
+        afek: "Normal",
+        muka: "Wajar",
+        pikir: "Realistik",
+        persepsi: "Tidak Ada",
+        emosi: "Stabil",
+        perilaku: "Normal",
       },
+      kognitif: {
+        memori: false,
+        orientasi: false,
+        konsentrasi: false,
+        verbal: false,
+      },
+      //   anamnesis: {
+      //     riwayat: [],
+      //     riwayat_keluarga: [],
+      //   },
     },
   });
 
@@ -169,17 +132,17 @@ export default function AsesmenDokter({
         error.message === "Data tidak ditemukan" ||
         error.message === "Belum dilakukan asesmen"
       )
-        return toast.warning("Belum diasesmen perawat!");
+        return /* toast.warning("Belum diasesmen perawat!") */;
       toast.error(error.message);
       console.error(error);
     }
   };
-  useEffect(() => {
-    if (!hasilPerawat || klinik.isRehab /* || klinik.isPsi */) return;
-    setViewHasilPerawat(true);
-    setValue("anamnesis.keluhan", hasilPerawat.anamnesis.keluhan);
-    setValue("anamnesis.alergi", hasilPerawat.anamnesis.alergi);
-  }, [hasilPerawat]);
+  //   useEffect(() => {
+  //     if (!hasilPerawat || klinik.isRehab || klinik.isPsi) return;
+  //     setViewHasilPerawat(true);
+  //     // setValue("anamnesis.keluhan", hasilPerawat.anamnesis.keluhan);
+  //     // setValue("anamnesis.alergi", hasilPerawat.anamnesis.alergi);
+  //   }, [hasilPerawat]);
 
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
   const [hasilDokter, setHasilDokter] = useState<THasilDokter>();
@@ -210,172 +173,10 @@ export default function AsesmenDokter({
       console.error(error);
     }
   };
-  useEffect(() => {
-    if (!hasilDokter) return;
-    // if (klinik.isPsi) return;
-    setIsUpdate(true);
-    setValue("anamnesis.id", hasilDokter.anamnesis.id);
-    setValue("anamnesis.keluhan", hasilDokter.anamnesis.keluhan);
-    setValue("anamnesis.penyakit", hasilDokter.anamnesis.penyakit || "");
-    setValue("anamnesis.riwayat", hasilDokter.anamnesis.riwayat || []);
-    setLainRiwayat(
-      hasilDokter.anamnesis.riwayat?.find(
-        (val) => !listPenyakit.includes(val)
-      ) || ""
-    );
-    setValue(
-      "anamnesis.riwayat_keluarga",
-      hasilDokter.anamnesis.riwayat_keluarga || []
-    );
-    setLainRiwayatKel(
-      hasilDokter.anamnesis.riwayat_keluarga?.find(
-        (val) => !listPenyakit.includes(val)
-      ) || ""
-    );
-    setValue("anamnesis.alergi", hasilDokter.anamnesis.alergi);
-
-    if (hasilDokter.fisik) {
-      setValue("fisik.id", hasilDokter.fisik.id);
-      if (!klinik.isRehab) {
-        setValue("fisik.gcs", hasilDokter.fisik.gcs);
-        setValue("fisik.saturasi", hasilDokter.fisik.saturasi || NaN);
-      }
-      setValue("fisik.keadaan", hasilDokter.fisik.keadaan);
-      setValue("fisik.td", hasilDokter.fisik.td);
-      setValue("fisik.hr", hasilDokter.fisik.hr);
-      setValue("fisik.temp", hasilDokter.fisik.temp);
-      setValue("fisik.rr", hasilDokter.fisik.rr);
-      setValue("fisik.bb", hasilDokter.fisik.bb);
-      setValue("fisik.tb", hasilDokter.fisik.tb);
-      setValue("fisik.tambahan", hasilDokter.fisik.tambahan || "");
-      if (!klinik.isMata && hasilDokter.fisik.mata) {
-        setValue("fisik.mata.lama", hasilDokter.fisik.mata.lama);
-        setValue("fisik.mata.visus", hasilDokter.fisik.mata.visus);
-      }
-      if (klinik.isRehab) {
-        // if (hasilDokter.fisio) {
-        //   setValue("fisio.fisik.inspeksi", hasilDokter.fisio.fisik.inspeksi);
-        //   setValue("fisio.fisik.statis", hasilDokter.fisio.fisik.statis);
-        //   setValue("fisio.fisik.dinamis", hasilDokter.fisio.fisik.dinamis);
-        //   setValue("fisio.fisik.kognitif", hasilDokter.fisio.fisik.kognitif);
-        //   setValue("fisio.fisik.palpasi", hasilDokter.fisio.fisik.palpasi);
-        //   setValue("fisio.fisik.luas", hasilDokter.fisio.fisik.luas);
-        //   setValue("fisio.fisik.mmt", hasilDokter.fisio.fisik.mmt);
-        //   setValue("fisio.fisik.perkusi", hasilDokter.fisio.fisik.perkusi);
-        //   setValue(
-        //     "fisio.fisik.auskultasi",
-        //     hasilDokter.fisio.fisik.auskultasi
-        //   );
-        //   setValue("fisio.fisik.nyeri", hasilDokter.fisio.fisik.nyeri);
-        //   setValue("fisio.fisik.tekan", hasilDokter.fisio.fisik.tekan);
-        //   setValue("fisio.fisik.gerak", hasilDokter.fisio.fisik.gerak);
-        //   setValue("fisio.fisik.diam", hasilDokter.fisio.fisik.diam);
-        //   setValue(
-        //     "fisio.fisik.antropometri",
-        //     hasilDokter.fisio.fisik.antropometri
-        //   );
-        //   setValue("fisio.fisik.khusus", hasilDokter.fisio.fisik.khusus);
-        // }
-      }
-    }
-    if (hasilDokter.status_lokalis) {
-      setValue("status_lokalis", hasilDokter.status_lokalis);
-    }
-
-    setValue("diagnosis", hasilDokter.diagnosis);
-    setValue("asuhantarget.id", hasilDokter.asuhantarget.id);
-    setValue("asuhan", hasilDokter.asuhantarget.asuhan);
-    setValue("target", hasilDokter.asuhantarget.target);
-    setValue("tindakan", hasilDokter.tindakan);
-    if (hasilDokter.radiologi) {
-      setValue("radiologi", hasilDokter.radiologi);
-    }
-    if (hasilDokter.laborat) {
-      setValue("laborat", hasilDokter.laborat);
-    }
-    if (hasilDokter.nonracik && hasilDokter.nonracik?.length > 0) {
-      setValue(
-        "nonracik",
-        hasilDokter.nonracik.map((val) => ({
-          id: val.id_resep,
-          id_poa: val.id_poa,
-          nama_obat: val.nama_obat,
-          sediaan: val.sediaan,
-          dosis: parseInt(val.kekuatan),
-          rute: val.rute,
-          waktu: val.waktu,
-          jumlah: val.jumlah,
-          id_detail: val.id_detail,
-        }))
-      );
-    }
-    if (hasilDokter.racik && hasilDokter.racik?.length > 0) {
-      setValue(
-        "racikan",
-        hasilDokter.racik.map((val) => ({
-          id: val.id_resep,
-          nama: val.nama_racik,
-          metode: val.metode,
-          jumlah: val.jumlah,
-          rute: val.rute,
-          waktu: val.waktu,
-          tipe: val.tipe,
-          detail:
-            val.detail?.map((detailVal) => ({
-              id: detailVal.id,
-              nama_obat: detailVal.nama,
-              dosis: detailVal.dosis,
-              jumlah: detailVal.jumlah,
-              id_poa: detailVal.id_poa,
-            })) || [],
-        }))
-      );
-    }
-
-    if (klinik.isOrt && hasilDokter.orto) {
-      setValue("orto.id", hasilDokter.orto.id);
-      setValue("orto.injury", hasilDokter.orto.injury);
-      setValue("orto.waktu", hasilDokter.orto.waktu);
-      setValue("orto.penanganan", hasilDokter.orto.penanganan);
-      setValue("orto.kepala", hasilDokter.orto.kepala);
-      setValue("orto.leher", hasilDokter.orto.leher);
-      setValue("orto.thorak", hasilDokter.orto.thorak);
-      setValue("orto.abdomen", hasilDokter.orto.abdomen);
-      setValue("orto.ekstremitas", hasilDokter.orto.ekstremitas);
-      setValue("orto.prognosis", hasilDokter.orto.prognosis);
-    }
-
-    if (klinik.isMata && hasilDokter.mata) {
-      setValue("mata.id", hasilDokter.mata.id);
-      setValue("mata.funduskopi", hasilDokter.mata.funduskopi);
-      setValue("mata.anel", hasilDokter.mata.anel);
-      setValue("mata.tonometri", hasilDokter.mata.tonometri);
-    }
-
-    if (klinik.isRehab && hasilDokter.rehabmedik) {
-      setValue("rehabmedik.id", hasilDokter.rehabmedik.id);
-      setValue("rehabmedik.inspeksi", hasilDokter.rehabmedik.inspeksi);
-      setValue("rehabmedik.statis", hasilDokter.rehabmedik.statis);
-      setValue("rehabmedik.dinamis", hasilDokter.rehabmedik.dinamis);
-      setValue("rehabmedik.kognitif", hasilDokter.rehabmedik.kognitif);
-      setValue("rehabmedik.palpasi", hasilDokter.rehabmedik.palpasi);
-      setValue("rehabmedik.luas", hasilDokter.rehabmedik.luas);
-      setValue("rehabmedik.mmt", hasilDokter.rehabmedik.mmt);
-      setValue("rehabmedik.perkusi", hasilDokter.rehabmedik.perkusi);
-      setValue("rehabmedik.auskultasi", hasilDokter.rehabmedik.auskultasi);
-      setValue("rehabmedik.nyeri", hasilDokter.rehabmedik.nyeri);
-      setValue("rehabmedik.tekan", hasilDokter.rehabmedik.tekan);
-      setValue("rehabmedik.gerak", hasilDokter.rehabmedik.gerak);
-      setValue("rehabmedik.diam", hasilDokter.rehabmedik.diam);
-      setValue("rehabmedik.antropometri", hasilDokter.rehabmedik.antropometri);
-      setValue("rehabmedik.khusus", hasilDokter.rehabmedik.khusus);
-      setValue("rehabmedik.evaluasi", hasilDokter.rehabmedik.evaluasi);
-    }
-  }, [hasilDokter]);
 
   const initialized = useRef<boolean>(false);
   useEffect(() => {
-    if (!initialized.current /* && !klinik.isPsi */) {
+    if (!initialized.current && !klinik.isPsi) {
       loadInfoPeserta();
       if (proses < 5) {
         loadAsesPerawat();
@@ -386,9 +187,9 @@ export default function AsesmenDokter({
       }
 
       if (proses < 4) {
-        if (klinik.isOrt)
-          setValue("orto.prognosis", [...Array.from({ length: 6 }, () => "")]);
-        if (klinik.isRehab) setValue("fisik.keadaan", "Baik");
+        // if (klinik.isOrt)
+        //   setValue("orto.prognosis", [...Array.from({ length: 6 }, () => "")]);
+        // if (klinik.isRehab) setValue("fisik.keadaan", "Baik");
       }
       initialized.current = true;
     }
@@ -420,36 +221,36 @@ export default function AsesmenDokter({
   const [lainRiwayatKel, setLainRiwayatKel] = useState("");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const submitHandler: SubmitHandler<TAsesmenDok> = async (data, e) => {
+  const submitHandler: SubmitHandler<TAsesmenPsi> = async (data, e) => {
     try {
       e?.preventDefault();
       setIsLoading(true);
-      if (!klinik.isOrt) {
-        setValue(
-          "anamnesis.riwayat",
-          !data?.anamnesis?.riwayat
-            ? [lainRiwayat]
-            : [
-                ...data?.anamnesis?.riwayat.filter((val) =>
-                  listPenyakit.includes(val)
-                ),
-                lainRiwayat,
-              ]
-        );
-        setValue(
-          "anamnesis.riwayat_keluarga",
-          !data?.anamnesis?.riwayat_keluarga
-            ? [lainRiwayatKel]
-            : [
-                ...data?.anamnesis?.riwayat_keluarga.filter((val) =>
-                  listPenyakit.includes(val)
-                ),
-                lainRiwayatKel,
-              ]
-        );
-      }
+      //   if (!klinik.isOrt) {
+      //     setValue(
+      //       "anamnesis.riwayat",
+      //       !data?.anamnesis?.riwayat
+      //         ? [lainRiwayat]
+      //         : [
+      //             ...data?.anamnesis?.riwayat.filter((val) =>
+      //               listPenyakit.includes(val)
+      //             ),
+      //             lainRiwayat,
+      //           ]
+      //     );
+      //     setValue(
+      //       "anamnesis.riwayat_keluarga",
+      //       !data?.anamnesis?.riwayat_keluarga
+      //         ? [lainRiwayatKel]
+      //         : [
+      //             ...data?.anamnesis?.riwayat_keluarga.filter((val) =>
+      //               listPenyakit.includes(val)
+      //             ),
+      //             lainRiwayatKel,
+      //           ]
+      //     );
+      //   }
       console.log(data);
-      const url = `${APIURL}/rs/rajal/assesment/dokter`;
+      const url = `${APIURL}/rs/rajal/assesment/psikologi`;
       const resp = await fetch(
         !isUpdate ? url : url + "/" + data?.id_kunjungan,
         {
@@ -492,118 +293,10 @@ export default function AsesmenDokter({
           <RiwayatPemeriksaan />
         </div>
         <div className="relative flex-1 rounded-md bg-white p-3 shadow-md dark:bg-slate-700">
-          {/* {!klinik.isPsi ? ( */}
-          <Tab.Group
-            selectedIndex={tabIdx}
-            onChange={(index) => {
-              setTabIdx(index);
-              panelDivRef.current?.scrollTo(0, 0);
-            }}
-          >
-            <Tab.List className="mr-8 flex space-x-0.5 rounded-md bg-gray-900/20 p-0.5 dark:bg-slate-600">
-              {menues.map((menu) => (
-                <Tab
-                  className={cn(
-                    "w-full rounded py-1.5 text-sm leading-5 text-gray-700 focus:outline-none ui-selected:bg-white ui-selected:shadow ui-not-selected:hover:bg-white/[0.12] dark:text-slate-50 ui-selected:dark:bg-slate-800 ui-not-selected:dark:hover:bg-slate-700"
-                  )}
-                  key={menu}
-                >
-                  {menu}
-                </Tab>
-              ))}
-            </Tab.List>
-            <Tab.Panels
-              ref={panelDivRef}
-              className={cn(
-                "my-2 h-[calc(100%-40px)] overflow-y-auto",
-                css.scrollbar
-              )}
-            >
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                <SubjektifDr
-                  lainRiwayat={lainRiwayat}
-                  lainRiwayatKel={lainRiwayatKel}
-                  setLainRiwayat={setLainRiwayat}
-                  setLainRiwayatKel={setLainRiwayatKel}
-                  klinik={klinik}
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                {klinik.isRehab ? (
-                  <ObjektifRehabMedik
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    klinik={klinik}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : klinik.isDerma ? (
-                  <ObjektifDerma
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : klinik.isJiwa ? (
-                  <ObjektifJiwa
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : (
-                  <ObjektifDr
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    klinik={klinik}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                )}
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none">
-                {klinik.isJiwa ? (
-                  <AsesmenJiwa
-                    tabIdx={tabIdx}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                    isUpdate={isUpdate}
-                  />
-                ) : (
-                  <AsesmenDr
-                    tabIdx={tabIdx}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                    isUpdate={isUpdate}
-                  />
-                )}
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none">
-                <PlanningTargetDr
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                <InstruksiDr
-                  hasilDokter={hasilDokter}
-                  klinik={klinik}
-                  isLoading={isLoading}
-                  isUpdate={isUpdate}
-                />
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
-          {/* ) : (
-             <AsesmenPsikologi
-               tanggal_lahir={data?.tanggal_lahir as string | undefined}
-             />
-           )} */}
+          <FormPsikologi
+            isUpdate={isUpdate}
+            tanggal_lahir={data?.tanggal_lahir as string | undefined}
+          />
           <Tooltip.Provider delayDuration={300} disableHoverableContent>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>

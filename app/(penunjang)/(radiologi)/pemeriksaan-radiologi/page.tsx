@@ -15,7 +15,7 @@ import {
 } from "@/components/table";
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
-import { cn } from "@/lib/utils";
+import { cn, getAgeThn } from "@/lib/utils";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
@@ -315,7 +315,7 @@ export default function ListRadiologi() {
               <thead>
                 <tr>
                   <Th>
-                    <ThDiv>No. Kunjungan</ThDiv>
+                    <ThDiv>No. Rawat</ThDiv>
                   </Th>
                   <Th>
                     <ThDiv>Nama Pasien</ThDiv>
@@ -881,7 +881,12 @@ const PermintRadDialog = ({
                           <div className="flex flex-col gap-0.5 text-slate-600 dark:text-slate-300">
                             <p className="text-xs">{kunjungan?.id_kunjungan}</p>
                             <p className="text-xs">
-                              {kunjungan?.no_rm + " " + kunjungan?.nama}
+                              {kunjungan?.no_rm + " " + kunjungan?.nama + " "}
+                              {kunjungan?.tanggal_lahir
+                                ? "(" +
+                                  getAgeThn(new Date(kunjungan.tanggal_lahir)) +
+                                  ")"
+                                : ""}
                             </p>
                             {/* <p className="text-xs">
                             {kunjungan?.tanggal_lahir ? (
@@ -1188,7 +1193,7 @@ const PermintRadDialog = ({
                               <ThDiv>*</ThDiv>
                             </Th>
                             <Th>
-                              <ThDiv>No. Kunjungan</ThDiv>
+                              <ThDiv>No. Rawat</ThDiv>
                             </Th>
                             <Th>
                               <ThDiv>No. R.M.</ThDiv>

@@ -2,15 +2,16 @@
 
 import { DataPesertaBPJS } from "@/app/(pendaftaran)/schema";
 import css from "@/assets/css/scrollbar.module.css";
+import { Button, LinkButton } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
 import { cn, getAgeAll } from "@/lib/utils";
-import { Tab } from "@headlessui/react";
+import { Dialog, Tab, Transition } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
@@ -34,6 +35,13 @@ import {
 } from "./perawat";
 import { AsesmenFisio, ObjektifFisio, SubjektifFisio } from "./rehab-medik";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
+import {
+  AsesmenWicara,
+  ObjektifWicara,
+  SubjektifWicara,
+  TindakanWicara,
+} from "./terapi-wicara";
+import DataPasien from "./data-pasien";
 
 export default function AsesmenPerawat({
   data,
@@ -51,6 +59,7 @@ export default function AsesmenPerawat({
   const searchParams = useSearchParams();
   const params = useParams();
   const qlist = searchParams.get("qlist")?.split("-");
+  const id = searchParams.get("id");
   const proses = parseInt(searchParams.get("proses")!);
 
   const [dataPeserta, setDataPeserta] = useState<DataPesertaBPJS>();
@@ -58,7 +67,7 @@ export default function AsesmenPerawat({
     try {
       const urlPeserta = new URL(`${APIURL}/rs/pasien/bpjs`);
       const paramsPeserta = {
-        id_pasien: data?.id,
+        id_pasien: id,
       };
       urlPeserta.search = new URLSearchParams(paramsPeserta as any).toString();
       const resPeserta = await fetch(urlPeserta, {
@@ -301,7 +310,7 @@ export default function AsesmenPerawat({
     /* LAIN */
     if (!klinik.isRehab && hasilPerawat.keperawatan) {
       setValue("keperawatan.id", hasilPerawat.keperawatan.id);
-      setValue("keperawatan.diagnosis", hasilPerawat.keperawatan.diagnosis);
+      // setValue("keperawatan.diagnosis", hasilPerawat.keperawatan.diagnosis);
       setValue(
         "keperawatan.rencana_asuhan",
         hasilPerawat.keperawatan.rencana_asuhan
@@ -310,7 +319,15 @@ export default function AsesmenPerawat({
       setValue("keperawatan.tindakan", hasilPerawat.keperawatan.tindakan);
     } else if (klinik.isRehab) {
       if (hasilPerawat.keperawatan) {
-        setValue("keperawatan.diagnosis", hasilPerawat.keperawatan.diagnosis);
+        setValue(
+          "keperawatan.diagnosis",
+          hasilPerawat.keperawatan?.diagnosis.map((val, idx) => ({
+            id_diagnosis: hasilPerawat.keperawatan?.id_diagnosis.find(
+              (_, i) => i === idx
+            )!,
+            nama: val,
+          }))
+        );
         setValue(
           "keperawatan.rencana_asuhan",
           hasilPerawat.keperawatan.rencana_asuhan
@@ -354,9 +371,9 @@ export default function AsesmenPerawat({
   }, [watch]);
 
   useEffect(() => {
+    console.log(errors);
     if (Object.keys(errors).length > 0)
       toast.warn("Lengkapi isian terlebih dahulu!");
-    console.log(errors);
   }, [errors]);
 
   const [listImunisasi] = useState<TFormImunisasi[]>([
@@ -442,7 +459,7 @@ export default function AsesmenPerawat({
       if (json.status !== "Created" && json.status !== "Updated")
         throw new Error(json.message);
       toast.success("Asesmen berhasil disimpan!");
-      router.replace("/list-pasien");
+      router.replace("/list-pasien?user=Perawat");
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);
@@ -454,6 +471,8 @@ export default function AsesmenPerawat({
 
   const panelDivRef = useRef<HTMLElement>(null);
 
+  const [tutupAsesmen, setTutupAsesmen] = useState<boolean>(false);
+
   return (
     <FormProvider {...methods}>
       <form
@@ -461,96 +480,14 @@ export default function AsesmenPerawat({
         className="mx-auto flex h-full gap-2 overflow-auto px-4 pb-[68px] pt-1"
       >
         <div className="flex basis-1/4 flex-col gap-2">
-          <div className="h-fit rounded-md bg-white p-2 shadow-md dark:bg-slate-700">
-            <table className="w-full text-left text-xs font-semibold text-gray-600 dark:text-neutral-200">
-              <tbody>
-                <tr>
-                  <td colSpan={3}>
-                    <p className="text-center text-base text-red-500">
-                      {dataPeserta?.informasi.prolanisPRB}
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">No. RM</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
-                    {data?.id ? String(data?.id).padStart(6, "0") : ""}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Nama</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.nama ?? ""}</td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Tgl. Lahir</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
-                    {data?.tanggal_lahir
-                      ? new Intl.DateTimeFormat("id-ID", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }).format(new Date(data?.tanggal_lahir))
-                      : ""}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Usia</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
-                    {data?.tanggal_lahir ? getAgeAll(data?.tanggal_lahir) : ""}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">No. Kunjungan</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
-                    {params.idKunjungan === "igd" ? "" : params.idKunjungan}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Tgl. Kunjungan</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">
-                    {new Intl.DateTimeFormat("id-ID", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }).format(new Date())}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Jam Kunjungan</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.jam_periksa}</td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Poliklinik</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.klinik}</td>
-                </tr>
-                <tr>
-                  <td className="align-baseline">Dokter</td>
-                  <td className="px-1 align-baseline">:</td>
-                  <td className="align-baseline">{data?.dokter}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <DataPasien
+            data={data}
+            dataPeserta={dataPeserta}
+            hasilPerawat={hasilPerawat}
+          />
           <RiwayatPemeriksaan />
         </div>
         <div className="relative flex-1 rounded-md bg-white p-3 shadow-md dark:bg-slate-700">
-          {/* {userGroup === "Dokter" ? (
-          <AsesmenDokter
-            data={data}
-            idKunjungan={params.idKunjungan as string}
-            umur={umur}
-            klinik={klinik}
-            menues={menues}
-          />
-        ) : ( */}
           <Tab.Group
             selectedIndex={tabIdx}
             onChange={(index) => {
@@ -596,6 +533,11 @@ export default function AsesmenPerawat({
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
+                ) : klinik.isWicara ? (
+                  <SubjektifWicara
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 ) : (
                   <SubjektifPer
                     listImunisasi={listImunisasi}
@@ -609,6 +551,12 @@ export default function AsesmenPerawat({
               <Tab.Panel className="focus:outline-none" unmount={false}>
                 {klinik.isRehab ? (
                   <ObjektifFisio
+                    isUpdate={isUpdate}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
+                ) : klinik.isWicara ? (
+                  <ObjektifWicara
                     isUpdate={isUpdate}
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
@@ -629,8 +577,17 @@ export default function AsesmenPerawat({
                     setTabIdx={setTabIdx}
                     panelDivRef={panelDivRef}
                   />
+                ) : klinik.isWicara ? (
+                  <AsesmenWicara
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 ) : (
-                  <AsesmenPer setTabIdx={setTabIdx} panelDivRef={panelDivRef} />
+                  <AsesmenPer
+                    isUpdate={isUpdate}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
                 )}
               </Tab.Panel>
               <Tab.Panel className="focus:outline-none">
@@ -641,33 +598,31 @@ export default function AsesmenPerawat({
                 />
               </Tab.Panel>
               <Tab.Panel className="focus:outline-none">
-                <TindakanPer
-                  isUpdate={isUpdate}
-                  isLoading={isLoading}
-                  klinik={klinik}
-                />
+                {!klinik.isWicara ? (
+                  <TindakanPer
+                    isUpdate={isUpdate}
+                    isLoading={isLoading}
+                    klinik={klinik}
+                  />
+                ) : (
+                  <TindakanWicara isUpdate={isUpdate} isLoading={isLoading} />
+                )}
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
           <Tooltip.Provider delayDuration={300} disableHoverableContent>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
-                <Link
-                  href={{
-                    pathname: "/list-pasien",
-                    query: {
-                      klinik: qlist?.at(0) || "all",
-                      dokter: qlist?.at(1) || "all",
-                      mulai: qlist?.at(2) || "all",
-                    },
-                  }}
+                <button
+                  type="button"
+                  onClick={() => setTutupAsesmen(true)}
                   className="absolute right-3 top-[18px] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <IoCloseCircleOutline
                     size="1.5rem"
                     className="text-red-600 ui-not-disabled:hover:text-red-700 ui-not-disabled:active:text-red-800"
                   />
-                </Link>
+                </button>
               </Tooltip.Trigger>
               <Tooltip.Content
                 side="left"
@@ -678,6 +633,79 @@ export default function AsesmenPerawat({
               </Tooltip.Content>
             </Tooltip.Root>
           </Tooltip.Provider>
+
+          <Transition show={tutupAsesmen} as={Fragment}>
+            <Dialog
+              as="div"
+              className="relative z-[1001]"
+              onClose={() => setTutupAsesmen(false)}
+            >
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="fixed inset-0 bg-black bg-opacity-25" />
+              </Transition.Child>
+
+              <div className="fixed inset-0 overflow-y-auto">
+                <div className="flex min-h-full items-center justify-center p-4 text-center">
+                  <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="ease-in duration-50"
+                    leaveFrom="opacity-100 scale-100"
+                    leaveTo="opacity-0 scale-95"
+                  >
+                    <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
+                      <Dialog.Title
+                        as="p"
+                        className="font-medium leading-6 text-gray-900 dark:text-slate-100"
+                      >
+                        Tutup Asesmen
+                      </Dialog.Title>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-500">
+                          Asesmen belum disimpan, apakah Anda yakin untuk
+                          menutup asesmen tanpa disimpan?
+                        </p>
+                      </div>
+                      <div className="mt-4 flex justify-end gap-1">
+                        <Link
+                          href={{
+                            pathname: "/list-pasien",
+                            query: {
+                              user: "Perawat",
+                              klinik: qlist?.at(0) || "all",
+                              dokter: qlist?.at(1) || "all",
+                              mulai: qlist?.at(2) || "all",
+                            },
+                          }}
+                          onClick={() => setTutupAsesmen(false)}
+                          passHref
+                          legacyBehavior
+                        >
+                          <LinkButton color="red100">Tutup</LinkButton>
+                        </Link>
+                        <Button
+                          color="red"
+                          onClick={() => setTutupAsesmen(false)}
+                        >
+                          Batal
+                        </Button>
+                      </div>
+                    </Dialog.Panel>
+                  </Transition.Child>
+                </div>
+              </div>
+            </Dialog>
+          </Transition>
         </div>
       </form>
     </FormProvider>

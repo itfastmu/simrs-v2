@@ -6,12 +6,23 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-export default function ListPasienPage() {
+export default function ListPasienPage({
+  searchParams,
+}: {
+  searchParams: { user: string | undefined; id: string | undefined };
+}) {
   noStore();
-  const user = cookies().get("grup")?.value!;
+  const userParams = searchParams?.user;
+  const userId = searchParams?.id?.replaceAll("_", ".");
+  const grup = cookies().get("grup")?.value!;
   const idPegawai = cookies().get("id")?.value!;
-  console.log("user =", user);
-  console.log("idPegawai =", idPegawai);
 
-  return <ListPasienAsesmen user={user} idPegawai={idPegawai} />;
+  return (
+    <ListPasienAsesmen
+      user={userParams === "Dewa" || !userParams ? "Perawat" : userParams}
+      userId={userId}
+      grup={grup}
+      idPegawai={idPegawai}
+    />
+  );
 }

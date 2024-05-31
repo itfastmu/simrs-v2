@@ -5,7 +5,7 @@ import FormSKDPDialog from "@/app/(pendaftaran)/list-skdp/_components/skdp";
 import { SKDP } from "@/app/(pendaftaran)/list-skdp/page";
 import { KunjunganRajal } from "@/app/(pendaftaran)/schema";
 import css from "@/assets/css/scrollbar.module.css";
-import { Input } from "@/components/form";
+import { Input, InputArea } from "@/components/form";
 import {
   InputSearch,
   Pagination,
@@ -16,12 +16,10 @@ import {
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
 import { cn, getAgeThn } from "@/lib/utils";
-import { Transition } from "@headlessui/react";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  Fragment,
+import React, {
   Suspense,
   useCallback,
   useDeferredValue,
@@ -33,7 +31,7 @@ import {
 } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { HiOutlineDocumentAdd, HiOutlineDocumentText } from "react-icons/hi";
-import { IoDocumentTextOutline } from "react-icons/io5";
+import { IoBookOutline, IoDocumentTextOutline } from "react-icons/io5";
 import { RiNurseFill, RiStethoscopeLine } from "react-icons/ri";
 import { TbFingerprint, TbFingerprintOff } from "react-icons/tb";
 import { toast } from "react-toastify";
@@ -43,6 +41,9 @@ import SkriningPerawatDialog, {
 } from "../../asesmen/_components/skrining-perawat";
 import { asuransi } from "../../asesmen/schema";
 import BillingDialog from "./billing";
+import { Dialog, Transition } from "@headlessui/react";
+import { Button } from "@/components/button";
+import { LinkButton } from "@/components/button";
 
 export type BillingState = {
   modal: boolean;
@@ -52,9 +53,13 @@ export type BillingAction = { type: "setBilling"; billing: BillingState };
 
 export default function ListPasienAsesmen({
   user,
+  userId,
+  grup,
   idPegawai,
 }: {
   user: string;
+  userId: string | undefined;
+  grup: string;
   idPegawai: string;
 }) {
   const router = useRouter();
@@ -153,6 +158,29 @@ export default function ListPasienAsesmen({
   };
   const [skdp, skdpDispatch] = useReducer(skdpActs, skdpState);
 
+  type PsikologiDialogState = {
+    modal: boolean;
+    data?: KunjunganRajal;
+  };
+  type PsikologiDialogAction = PsikologiDialogState;
+  const psikologiDialogState = {
+    modal: false,
+    data: undefined,
+  };
+  const psikologiDialogActs = (
+    state: PsikologiDialogState,
+    action: PsikologiDialogAction
+  ) => {
+    return {
+      ...action,
+    };
+  };
+  const [psikologiDialog, psikologiDialogDispatch] = useReducer(
+    psikologiDialogActs,
+    psikologiDialogState
+  );
+  const [psikotes, setPsikotes] = useState<boolean>(false);
+
   const metaState: Meta = {
     page: 1,
     perPage: 25,
@@ -226,6 +254,7 @@ export default function ListPasienAsesmen({
   }, [listJadwal]);
 
   const listDokter = useMemo(() => {
+    if (!listJadwal) return [];
     return Array.from(
       new Set(
         listJadwal
@@ -235,9 +264,10 @@ export default function ListPasienAsesmen({
     ).map((id) => {
       return listJadwal.find((val) => val.id_pegawai === id);
     });
-  }, [filterKlinik]);
+  }, [filterKlinik, listJadwal]);
 
   const listJam = useMemo(() => {
+    if (!listJadwal) return [];
     return listJadwal
       .filter((data) => data.id_pegawai === filterDokter)
       .map((val) => {
@@ -250,7 +280,7 @@ export default function ListPasienAsesmen({
         (val1, val2) =>
           parseInt(val1.mulai?.slice(0, 2)) - parseInt(val2.mulai?.slice(0, 2))
       );
-  }, [filterDokter]);
+  }, [filterDokter, listJadwal]);
 
   const [isMutating, setIsMutating] = useState<boolean>(false);
   const loadData = async (signal?: AbortSignal) => {
@@ -258,20 +288,24 @@ export default function ListPasienAsesmen({
       setIsMutating(true);
       tableDivRef.current?.scrollTo(0, 0);
       const url = new URL(`${APIURL}/rs/kunjungan/rajal`);
-      const params = {
-        page: meta.page,
-        perPage: meta.perPage,
-        keyword: deferredCari.trimStart(),
-        tanggal: memoizedTanggal,
-        klinik: filterKlinik === "all" ? "" : filterKlinik,
-        dokter:
-          user === "Dokter"
-            ? idPegawai
-            : filterDokter === "all"
-            ? ""
-            : filterDokter,
-        mulai: filterMulai === "all" ? "" : filterMulai,
-      };
+      const params =
+        user === "Perawat"
+          ? {
+              page: meta.page,
+              perPage: meta.perPage,
+              keyword: deferredCari.trimStart(),
+              tanggal: memoizedTanggal,
+              klinik: filterKlinik === "all" ? "" : filterKlinik,
+              dokter: filterDokter === "all" ? "" : filterDokter,
+              mulai: filterMulai === "all" ? "" : filterMulai,
+            }
+          : {
+              page: meta.page,
+              perPage: meta.perPage,
+              keyword: deferredCari.trimStart(),
+              tanggal: memoizedTanggal,
+              dokter: userId || idPegawai,
+            };
       url.search = new URLSearchParams(params as any).toString();
       const resp = await fetch(url, {
         method: "GET",
@@ -360,7 +394,7 @@ export default function ListPasienAsesmen({
                 }
               />
               {/* <Transition
-                show={user === "Dewa"}
+                show={grup === "Dewa"}
                 as={Fragment}
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 -translate-y-1"
@@ -378,7 +412,7 @@ export default function ListPasienAsesmen({
                 }}
               />
               {/* </Transition> */}
-              {user !== "Dokter" ? (
+              {grup !== "Dokter" ? (
                 <select
                   className={cn(
                     "w-48 rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 focus:border-cyan-500 focus:outline-none focus:ring-cyan-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500",
@@ -550,17 +584,21 @@ export default function ListPasienAsesmen({
                       </td>
                       <td>
                         <div className="flex flex-nowrap items-center justify-center gap-1">
-                          {user === "Perawat Rajal" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <IoDocumentTextOutline
                               size="1.5rem"
                               className="text-slate-200 dark:text-slate-400"
                             />
                           ) : null}
+                          <IoBookOutline
+                            size="1.5rem"
+                            className="text-slate-200 dark:text-slate-400"
+                          />
                           <RiStethoscopeLine
                             size="1.5rem"
                             className="text-slate-200 dark:text-slate-400"
                           />
-                          {user === "Perawat Rajal" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <>
                               <HiOutlineDocumentAdd
                                 size="1.5rem"
@@ -651,7 +689,7 @@ export default function ListPasienAsesmen({
                       </td>
                       <td className="border-b border-slate-200 dark:border-gray-700">
                         <div className="flex flex-nowrap items-center justify-center gap-1 px-2">
-                          {user === "Perawat Rajal" || user === "Dewa" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <>
                               <Tooltip.Provider
                                 delayDuration={300}
@@ -700,7 +738,53 @@ export default function ListPasienAsesmen({
                             </>
                           ) : null}
 
-                          {user === "Dewa" ? (
+                          <Tooltip.Provider
+                            delayDuration={300}
+                            disableHoverableContent
+                          >
+                            <Tooltip.Root>
+                              <Tooltip.Trigger
+                                onClick={
+                                  () => false
+                                  // skriningDispatch({
+                                  //   type: "setSkrining",
+                                  //   skrining: {
+                                  //     modal: true,
+                                  //     data: {
+                                  //       id_kunjungan: data.id_kunjungan,
+                                  //       id_pasien: data.id_pasien,
+                                  //       nama: data.nama,
+                                  //       tanggal_lahir: data.tanggal_lahir,
+                                  //       id_klinik: data.id_klinik,
+                                  //       id_proses: data.id_proses,
+                                  //     },
+                                  //   },
+                                  // })
+                                }
+                                className="relative disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <IoBookOutline
+                                  size="1.5rem"
+                                  className="text-cyan-700 hover:text-cyan-800 active:text-cyan-900 dark:text-cyan-500 dark:hover:text-cyan-600 dark:active:text-cyan-700"
+                                />
+                                {/* {parseInt(data.id_proses) > 3 ? (
+                                  <FaCheck
+                                    className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
+                                    aria-hidden="true"
+                                  />
+                                ) : null} */}
+                              </Tooltip.Trigger>
+                              <Tooltip.Content
+                                side="left"
+                                sideOffset={0}
+                                className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
+                              >
+                                <p>Edukasi</p>
+                              </Tooltip.Content>
+                            </Tooltip.Root>
+                          </Tooltip.Provider>
+
+                          {grup === "Dewa" ? (
                             <Tooltip.Provider
                               delayDuration={300}
                               disableHoverableContent
@@ -714,6 +798,7 @@ export default function ListPasienAsesmen({
                                     className="relative"
                                     href={{
                                       pathname: `/asesmen/klinik/${data.id_kunjungan}`,
+                                      // pathname: `/asesmen/klinik/${data.id_kunjungan.includes("/") ? data.id_kunjungan.replace("/", "") : data.id_kunjungan}`,
                                       query: {
                                         id: data.id_pasien,
                                         klinik: data.klinik,
@@ -762,17 +847,17 @@ export default function ListPasienAsesmen({
                           >
                             <Tooltip.Root>
                               <Tooltip.Trigger
-                                className="relative disabled:cursor-not-allowed disabled:opacity-50"
+                                className="relative flex disabled:cursor-not-allowed disabled:opacity-50"
                                 disabled={
-                                  user === "Perawat Rajal" &&
+                                  grup === "Perawat Rajal" &&
                                   parseInt(data.id_proses) < 2
                                 }
                                 asChild={
-                                  user === "Dokter" ||
+                                  grup === "Dokter" ||
                                   parseInt(data.id_proses) >= 2
                                 }
                               >
-                                {user === "Perawat Rajal" &&
+                                {grup === "Perawat Rajal" &&
                                 parseInt(data.id_proses) < 2 ? (
                                   <>
                                     <RiStethoscopeLine
@@ -782,6 +867,23 @@ export default function ListPasienAsesmen({
                                       )}
                                     />
                                   </>
+                                ) : data.klinik === "Klinik Psikologi" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      psikologiDialogDispatch({
+                                        modal: true,
+                                        data: data,
+                                      })
+                                    }
+                                  >
+                                    <RiStethoscopeLine
+                                      size="1.5rem"
+                                      className={cn(
+                                        "text-cyan-600 hover:text-cyan-700 active:text-cyan-800"
+                                      )}
+                                    />
+                                  </button>
                                 ) : (
                                   <Link
                                     className="relative"
@@ -800,7 +902,7 @@ export default function ListPasienAsesmen({
                                           filterMulai,
                                         kode: data.id_pegawai,
                                         proses: data.id_proses,
-                                        grup: user,
+                                        grup: grup,
                                       },
                                     }}
                                   >
@@ -810,9 +912,9 @@ export default function ListPasienAsesmen({
                                         "text-cyan-600 hover:text-cyan-700 active:text-cyan-800"
                                       )}
                                     />
-                                    {((user === "Dokter" || user === "Dewa") &&
+                                    {((grup === "Dokter" || grup === "Dewa") &&
                                       parseInt(data.id_proses) > 4) ||
-                                    (user === "Perawat Rajal" &&
+                                    (grup === "Perawat Rajal" &&
                                       parseInt(data.id_proses) > 3) ? (
                                       <FaCheck
                                         className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
@@ -828,7 +930,7 @@ export default function ListPasienAsesmen({
                                 className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
                               >
                                 <p>
-                                  {user === "Dewa"
+                                  {grup === "Dewa"
                                     ? "Asesmen Dokter"
                                     : "Asesmen"}
                                 </p>
@@ -836,7 +938,7 @@ export default function ListPasienAsesmen({
                             </Tooltip.Root>
                           </Tooltip.Provider>
 
-                          {user === "Perawat Rajal" || user === "Dewa" ? (
+                          {grup === "Perawat Rajal" || grup === "Dewa" ? (
                             <>
                               <Tooltip.Provider
                                 delayDuration={300}
@@ -844,7 +946,7 @@ export default function ListPasienAsesmen({
                               >
                                 <Tooltip.Root>
                                   <Tooltip.Trigger
-                                    disabled={parseInt(data.id_proses) < 5}
+                                    // disabled={parseInt(data.id_proses) < 5}
                                     onClick={() =>
                                       billingDispatch({
                                         type: "setBilling",
@@ -880,7 +982,7 @@ export default function ListPasienAsesmen({
                               >
                                 <Tooltip.Root>
                                   <Tooltip.Trigger
-                                    disabled={parseInt(data.id_proses) < 5}
+                                    // disabled={parseInt(data.id_proses) < 5}
                                     className="disabled:cursor-not-allowed disabled:opacity-50"
                                     onClick={() => {
                                       skdpDispatch({
@@ -950,6 +1052,135 @@ export default function ListPasienAsesmen({
         ubahDispatch={skdpDispatch}
         loadData={loadData}
       />
+
+      <Transition show={psikologiDialog.modal} as={React.Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-[1001]"
+          onClose={() =>
+            psikologiDialogDispatch({ ...psikologiDialog, modal: false })
+          }
+        >
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-50"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 translate-x-5 scale-95"
+              >
+                <Dialog.Panel
+                  className={cn(
+                    "w-full max-w-md transform overflow-y-auto rounded bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700",
+                    "flex flex-col gap-3",
+                    css.scrollbar
+                  )}
+                >
+                  <Dialog.Title
+                    as="p"
+                    className="font-medium leading-6 text-gray-900"
+                  >
+                    Pemeriksaan Psikologi
+                  </Dialog.Title>
+                  <Transition
+                    show={!psikotes}
+                    as={React.Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 -translate-y-1"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-150"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0 -translate-y-1"
+                  >
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        className="relative"
+                        href={{
+                          pathname: `/asesmen/klinik/${psikologiDialog.data?.id_kunjungan}`,
+                          query: {
+                            id: psikologiDialog.data?.id_pasien,
+                            // klinik: psikologiDialog.data?.klinik,
+                            klinik: "Klinik Psikologi",
+                            kode_klinik: psikologiDialog.data?.kode_klinik,
+                            dokter: psikologiDialog.data?.dokter,
+                            qlist:
+                              filterKlinik +
+                              "-" +
+                              filterDokter +
+                              "-" +
+                              filterMulai,
+                            kode: psikologiDialog.data?.id_pegawai,
+                            proses: psikologiDialog.data?.id_proses,
+                            grup: grup,
+                          },
+                        }}
+                        passHref
+                        legacyBehavior
+                      >
+                        <LinkButton color="cyan">Non Psikotes</LinkButton>
+                        {/* {((grup === "Dokter" || grup === "Dewa") &&
+                        parseInt(data.id_proses) > 4) ||
+                      (grup === "Perawat Rajal" &&
+                        parseInt(data.id_proses) > 3) ? (
+                        <FaCheck
+                          className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
+                          aria-hidden="true"
+                        />
+                      ) : null} */}
+                      </Link>
+                      <Button color="green" onClick={() => setPsikotes(true)}>
+                        Psikotes
+                      </Button>
+                    </div>
+                  </Transition>
+
+                  <Transition
+                    show={psikotes}
+                    as={React.Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 -translate-y-1"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-150"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0 -translate-y-1"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <InputArea className="" placeholder="Hasil Psikotes" />
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => {
+                            // BUAT SIMPAN PSIKOTES
+                            psikologiDialogDispatch({ modal: false });
+                            setPsikotes(false);
+                            toast.success("Berhasil disimpan");
+                          }}
+                        >
+                          Simpan
+                        </Button>
+                      </div>
+                    </div>
+                  </Transition>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </Suspense>
   );
 }

@@ -129,7 +129,6 @@ export default function FormSKDPDialog({
     setValue,
     watch,
     reset,
-    trigger,
     control,
     formState: { errors },
   } = useForm<SKDPSch>({
@@ -176,6 +175,13 @@ export default function FormSKDPDialog({
   }, [klinik, tanggal]);
 
   useEffect(() => {
+    const subscription = watch((value, { name, type }) =>
+      console.log(value, name, type)
+    );
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  useEffect(() => {
     console.log(errors);
   }, [errors]);
 
@@ -199,7 +205,9 @@ export default function FormSKDPDialog({
       setValue("rtl", ubah?.data?.rtl!);
     }
     setValue("id_pasien", ubah?.data?.id_pasien!);
+    setValue("id_asuransi", (ubah?.data as KunjunganRajal)?.id_asuransi!);
     setValue("id_klinik", ubah?.data?.id_klinik!);
+    setValue("klinik", ubah?.data?.klinik!);
     setValue("id_dokter", (ubah?.data as SKDP)?.id_dokter!);
 
     return () => {
@@ -330,7 +338,10 @@ export default function FormSKDPDialog({
                           <SelectInput
                             isDisabled={!ubah?.data?.ubah}
                             noOptionsMessage={(e) => "Tidak ada pilihan"}
-                            onChange={(val: any) => onChange(val.value)}
+                            onChange={(val: any) => {
+                              onChange(val.value);
+                              setValue("klinik", val.label);
+                            }}
                             options={listKlinik}
                             value={listKlinik.find(
                               (c: any) => c.value === value
@@ -443,6 +454,7 @@ export default function FormSKDPDialog({
                             onChange={() => {
                               setValue("id_jadwal", jadwal.id);
                               setValue("id_dokter", jadwal.id_pegawai);
+                              setValue("dokter", jadwal.nama);
                             }}
                           />
                           <label
@@ -460,7 +472,7 @@ export default function FormSKDPDialog({
                           </label>
                         </div>
                       ))}
-                      {listJadwal?.length === 0 ? (
+                      {!listJadwal || listJadwal?.length === 0 ? (
                         <p className="p-2 text-center text-sm">
                           Jadwal belum ditemukan
                         </p>
@@ -479,14 +491,25 @@ export default function FormSKDPDialog({
                         Keluar
                       </Button>
                     </div>
-                    {/* <Button color="sky" onClick={handlePrintSKDP}>
+                    <Button
+                      color="sky"
+                      onClick={handlePrintSKDP}
+                      disabled={
+                        !watch("tanggal") ||
+                        !watch("id_dokter") ||
+                        !watch("id_klinik")
+                      }
+                    >
                       Print
-                    </Button> */}
+                    </Button>
                   </div>
                 </form>
 
                 <div className="hidden">
-                  <CetakSKDP ref={cetakSKDPRef} />
+                  <CetakSKDP
+                    ref={cetakSKDPRef}
+                    data={{ ...(ubah?.data as KunjunganRajal), skdp: watch() }}
+                  />
                 </div>
               </Dialog.Panel>
             </Transition.Child>

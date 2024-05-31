@@ -14,7 +14,7 @@ import {
   useMemo,
 } from "react";
 import { toast } from "react-toastify";
-import { TbChecklist } from "react-icons/tb";
+import { TbBuildingBank, TbChecklist, TbMapPinCode } from "react-icons/tb";
 import {
   RiBodyScanFill,
   RiFileUserLine,
@@ -32,7 +32,7 @@ import {
   BsListUl,
 } from "react-icons/bs";
 import { TfiDropbox, TfiLayoutGrid2Alt } from "react-icons/tfi";
-import { Transition, Menu } from "@headlessui/react";
+import { Transition, Menu, Popover } from "@headlessui/react";
 import Cookies from "js-cookie";
 import { cn } from "@/lib/utils";
 import css from "@/assets/css/scrollbar.module.css";
@@ -43,9 +43,13 @@ import { FiUsers } from "react-icons/fi";
 import { MdHome, MdOutlineMedicalInformation } from "react-icons/md";
 import { GiMedicalDrip, GiMedicines } from "react-icons/gi";
 import { VscReferences } from "react-icons/vsc";
-import { cookies } from "next/headers";
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { BiBox } from "react-icons/bi";
+import { IoDocumentTextOutline, IoSchoolOutline } from "react-icons/io5";
+import { BiBox, BiClinic } from "react-icons/bi";
+import { Url } from "next/dist/shared/lib/router/router";
+import { CgMenuGridO } from "react-icons/cg";
+import { HiOutlineDocumentPlus, HiOutlineDocumentText } from "react-icons/hi2";
+import { FaBookMedical, FaTruckLoading } from "react-icons/fa";
+import { FaBoxOpen, FaBuildingCircleArrowRight } from "react-icons/fa6";
 
 export default function MenuComponent() {
   const [isShow, setShow] = useState(false);
@@ -92,6 +96,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
     const router = useRouter();
     const ref: React.RefObject<HTMLDivElement> = createRef();
     const grupId = parseInt(Cookies.get("grupId")!);
+    const userId = Cookies.get("id");
 
     useEffect(() => {
       // Bind the event listener
@@ -134,22 +139,27 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         child: [
           {
             judul: "Semua Kunjungan",
+            icon: RiUserHeartLine,
             href: "/kunjungan",
           },
           {
             judul: "Kunjungan Klinik",
+            icon: RiUserHeartLine,
             href: "/kunjungan-rajal",
           },
           {
             judul: "List SEP",
+            icon: IoDocumentTextOutline,
             href: "/list-sep",
           },
           {
             judul: "List SKDP",
+            icon: IoDocumentTextOutline,
             href: "/list-skdp",
           },
           {
             judul: "Rujukan Internal",
+            icon: IoDocumentTextOutline,
             href: "/list-rujuk-internal",
           },
         ],
@@ -180,7 +190,13 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
       },
       {
         judul: "List Pasien",
-        href: "/list-pasien",
+        href: {
+          pathname: "/list-pasien",
+          query: {
+            user: grupId === 1 ? "Dewa" : grupId === 4 ? "Perawat" : "Dokter",
+            id: userId?.replaceAll(".", "_"),
+          },
+        } as Url,
         icon: RiNurseFill,
         grup: [1, 4, 5],
       },
@@ -197,63 +213,23 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         child: [
           {
             judul: "Resep Pasien",
+            icon: HiOutlineDocumentText,
             href: "/list-resep",
           },
           {
-            judul: "Master Farmasi",
-            href: "/master-farmasi",
-          },
-          // {
-          //   judul: "Stok Barang",
-          //   href: "/stok-barang",
-          //   icon: GiMedicines,
-          // },
-          {
             judul: "Penjualan Bebas",
+            icon: HiOutlineDocumentText,
             href: "/penjualan-bebas",
           },
-          // {
-          //   judul: "Pemasukan Obat",
-          //   href: "/pemasukan-obat",
-          //   icon: GiMedicines,
-          // },
-          // {
-          //   judul: "Pengeluaran Obat",
-          //   href: "/pengeluaran-obat",
-          //   icon: GiMedicines,
-          // },
-          // {
-          //   judul: "Stok Opname",
-          //   href: "/stok-opname",
-          //   icon: GiMedicines,
-          // },
-          // {
-          //   judul: "Surat Pesanan",
-          //   href: "/surat-pesanan",
-          //   icon: GiMedicines,
-          // },
-          // {
-          //   judul: "Penerimaan Barang",
-          //   href: "/penerimaan-barang",
-          //   icon: GiMedicines,
-          // },
           // {
           //   judul: "Tarif BHP",
           //   href: "/tarif-bhp",
           //   icon: GiMedicalDrip,
           // },
-          {
-            judul: "List Supplier",
-            href: "/list-supplier",
-          },
-          {
-            judul: "Master KFA",
-            href: "/master-kfa",
-          },
-          {
-            judul: "KFA Mapping POA",
-            href: "/kfa-mapping-poa",
-          },
+          // {
+          //   judul: "KFA Mapping POA",
+          //   href: "/kfa-mapping-poa",
+          // },
         ],
       },
       {
@@ -263,41 +239,82 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         child: [
           {
             judul: "Stok Barang",
+            icon: FaBoxOpen,
             href: "/stok-barang",
             grup: [1, 6],
           },
           {
             judul: "Pemasukan Obat",
+            icon: GiMedicines,
             href: "/pemasukan-obat",
             grup: [1, 6],
           },
           {
             judul: "Pengeluaran Obat",
+            icon: GiMedicines,
             href: "/pengeluaran-obat",
             grup: [1, 6],
           },
           {
             judul: "Stok Opname",
+            icon: FaBoxOpen,
             href: "/stok-opname",
             grup: [1, 6],
           },
           {
             judul: "Surat Pesanan",
+            icon: IoDocumentTextOutline,
             href: "/surat-pesanan",
             grup: [1, 6, 10],
           },
           {
-            judul: "Penerimaan Barang",
-            href: "/penerimaan-barang",
+            judul: "Permohonan Mutasi",
+            icon: IoDocumentTextOutline,
+            href: "/permohonan-mutasi",
             grup: [1, 6],
+          },
+          {
+            judul: "Penerimaan Barang",
+            icon: FaTruckLoading,
+            href: "/penerimaan-barang",
+            grup: [1, 6, 10],
+          },
+          {
+            judul: "List Supplier",
+            icon: TfiDropbox,
+            href: "/list-supplier",
+          },
+          {
+            judul: "Master KFA",
+            icon: GiMedicines,
+            href: "/master-kfa",
           },
         ],
       },
       {
-        judul: "Master Tarif",
-        href: "/master-tarif",
+        judul: "Keuangan",
         icon: BsCashStack,
         grup: [1],
+        child: [
+          {
+            judul: "Master Tarif",
+            href: "/master-tarif",
+            icon: BsCashStack,
+            grup: [1],
+          },
+          {
+            judul: "Setting Harga Obat",
+            href: "/harga-obat",
+            icon: GiMedicines,
+            grup: [1],
+          },
+          {
+            judul: "List Produsen",
+            href: "/list-produsen",
+            icon: FaBuildingCircleArrowRight,
+            grup: [1],
+          },
+        ],
       },
       {
         judul: "Billing Pasien",
@@ -312,14 +329,17 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         child: [
           {
             judul: "Pemeriksaan Laboratorium",
+            icon: RiFlaskFill,
             href: "/pemeriksaan-laborat",
           },
           {
             judul: "Kunjungan Laboratorium",
+            icon: RiFlaskFill,
             href: "/pemeriksaan-laborat",
           },
           {
             judul: "Master Laboratorium",
+            icon: RiFlaskFill,
             href: "/master-laborat",
           },
         ],
@@ -331,14 +351,17 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         child: [
           {
             judul: "Pemeriksaan Radiologi",
+            icon: RiBodyScanFill,
             href: "/pemeriksaan-radiologi",
           },
           {
             judul: "Kunjungan Radiologi",
+            icon: RiBodyScanFill,
             href: "/kunjungan-radiologi",
           },
           {
             judul: "Master Radiologi",
+            icon: RiBodyScanFill,
             href: "/master-radiologi",
           },
         ],
@@ -350,39 +373,47 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         child: [
           {
             judul: "List Klinik",
+            icon: BiClinic,
             href: "/list-klinik",
           },
           {
             judul: "List ICD",
+            icon: FaBookMedical,
             href: "/list-icd",
           },
           {
             judul: "List Skrining",
+            icon: HiOutlineDocumentPlus,
             href: "/list-skrining",
           },
           {
             judul: "List Pendidikan",
+            icon: IoSchoolOutline,
             href: "/list-pendidikan",
           },
           {
             judul: "List Alamat",
+            icon: TbMapPinCode,
             href: "/list-alamat",
           },
           {
             judul: "List Cara Bayar",
+            icon: TbBuildingBank,
             href: "/list-carabayar",
           },
           {
             judul: "List Kamar",
+            icon: RiHotelBedLine,
             href: "/list-kamar",
           },
           {
             judul: "List Unit",
-            href: "/list-unit",
             icon: FiUsers,
+            href: "/list-unit",
           },
           {
             judul: "List Jenis Penunjang",
+            icon: MdOutlineMedicalInformation,
             href: "/list-penunjang",
           },
         ],
@@ -419,7 +450,7 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
         >
           <div
             className={cn(
-              "relative flex-1 overflow-x-auto px-3 pt-3",
+              "relative flex-1 overflow-visible px-3 pt-3",
               css.scrollbar
             )}
           >
@@ -443,77 +474,87 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
                       >
                         <menu.icon size="1.6rem" className="text-blue-500" />
                       </Link>
-                      <p className="py-1.5 text-center text-[11px]/[12px] font-normal text-gray-700 dark:text-slate-200">
+                      <p className="py-1.5 text-center text-[11px]/[12px] font-semibold text-gray-700 dark:text-slate-200">
                         {menu.judul}
                       </p>
                     </div>
                   ) : (
                     <div key={id}>
-                      <Menu
-                        as="div"
-                        className="relative inline-block text-left"
-                        key={menu.judul}
-                      >
-                        <Menu.Button className="relative mx-auto w-max rounded-lg bg-white p-3 shadow-sm dark:bg-slate-700">
+                      <Popover className="relative">
+                        <Popover.Button className="relative mx-auto w-max rounded-lg bg-white p-3 shadow-sm dark:bg-slate-700">
                           <menu.icon size="1.6rem" className="fill-blue-500" />
-                          <BsListUl
+                          <CgMenuGridO
                             size="0.8rem"
                             className="absolute bottom-0.5 right-0.5 text-blue-500"
                           />
-                        </Menu.Button>
+                        </Popover.Button>
                         <Transition
                           as={Fragment}
-                          enter="transition ease-out duration-100"
-                          enterFrom="transform opacity-0 scale-95"
-                          enterTo="transform opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="transform opacity-100 scale-100"
-                          leaveTo="transform opacity-0 scale-95"
+                          enter="transition ease-out duration-200"
+                          enterFrom="opacity-0 translate-y-1"
+                          enterTo="opacity-100 translate-y-0"
+                          leave="transition ease-in duration-150"
+                          leaveFrom="opacity-100 translate-y-0"
+                          leaveTo="opacity-0 translate-y-1"
                         >
-                          <Menu.Items
+                          <Popover.Panel
                             className={cn(
-                              // "absolute left-0 z-[1010] mt-2 max-h-32 w-56 origin-top-left overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-700",
-                              "fixed z-[1020] mt-2 max-h-32 w-56 origin-top-left overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-700",
+                              "absolute left-1/2 z-[1010] mt-1.5 max-h-36 w-80 origin-top-left -translate-x-1/2 overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-700",
+                              // "fixed z-[1020] mt-2 max-h-32 w-56 origin-top-left overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-700",
                               // "-top-2 mb-2 mt-0 -translate-y-full",
                               css.scrollbar
                             )}
                           >
-                            {menu.child?.map((val, menuIdx) => (
-                              <div
-                                className={cn(
-                                  "p-0.5",
-                                  "grup" in val &&
-                                    val.grup.every(
-                                      (grupVal) => grupVal !== grupId
-                                    ) &&
-                                    "hidden"
-                                )}
-                                key={menuIdx}
-                              >
-                                <Menu.Item>
-                                  {({ active }) => (
+                            <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
+                              <div className="relative grid grid-cols-3 gap-4 bg-white px-4 py-3 dark:bg-slate-700">
+                                {menu.child?.map((val, menuIdx) => (
+                                  // <div
+                                  //   className={cn(
+                                  //     "p-0.5",
+                                  //     "grup" in val &&
+                                  //       val.grup?.every(
+                                  //         (grupVal) => grupVal !== grupId
+                                  //       ) &&
+                                  //       "hidden"
+                                  //   )}
+                                  //   key={menuIdx}
+                                  // >
+                                  //   <Link
+                                  //     className={cn(
+                                  //       "flex w-full items-center rounded-md px-2 py-2 text-[11px]/[12px]"
+                                  //     )}
+                                  //     href={val.href}
+                                  //     onClick={() => {
+                                  //       setShow(false);
+                                  //     }}
+                                  //   >
+                                  //     {val.judul}
+                                  //   </Link>
+                                  // </div>
+                                  <div key={val.judul}>
                                     <Link
-                                      className={cn(
-                                        "flex w-full items-center rounded-md px-2 py-2 text-[11px]/[12px]",
-                                        active
-                                          ? "bg-slate-200 text-sky-600"
-                                          : "text-gray-900 dark:text-slate-100"
-                                      )}
                                       href={val.href}
                                       onClick={() => {
                                         setShow(false);
                                       }}
+                                      className="mx-auto flex w-max rounded-lg bg-slate-200 p-3 shadow-sm dark:bg-slate-800"
                                     >
-                                      {val.judul}
+                                      <val.icon
+                                        size="1.6rem"
+                                        className="text-blue-500"
+                                      />
                                     </Link>
-                                  )}
-                                </Menu.Item>
+                                    <p className="py-1.5 text-center text-[11px]/[12px] font-semibold text-gray-700 dark:text-slate-200">
+                                      {val.judul}
+                                    </p>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </Menu.Items>
+                            </div>
+                          </Popover.Panel>
                         </Transition>
-                      </Menu>
-                      <p className="py-1.5 text-center text-[11px]/[12px] font-normal text-gray-700 dark:text-slate-200">
+                      </Popover>
+                      <p className="py-1.5 text-center text-[11px]/[12px] font-semibold text-gray-700 dark:text-slate-200">
                         {menu.judul}
                       </p>
                     </div>

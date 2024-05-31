@@ -87,9 +87,6 @@ export const TransaksiBarangSchema = z.object({
     .object({
       id_poa: z.number(),
       nama: z.string(),
-      batch: z.string(),
-      kadaluarsa: z.string(),
-      harga: z.number().or(z.nan()),
       jumlah: z.number(),
     })
     .array()
@@ -250,6 +247,35 @@ export type KFAPOA = KFAPOV & {
   merk: string | null;
 };
 
+export type TPenerimaanBarang = {
+  id: string;
+  user: string;
+  status: number;
+  created_at: string;
+  tempo: string;
+  faktur: [];
+};
+
+export type DetailPenerimaan = {
+  id: number;
+  id_sp_detail: number;
+  jumlah: number;
+  id_penerimaan: number;
+  batch: string | null;
+  expired: string | null;
+  harga: string;
+  id_barang: number;
+  satuan: string;
+  diskon: number | null;
+  id_sp: string;
+  nama: string;
+  id_pov: number;
+  merk: string;
+  generik: boolean;
+  id_produsen: number | null;
+  jumlah_diterima: number;
+};
+
 export type SuratPesanan = {
   id: string;
   id_suplier: number;
@@ -271,4 +297,39 @@ export type DetailPesanan = {
   diskon: number | null;
   harga: string | null;
   id_sp: string;
+};
+
+export type PermohonanMutasi = {
+  id: number;
+  tanggal: string;
+  keterangan: string;
+  id_depo: number;
+  id_ref: number;
+  id_jenis: number;
+  user: string;
+  created_at: string;
+  depo: string;
+  jenis: string;
+};
+
+export type DetailMutasi = {
+  id: string;
+  id_poa: number;
+  jumlah: number;
+  id_transaksi: number;
+  status: number;
+  nama: string;
+};
+
+export type StokBarangDepo = {
+  id: number;
+  id_depo: number;
+  id_poa: number;
+  stok: number;
+  nama: string;
+  id_unit: number;
+  aktif: boolean;
+  id_pov: number;
+  merk: string;
+  depo: string;
 };
