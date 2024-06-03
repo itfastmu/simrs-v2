@@ -243,6 +243,9 @@ export type KFABZA = Pick<KFAPOV, "id" | "nama">;
 export type KFAPOA = KFAPOV & {
   restriksi?: string;
   harga?: number;
+  harga_beli?: string;
+  generik?:boolean;
+  tipe?:string;
   id_pov: number;
   merk: string | null;
 };
@@ -297,6 +300,7 @@ export type DetailPesanan = {
   diskon: number | null;
   harga: string | null;
   id_sp: string;
+  satuan_kecil?: string; 
 };
 
 export type PermohonanMutasi = {

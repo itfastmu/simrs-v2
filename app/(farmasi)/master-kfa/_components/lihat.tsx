@@ -508,19 +508,27 @@ export default function LihatDialog({
                               : "POA - Produk Obat Aktual"}
                           </ThDiv>
                         </Th>
-                        {status === 0 ? (
-                          <>
                             <Th>
-                              <ThDiv>Satuan</ThDiv>
+                              <ThDiv>Kekuatan</ThDiv>
                             </Th>
                             <Th>
                               <ThDiv>Sediaan</ThDiv>
                             </Th>
+                        {status!==0 && (
+                          <>
+                            <Th>
+                              <ThDiv>Generik</ThDiv>
+                            </Th>
+                            <Th>
+                              <ThDiv>Tipe Fornas</ThDiv>
+                            </Th>
+                            <Th>
+                              <ThDiv>Merk</ThDiv>
+                            </Th>
+                            <Th>
+                              <ThDiv>Harga Beli</ThDiv>
+                            </Th>
                           </>
-                        ) : (
-                          <Th>
-                            <ThDiv>Merk</ThDiv>
-                          </Th>
                         )}
                         <Th>
                           <ThDiv>*</ThDiv>
@@ -692,7 +700,16 @@ export default function LihatDialog({
                               <p>{data.nama}</p>
                             </td>
                             <td className="border-b border-slate-200 p-2 dark:border-gray-700">
+                              <p>{data.generik===true?"Generik":"Non Generik"}</p>
+                            </td>
+                            <td className="border-b border-slate-200 p-2 dark:border-gray-700">
+                              <p>{data.tipe}</p>
+                            </td>
+                            <td className="border-b border-slate-200 p-2 dark:border-gray-700">
                               <p>{data.merk}</p>
+                            </td>
+                            <td className="border-b border-slate-200 p-2 dark:border-gray-700">
+                              <p>{data.harga_beli}</p>
                             </td>
                             <td className="border-b border-slate-200 dark:border-gray-700">
                               <div className="mx-2 flex items-center justify-center gap-2">

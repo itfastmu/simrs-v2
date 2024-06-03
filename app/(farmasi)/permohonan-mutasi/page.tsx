@@ -47,7 +47,7 @@ type LihatState = {
 };
 type LihatAction = LihatState;
 
-export default function PermohonanMutasi() {
+export default function PermohonanMutasiPage() {
   const headers = new Headers();
   const [token] = useState(Cookies.get("token"));
   headers.append("Authorization", token as string);

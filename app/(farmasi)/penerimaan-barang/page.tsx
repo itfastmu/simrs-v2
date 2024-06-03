@@ -497,6 +497,7 @@ const PenerimaanDialog = ({
           required_error: "harus diisi",
           invalid_type_error: "harus diisi",
         }),
+        harga: z.union([z.string(), z.number()])
       })
       .array()
       .min(1, "harus diisi"),
@@ -722,6 +723,7 @@ const PenerimaanDialog = ({
         id_sp_detail: val.id_sp_detail,
         id_sp: val.id_sp,
         nama: val.nama,
+        harga: val.harga,
         jumlah: val.jumlah,
       }))
     );
@@ -994,13 +996,10 @@ const PenerimaanDialog = ({
                         <table className="min-w-full text-xs">
                           <thead>
                             <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
-                              <td className="px-4 py-2">Kode Pesanan</td>
-                              <td className="px-4 py-2">Kode</td>
-                              <td className="px-4 py-2">Nama</td>
-                              <td className="px-4 py-2">Satuan Kecil</td>
+                              <td className="px-4 py-2">Nama Obat</td>
+                              <td className="px-4 py-2">Jumlah Datang</td>
                               <td className="px-4 py-2">Jumlah Kecil</td>
-                              <td className="px-4 py-2">Satuan Besar</td>
-                              <td className="px-4 py-2">Jumlah</td>
+                              <td className="px-4 py-2">Harga(sesuai faktur)</td>
                               <td
                                 className={cn(
                                   "px-4 py-2 text-center",
@@ -1459,13 +1458,10 @@ const PenerimaanDialog = ({
                               <thead>
                                 <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
                                   <td className="px-4 py-2">*</td>
-                                  <td className="px-4 py-2">Kode Pesanan</td>
-                                  <td className="px-4 py-2">Kode</td>
                                   <td className="px-4 py-2">Nama</td>
-                                  <td className="px-4 py-2">Satuan Kecil</td>
+                                  <td className="px-4 py-2">Jumlah Datang</td>
                                   <td className="px-4 py-2">Jumlah Kecil</td>
-                                  <td className="px-4 py-2">Satuan Besar</td>
-                                  <td className="px-4 py-2">Jumlah</td>
+                                  <td className="px-4 py-2">Harga (sesuai faktur)</td>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1516,6 +1512,7 @@ const PenerimaanDialog = ({
                                                 satuan_kecil: "",
                                                 nama: dtl.nama,
                                                 jumlah: dtl.jumlah,
+                                                harga: ""
                                               },
                                             ]);
                                           }
@@ -1555,86 +1552,7 @@ const PenerimaanDialog = ({
                                               satuan_kecil: "",
                                               nama: dtl.nama,
                                               jumlah: dtl.jumlah,
-                                            },
-                                          ]);
-                                        }
-                                      }}
-                                    >
-                                      {lihatDetail.data?.id}
-                                    </td>
-                                    <td
-                                      className="cursor-pointer whitespace-pre-wrap px-4 py-2"
-                                      onClick={() => {
-                                        if (
-                                          obat?.some(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )
-                                        ) {
-                                          setObat(
-                                            obat?.filter(
-                                              (val) =>
-                                                val.id_sp_detail !== dtl.id
-                                            ) || []
-                                          );
-                                          setValue(
-                                            "detail",
-                                            watch("detail").filter(
-                                              (val) =>
-                                                val.id_sp_detail !== dtl.id
-                                            )
-                                          );
-                                        } else {
-                                          setObat([
-                                            ...(obat || []),
-                                            {
-                                              id_sp_detail: dtl.id,
-                                              batch: "",
-                                              expired: "",
-                                              satuan_besar: "",
-                                              jumlah_kecil: NaN,
-                                              satuan_kecil: "",
-                                              nama: dtl.nama,
-                                              jumlah: dtl.jumlah,
-                                            },
-                                          ]);
-                                        }
-                                      }}
-                                    >
-                                      {dtl.id}
-                                    </td>
-                                    <td
-                                      className="cursor-pointer whitespace-pre-wrap px-4 py-2"
-                                      onClick={() => {
-                                        if (
-                                          obat?.some(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )
-                                        ) {
-                                          setObat(
-                                            obat?.filter(
-                                              (val) =>
-                                                val.id_sp_detail !== dtl.id
-                                            ) || []
-                                          );
-                                          setValue(
-                                            "detail",
-                                            watch("detail").filter(
-                                              (val) =>
-                                                val.id_sp_detail !== dtl.id
-                                            )
-                                          );
-                                        } else {
-                                          setObat([
-                                            ...(obat || []),
-                                            {
-                                              id_sp_detail: dtl.id,
-                                              batch: "",
-                                              expired: "",
-                                              satuan_besar: "",
-                                              jumlah_kecil: NaN,
-                                              satuan_kecil: "",
-                                              nama: dtl.nama,
-                                              jumlah: dtl.jumlah,
+                                              harga: ""
                                             },
                                           ]);
                                         }
@@ -1643,108 +1561,20 @@ const PenerimaanDialog = ({
                                       {dtl.nama}
                                     </td>
                                     <td className="whitespace-pre-wrap px-4 py-2 text-center">
-                                      <Input
-                                        className="w-24 py-1 text-xs font-normal"
-                                        value={
-                                          obat?.find(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )?.satuan_kecil
-                                        }
-                                        onChange={(e) => {
-                                          const detailSatuanKecil = (
-                                            obat || []
-                                          ).map((val, idx) => {
-                                            if (idx === ubahObat.data?.idx) {
-                                              return {
-                                                ...val,
-                                                satuan_kecil: e.target.value,
-                                              };
-                                            }
-                                            return val;
-                                          });
-                                          setObat(detailSatuanKecil);
-                                        }}
-                                        disabled={
-                                          !(obat || [])?.some(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )
-                                        }
-                                      />
-                                    </td>
-                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
-                                      <Input
-                                        type="number"
-                                        className="w-20 py-1 text-xs font-normal"
-                                        value={
-                                          obat?.find(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )?.jumlah_kecil
-                                        }
-                                        onChange={(e) => {
-                                          const detailJumlahKecil = (
-                                            obat || []
-                                          ).map((val, idx) => {
-                                            if (idx === ubahObat.data?.idx) {
-                                              return {
-                                                ...val,
-                                                jumlah_kecil: parseInt(
-                                                  e.target.value
-                                                ),
-                                              };
-                                            }
-                                            return val;
-                                          });
-                                          setObat(detailJumlahKecil);
-                                        }}
-                                        disabled={
-                                          !(obat || [])?.some(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )
-                                        }
-                                      />
-                                    </td>
-                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
-                                      <Input
-                                        className="w-24 py-1 text-xs font-normal"
-                                        value={
-                                          obat?.find(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )?.satuan_besar
-                                        }
-                                        onChange={(e) => {
-                                          const detailSatuanBesar = (
-                                            obat || []
-                                          ).map((val, idx) => {
-                                            if (idx === ubahObat.data?.idx) {
-                                              return {
-                                                ...val,
-                                                satuan_besar: e.target.value,
-                                              };
-                                            }
-                                            return val;
-                                          });
-                                          setObat(detailSatuanBesar);
-                                        }}
-                                        disabled={
-                                          !(obat || [])?.some(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )
-                                        }
-                                      />
-                                    </td>
-                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
-                                      <Input
-                                        type="number"
-                                        className="w-20 py-1 text-xs font-normal"
-                                        defaultValue={dtl.jumlah}
-                                        value={
-                                          obat?.find(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )?.jumlah
-                                        }
-                                        onChange={(e) => {
-                                          const detailJumlah = (obat || []).map(
-                                            (val, idx) => {
+                                      <div className="flex items-center">
+                                        <Input
+                                          type="number"
+                                          className="w-20 py-1 text-xs font-normal"
+                                          defaultValue={ dtl.jumlah }
+                                          value={
+                                            obat?.find(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )?.jumlah
+                                          }
+                                          onChange={(e) => {
+                                            const detailJumlahDatang = (
+                                              obat || []
+                                            ).map((val, idx) => {
                                               if (idx === ubahObat.data?.idx) {
                                                 return {
                                                   ...val,
@@ -1754,16 +1584,87 @@ const PenerimaanDialog = ({
                                                 };
                                               }
                                               return val;
-                                            }
-                                          );
-                                          setObat(detailJumlah);
-                                        }}
-                                        disabled={
-                                          !(obat || [])?.some(
-                                            (val) => val.id_sp_detail === dtl.id
-                                          )
-                                        }
-                                      />
+                                            });
+                                            setObat(detailJumlahDatang);
+                                          }}
+                                          disabled={
+                                            !(obat || [])?.some(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )
+                                          }
+                                        />
+                                        <p className="px-1.5">{ dtl.satuan }</p>
+                                      </div>
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <div className="flex items-center">
+                                        <Input
+                                          type="number"
+                                          className="w-20 py-1 text-xs font-normal"
+                                          value={
+                                            obat?.find(
+                                              (val, idx) => idx === ubahObat.data?.idx
+                                            )?.jumlah_kecil
+                                          }
+                                          onChange={(e) => {
+                                            const detailJumlah = (obat || []).map(
+                                              (val, idx) => {
+                                                if (idx === ubahObat.data?.idx) {
+                                                  return {
+                                                    ...val,
+                                                    jumlah_kecil: parseInt(
+                                                      e.target.value
+                                                    ),
+                                                  };
+                                                }
+                                                return val;
+                                              }
+                                            );
+                                            setObat(detailJumlah);
+                                          }}
+                                          disabled={
+                                            !(obat || [])?.some(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )
+                                          }
+                                        />
+                                        <p className="px-1.5">{ dtl.satuan_kecil }</p>
+                                      </div>
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <div className="flex items-center">
+                                        <Input
+                                          type="number"
+                                          className="w-20 py-1 text-xs font-normal"
+                                          defaultValue={ String(dtl.harga) }
+                                          value={
+                                            obat?.find(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )?.harga
+                                          }
+                                          onChange={(e) => {
+                                            const detailHarga = (obat || []).map(
+                                              (val, idx) => {
+                                                if (idx === ubahObat.data?.idx) {
+                                                  return {
+                                                    ...val,
+                                                    harga: parseInt(
+                                                      e.target.value
+                                                    ),
+                                                  };
+                                                }
+                                                return val;
+                                              }
+                                            );
+                                            setObat(detailHarga);
+                                          }}
+                                          disabled={
+                                            !(obat || [])?.some(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )
+                                          }
+                                        />
+                                      </div>
                                     </td>
                                   </tr>
                                 ))}
