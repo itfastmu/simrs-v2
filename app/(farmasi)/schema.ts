@@ -263,12 +263,14 @@ export type DetailPenerimaan = {
   id: number;
   id_sp_detail: number;
   jumlah: number;
+  jumlah_kecil: number;
   id_penerimaan: number;
   batch: string | null;
   expired: string | null;
   harga: string;
   id_barang: number;
   satuan: string;
+  satuan_kecil: string;
   diskon: number | null;
   id_sp: string;
   nama: string;
@@ -276,7 +278,6 @@ export type DetailPenerimaan = {
   merk: string;
   generik: boolean;
   id_produsen: number | null;
-  jumlah_diterima: number;
 };
 
 export type SuratPesanan = {
@@ -300,7 +301,6 @@ export type DetailPesanan = {
   diskon: number | null;
   harga: string | null;
   id_sp: string;
-  satuan_kecil?: string; 
 };
 
 export type PermohonanMutasi = {

@@ -700,6 +700,22 @@ export default function LihatDialog({
                               <p>{data.nama}</p>
                             </td>
                             <td className="border-b border-slate-200 p-2 dark:border-gray-700">
+                            <p>
+                                {data.satuan_denom !== "-"
+                                  ? data.numerator +
+                                    " " +
+                                    data.satuan +
+                                    "/" +
+                                    data.denominator +
+                                    " " +
+                                    data.satuan_denom
+                                  : data.numerator + " " + data.satuan}
+                              </p>
+                            </td>
+                            <td className="border-b border-slate-200 p-2 dark:border-gray-700">
+                              <p>{data.nama_indo}</p>
+                            </td>
+                            <td className="border-b border-slate-200 p-2 dark:border-gray-700">
                               <p>{data.generik===true?"Generik":"Non Generik"}</p>
                             </td>
                             <td className="border-b border-slate-200 p-2 dark:border-gray-700">

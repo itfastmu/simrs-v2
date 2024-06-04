@@ -12,7 +12,7 @@ import {
 } from "@/components/table";
 import { Tooltip } from "@/components/tooltip";
 import { APIURL } from "@/lib/connection";
-import { ArrayElementType, cn } from "@/lib/utils";
+import { ArrayElementType, MoneyToNumber, NumberToMoney, cn } from "@/lib/utils";
 import { Dialog, Transition } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
@@ -497,7 +497,14 @@ const PenerimaanDialog = ({
           required_error: "harus diisi",
           invalid_type_error: "harus diisi",
         }),
-        harga: z.union([z.string(), z.number()])
+        harga: z.string({
+          required_error: "harus diisi",
+          invalid_type_error: "harus diisi",
+        }),
+        id_poa: z.number({
+          required_error: "harus diisi",
+          invalid_type_error: "harus diisi",
+        }),
       })
       .array()
       .min(1, "harus diisi"),
@@ -592,7 +599,7 @@ const PenerimaanDialog = ({
     modal: boolean;
     data?: SuratPesanan & {
       total: string | null;
-      detail: (DetailPesanan & { nama: string })[];
+      detail: (DetailPesanan & { nama: string, satuan_kecil?: string, jumlah_kecil?: number  })[];
     };
   };
   type LihatDetailAction = LihatDetailState;
@@ -661,12 +668,13 @@ const PenerimaanDialog = ({
       toast.error(error.message);
       console.error(error);
     } finally {
+      
       setIsMutating(false);
     }
   };
   const [obatDialog, setObatDialog] = useState<boolean>(false);
   const [obat, setObat] = useState<
-    ArrayElementType<PenerimaanSchemaType["detail"]>[] | null
+    (ArrayElementType<PenerimaanSchemaType["detail"]> & { id_poa?:number })[] | null
   >(null);
 
   type UbahObatState = {
@@ -716,15 +724,16 @@ const PenerimaanDialog = ({
       "detail",
       penerimaan.detail.map((val) => ({
         expired: "",
-        satuan_besar: "",
-        jumlah_kecil: NaN,
-        satuan_kecil: val.satuan,
+        satuan_besar: val.satuan,
+        jumlah_kecil: val.jumlah_kecil ?? 0,
+        satuan_kecil: val.satuan_kecil,
         batch: val.batch,
         id_sp_detail: val.id_sp_detail,
         id_sp: val.id_sp,
         nama: val.nama,
-        harga: val.harga,
+        harga: String(MoneyToNumber(val.harga)),
         jumlah: val.jumlah,
+        id_poa: 0
       }))
     );
     setFaktur(penerimaan.faktur);
@@ -739,12 +748,12 @@ const PenerimaanDialog = ({
     console.log(errors);
   }, [errors]);
 
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
-    );
-    return () => subscription.unsubscribe();
-  }, [watch]);
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) =>
+  //     console.log(value, name, type)
+  //   );
+  //   return () => subscription.unsubscribe();
+  // }, [watch]);
 
   const submitHandler: SubmitHandler<PenerimaanSchemaType> = async (
     data,
@@ -752,6 +761,8 @@ const PenerimaanDialog = ({
   ) => {
     try {
       e?.preventDefault();
+      console.log(data);
+      
       // if (ubah.modal) {
       //   const put = await fetch(`${APIURL}/rs/farmasi/penerimaan/${ubah.data?.id}`, {
       //     method: "PUT",
@@ -762,23 +773,24 @@ const PenerimaanDialog = ({
       //   if (resp.status !== "Updated") throw new Error(resp.message);
       //   toast.success(resp.message);
       // } else {
-      const post = await fetch(`${APIURL}/rs/barang/penerimaan`, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify({
-          ...data,
-          detail: data.detail.map((val) => ({
-            id_sp_detail: val.id_sp_detail,
-            jumlah: val.jumlah,
-          })),
-        }),
-      });
-      const resp = await post.json();
-      if (resp.status !== "Created") throw new Error(resp.message);
-      toast.success(resp.message);
+        
+      // const post = await fetch(`${APIURL}/rs/barang/penerimaan`, {
+      //   method: "POST",
+      //   headers: headers,
+      //   body: JSON.stringify({
+      //     ...data,
+      //     detail: data.detail.map((val) => ({
+      //       id_sp_detail: val.id_sp_detail,
+      //       jumlah: val.jumlah,
+      //     })),
+      //   }),
+      // });
+      // const resp = await post.json();
+      // if (resp.status !== "Created") throw new Error(resp.message);
+      // toast.success(resp.message);
       // }
-      tutup();
-      loadData();
+      // tutup();
+      // loadData();
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);
@@ -825,6 +837,7 @@ const PenerimaanDialog = ({
                   {judul} Penerimaan Barang
                 </Dialog.Title>
                 <form
+                  encType="multipart/form-data"
                   onSubmit={handleSubmit(submitHandler)}
                   className="mt-2 flex flex-col gap-3"
                 >
@@ -1020,25 +1033,16 @@ const PenerimaanDialog = ({
                                 key={idx}
                               >
                                 <td className="whitespace-pre-wrap px-4 py-2">
-                                  {watch("id_sp") || obat.id_sp}
-                                </td>
-                                <td className="whitespace-pre-wrap px-4 py-2">
-                                  {obat.id_sp_detail}
-                                </td>
-                                <td className="whitespace-pre-wrap px-4 py-2">
                                   {obat.nama}
                                 </td>
                                 <td className="whitespace-pre-wrap px-4 py-2">
-                                  {obat.satuan_kecil}
+                                  {`${obat.jumlah} ${obat.satuan_besar}`}
                                 </td>
                                 <td className="whitespace-pre-wrap px-4 py-2">
-                                  {obat.jumlah_kecil}
+                                {`${obat.jumlah_kecil} ${obat.satuan_kecil}`}
                                 </td>
                                 <td className="whitespace-pre-wrap px-4 py-2">
-                                  {obat.satuan_besar}
-                                </td>
-                                <td className="whitespace-pre-wrap px-4 py-2">
-                                  {obat.jumlah}
+                                  {NumberToMoney(obat.harga)}
                                 </td>
                                 <td
                                   className={cn(
@@ -1055,7 +1059,7 @@ const PenerimaanDialog = ({
                                         <Tooltip.Trigger asChild>
                                           <button
                                             type="button"
-                                            className="focus:outline-none"
+                                            className="focus:outline-none hidden"
                                             onClick={() => {
                                               ubahObatDispatch({
                                                 type: "setUbah",
@@ -1507,12 +1511,13 @@ const PenerimaanDialog = ({
                                                 id_sp_detail: dtl.id,
                                                 batch: "",
                                                 expired: "",
-                                                satuan_besar: "",
-                                                jumlah_kecil: NaN,
-                                                satuan_kecil: "",
+                                                satuan_besar: dtl.satuan || "",
+                                                jumlah_kecil: 0,
+                                                satuan_kecil: dtl.satuan_kecil || "",
                                                 nama: dtl.nama,
                                                 jumlah: dtl.jumlah,
-                                                harga: ""
+                                                harga: String(MoneyToNumber(dtl.harga || "0")),
+                                                id_poa: dtl.id_barang
                                               },
                                             ]);
                                           }
@@ -1547,12 +1552,13 @@ const PenerimaanDialog = ({
                                               id_sp_detail: dtl.id,
                                               batch: "",
                                               expired: "",
-                                              satuan_besar: "",
-                                              jumlah_kecil: NaN,
-                                              satuan_kecil: "",
+                                              satuan_besar: dtl.satuan || "",
+                                              jumlah_kecil: 0,
+                                              satuan_kecil: dtl.satuan_kecil || "",
                                               nama: dtl.nama,
                                               jumlah: dtl.jumlah,
-                                              harga: ""
+                                              harga: String(MoneyToNumber(dtl.harga || "0")),
+                                              id_poa: dtl.id_barang
                                             },
                                           ]);
                                         }
@@ -1575,7 +1581,7 @@ const PenerimaanDialog = ({
                                             const detailJumlahDatang = (
                                               obat || []
                                             ).map((val, idx) => {
-                                              if (idx === ubahObat.data?.idx) {
+                                              if (val.id_sp_detail === dtl.id) {
                                                 return {
                                                   ...val,
                                                   jumlah: parseInt(
@@ -1601,6 +1607,7 @@ const PenerimaanDialog = ({
                                         <Input
                                           type="number"
                                           className="w-20 py-1 text-xs font-normal"
+                                          defaultValue={ obat?.find((val, idx) => val.id_sp_detail === dtl.id)?.jumlah_kecil || 0 }
                                           value={
                                             obat?.find(
                                               (val, idx) => idx === ubahObat.data?.idx
@@ -1609,7 +1616,7 @@ const PenerimaanDialog = ({
                                           onChange={(e) => {
                                             const detailJumlah = (obat || []).map(
                                               (val, idx) => {
-                                                if (idx === ubahObat.data?.idx) {
+                                                if (val.id_sp_detail === dtl.id) {
                                                   return {
                                                     ...val,
                                                     jumlah_kecil: parseInt(
@@ -1634,23 +1641,21 @@ const PenerimaanDialog = ({
                                     <td className="whitespace-pre-wrap px-4 py-2 text-center">
                                       <div className="flex items-center">
                                         <Input
-                                          type="number"
+                                          type="text"
                                           className="w-20 py-1 text-xs font-normal"
-                                          defaultValue={ String(dtl.harga) }
+                                          defaultValue={ MoneyToNumber(String(dtl.harga)) }
                                           value={
                                             obat?.find(
-                                              (val) => val.id_sp_detail === dtl.id
+                                              (val, idx) => val.id_sp_detail === dtl.id
                                             )?.harga
                                           }
                                           onChange={(e) => {
                                             const detailHarga = (obat || []).map(
                                               (val, idx) => {
-                                                if (idx === ubahObat.data?.idx) {
+                                                if (val.id_sp_detail === dtl.id) {
                                                   return {
                                                     ...val,
-                                                    harga: parseInt(
-                                                      e.target.value
-                                                    ),
+                                                    harga: String(e.target.value)
                                                   };
                                                 }
                                                 return val;

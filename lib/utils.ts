@@ -129,3 +129,20 @@ export const hijriyahDate = (date: Date): string => {
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };
+
+export const MoneyToNumber = (money:string): number => {
+  if (!money) return 0;
+  const parsing = money.replace(/[^0-9,]/g, '').replace(',', '.');
+  return Number(parsing);
+}
+
+export const NumberToMoney = (nomer:any): string => {
+  let parsing = "Rp0,00";
+  if(nomer!==null){
+  parsing = new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+  }).format(Number(nomer));
+  }
+  return parsing;
+}
