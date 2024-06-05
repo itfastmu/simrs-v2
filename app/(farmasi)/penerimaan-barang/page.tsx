@@ -761,7 +761,6 @@ const PenerimaanDialog = ({
   ) => {
     try {
       e?.preventDefault();
-      console.log(data);
       
       // if (ubah.modal) {
       //   const put = await fetch(`${APIURL}/rs/farmasi/penerimaan/${ubah.data?.id}`, {
@@ -773,24 +772,23 @@ const PenerimaanDialog = ({
       //   if (resp.status !== "Updated") throw new Error(resp.message);
       //   toast.success(resp.message);
       // } else {
-        
-      // const post = await fetch(`${APIURL}/rs/barang/penerimaan`, {
-      //   method: "POST",
-      //   headers: headers,
-      //   body: JSON.stringify({
-      //     ...data,
-      //     detail: data.detail.map((val) => ({
-      //       id_sp_detail: val.id_sp_detail,
-      //       jumlah: val.jumlah,
-      //     })),
-      //   }),
-      // });
-      // const resp = await post.json();
-      // if (resp.status !== "Created") throw new Error(resp.message);
-      // toast.success(resp.message);
+      headers.delete("Content-Type")
+      const dataSend = new FormData();
+      dataSend.append('detail', JSON.stringify(data.detail));
+      dataSend.append('tempo', data.tempo);
+      dataSend.append('faktur', data.faktur[0] );
+      const post = await fetch(`${APIURL}/rs/barang/penerimaan`, {
+        method: "POST",
+        headers: headers,
+        body: dataSend
+      });
+      headers.append("Content-Type", "application/json")
+      const resp = await post.json();
+      if (resp.status !== "Created") throw new Error(resp.message);
+      toast.success(resp.message);
       // }
-      // tutup();
-      // loadData();
+      tutup();
+      loadData();
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);
@@ -837,7 +835,6 @@ const PenerimaanDialog = ({
                   {judul} Penerimaan Barang
                 </Dialog.Title>
                 <form
-                  encType="multipart/form-data"
                   onSubmit={handleSubmit(submitHandler)}
                   className="mt-2 flex flex-col gap-3"
                 >
