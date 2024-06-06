@@ -23,7 +23,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { TbEdit, TbTrash } from "react-icons/tb";
-import { ArrayElementType, cn } from "@/lib/utils";
+import { ArrayElementType, MoneyToNumber, cn } from "@/lib/utils";
 import css from "@/assets/css/scrollbar.module.css";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/button";
@@ -921,7 +921,7 @@ const TelaahDialog = ({
             obat.push({
               id_poa: nonracik.id_poa,
               nama: nonracik.nama_obat,
-              jumlah: nonracik.jumlah,
+              jumlah: nonracik.jumlah
             });
             setValue("obat", [...obat]);
           }
@@ -1423,7 +1423,6 @@ const TelaahDialog = ({
                               <thead>
                                 <tr className="divide-x divide-slate-50 bg-slate-200 dark:divide-slate-600 dark:bg-gray-800">
                                   <td className="px-4 py-2">Obat</td>
-                                  <td className="px-4 py-2">Harga</td>
                                   <td className="px-4 py-2">Jumlah</td>
                                   <td className="px-4 py-2 text-center">*</td>
                                 </tr>
@@ -1797,9 +1796,6 @@ const TelaahDialog = ({
                               <ThDiv>Restriksi</ThDiv>
                             </Th>
                             <Th>
-                              <ThDiv>Harga</ThDiv>
-                            </Th>
-                            <Th>
                               <ThDiv>Jumlah</ThDiv>
                             </Th>
                           </tr>
@@ -1930,23 +1926,6 @@ const TelaahDialog = ({
                                   }
                                 >
                                   <p>{/* data.restriksi */}</p>
-                                </td>
-                                <td
-                                  className={cn(
-                                    "border-b border-slate-200 dark:border-gray-700",
-                                    "cursor-pointer"
-                                  )}
-                                  onClick={() =>
-                                    obat?.id_poa === data.id
-                                      ? setObat(null)
-                                      : setObat({
-                                          id_poa: data.id,
-                                          nama: data.nama,
-                                          jumlah: 1,
-                                        })
-                                  }
-                                >
-                                  <p>{data.harga}</p>
                                 </td>
                                 <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
                                   <Input

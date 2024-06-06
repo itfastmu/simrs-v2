@@ -214,7 +214,7 @@ export default function HargaObat() {
                 />
               </div>
               <p className="text-xl uppercase text-gray-500 dark:text-slate-100">
-                Setting Harga Obat
+                Setting Margin Harga Obat
               </p>
             </div>
           </div>

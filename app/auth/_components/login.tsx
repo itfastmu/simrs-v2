@@ -100,6 +100,7 @@ export default function Login() {
             <Input
               className={cn(errors.username && "border-red-500")}
               placeholder="Username"
+              autoFocus
               {...register("username")}
             />
           </div>

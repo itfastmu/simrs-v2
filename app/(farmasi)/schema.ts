@@ -272,6 +272,7 @@ export type DetailPenerimaan = {
   satuan: string;
   satuan_kecil: string;
   diskon: number | null;
+  ppn: number | null
   id_sp: string;
   nama: string;
   id_pov: number;

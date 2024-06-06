@@ -505,6 +505,12 @@ const PenerimaanDialog = ({
           required_error: "harus diisi",
           invalid_type_error: "harus diisi",
         }),
+        diskon: z.number({
+          required_error: "harus diisi"
+        }),
+        ppn: z.number({
+          required_error: "harus diisi"
+        }),
       })
       .array()
       .min(1, "harus diisi"),
@@ -674,7 +680,7 @@ const PenerimaanDialog = ({
   };
   const [obatDialog, setObatDialog] = useState<boolean>(false);
   const [obat, setObat] = useState<
-    (ArrayElementType<PenerimaanSchemaType["detail"]> & { id_poa?:number })[] | null
+    (ArrayElementType<PenerimaanSchemaType["detail"]> & { id_poa?:number, diskon?: number, ppn?: number })[] | null
   >(null);
 
   type UbahObatState = {
@@ -733,7 +739,9 @@ const PenerimaanDialog = ({
         nama: val.nama,
         harga: String(MoneyToNumber(val.harga)),
         jumlah: val.jumlah,
-        id_poa: 0
+        id_poa: 0,
+        diskon: val.diskon ?? 0,
+        ppn: val.ppn ?? 0,
       }))
     );
     setFaktur(penerimaan.faktur);
@@ -1010,6 +1018,8 @@ const PenerimaanDialog = ({
                               <td className="px-4 py-2">Jumlah Datang</td>
                               <td className="px-4 py-2">Jumlah Kecil</td>
                               <td className="px-4 py-2">Harga(sesuai faktur)</td>
+                              <td className="px-4 py-2">Diskon</td>
+                              <td className="px-4 py-2">Ppn</td>
                               <td
                                 className={cn(
                                   "px-4 py-2 text-center",
@@ -1035,11 +1045,17 @@ const PenerimaanDialog = ({
                                 <td className="whitespace-pre-wrap px-4 py-2">
                                   {`${obat.jumlah} ${obat.satuan_besar}`}
                                 </td>
-                                <td className="whitespace-pre-wrap px-4 py-2">
+                                  <td className="whitespace-pre-wrap px-4 py-2">
                                 {`${obat.jumlah_kecil} ${obat.satuan_kecil}`}
                                 </td>
                                 <td className="whitespace-pre-wrap px-4 py-2">
                                   {NumberToMoney(obat.harga)}
+                                </td>
+                                <td className="whitespace-pre-wrap px-4 py-2">
+                                  { obat.diskon } %
+                                </td>
+                                <td className="whitespace-pre-wrap px-4 py-2">
+                                  { obat.ppn } %
                                 </td>
                                 <td
                                   className={cn(
@@ -1463,6 +1479,8 @@ const PenerimaanDialog = ({
                                   <td className="px-4 py-2">Jumlah Datang</td>
                                   <td className="px-4 py-2">Jumlah Kecil</td>
                                   <td className="px-4 py-2">Harga (sesuai faktur)</td>
+                                  <td className="px-4 py-2">Diskon (%)</td>
+                                  <td className="px-4 py-2">Ppn (%)</td>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1514,7 +1532,9 @@ const PenerimaanDialog = ({
                                                 nama: dtl.nama,
                                                 jumlah: dtl.jumlah,
                                                 harga: String(MoneyToNumber(dtl.harga || "0")),
-                                                id_poa: dtl.id_barang
+                                                id_poa: dtl.id_barang,
+                                                diskon: 0,
+                                                ppn: 0,
                                               },
                                             ]);
                                           }
@@ -1555,7 +1575,9 @@ const PenerimaanDialog = ({
                                               nama: dtl.nama,
                                               jumlah: dtl.jumlah,
                                               harga: String(MoneyToNumber(dtl.harga || "0")),
-                                              id_poa: dtl.id_barang
+                                              id_poa: dtl.id_barang,
+                                              diskon: 0,
+                                              ppn: 0,
                                             },
                                           ]);
                                         }
@@ -1659,6 +1681,87 @@ const PenerimaanDialog = ({
                                               }
                                             );
                                             setObat(detailHarga);
+                                          }}
+                                          disabled={
+                                            !(obat || [])?.some(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <div className="flex items-center">
+                                        <Input
+                                          type="number"
+                                          className="w-20 py-1 text-xs font-normal"
+                                          min={ 0 }
+                                          max={ 100 }
+                                          defaultValue={ 
+                                            obat?.find(
+                                            (val, idx) => idx === ubahObat.data?.idx
+                                          )?.diskon || 0
+                                        }
+                                          value={
+                                            obat?.find(
+                                              (val, idx) => idx === ubahObat.data?.idx
+                                            )?.diskon
+                                          }
+                                          onChange={(e) => {
+                                            const detailJumlah = (obat || []).map(
+                                              (val, idx) => {
+                                                if (val.id_sp_detail === dtl.id) {
+                                                  return {
+                                                    ...val,
+                                                    diskon: parseInt(
+                                                      e.target.value
+                                                    ),
+                                                  };
+                                                }
+                                                return val;
+                                              }
+                                            );
+                                            setObat(detailJumlah);
+                                          }}
+                                          disabled={
+                                            !(obat || [])?.some(
+                                              (val) => val.id_sp_detail === dtl.id
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                    </td>
+                                    <td className="whitespace-pre-wrap px-4 py-2 text-center">
+                                      <div className="flex items-center">
+                                        <Input
+                                          type="number"
+                                          className="w-20 py-1 text-xs font-normal"
+                                          min={ 0 }
+                                          defaultValue={ 
+                                            obat?.find(
+                                            (val, idx) => idx === ubahObat.data?.idx
+                                          )?.ppn || 0
+                                        }
+                                          value={
+                                            obat?.find(
+                                              (val, idx) => idx === ubahObat.data?.idx
+                                            )?.ppn
+                                          }
+                                          onChange={(e) => {
+                                            const detailJumlah = (obat || []).map(
+                                              (val, idx) => {
+                                                if (val.id_sp_detail === dtl.id) {
+                                                  return {
+                                                    ...val,
+                                                    ppn: parseInt(
+                                                      e.target.value
+                                                    ),
+                                                  };
+                                                }
+                                                return val;
+                                              }
+                                            );
+                                            setObat(detailJumlah);
                                           }}
                                           disabled={
                                             !(obat || [])?.some(

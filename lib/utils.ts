@@ -130,7 +130,7 @@ export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };
 
-export const MoneyToNumber = (money:string): number => {
+export const MoneyToNumber = (money:string|undefined): number => {
   if (!money) return 0;
   const parsing = money.replace(/[^0-9,]/g, '').replace(',', '.');
   return Number(parsing);

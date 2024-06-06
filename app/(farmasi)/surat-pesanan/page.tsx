@@ -45,7 +45,7 @@ type LihatState = {
 };
 type LihatAction = { type: "setLihat"; lihat: LihatState };
 
-export default function SuratPesanan() {
+export default function SuratPesananPage() {
   const headers = new Headers();
   const [token] = useState(Cookies.get("token"));
   headers.append("Authorization", token as string);
@@ -663,7 +663,7 @@ const PesananDialog = ({
           ...meta,
           page: 1,
           lastPage: 1,
-          total: 0,
+          total: 0,obat
         },
       });
       if (error.message === "Data tidak ditemukan") return;
@@ -1479,6 +1479,9 @@ const PesananDialog = ({
                             <Th>
                               <ThDiv>Jumlah</ThDiv>
                             </Th>
+                            <Th>
+                              <ThDiv>Harga</ThDiv>
+                            </Th>
                           </tr>
                         </thead>
                         <tbody className="bg-slate-200 dark:bg-gray-700">
@@ -1622,6 +1625,25 @@ const PesananDialog = ({
                                       setObat({
                                         ...obat!,
                                         jumlah: parseInt(e.target.value),
+                                      });
+                                    }}
+                                    disabled={obat?.id_barang !== data.id}
+                                  />
+                                </td>
+                                <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    className="w-20 py-1.5 text-xs font-normal"
+                                    value={
+                                      obat?.id_barang === data.id
+                                        ? obat?.harga || 0
+                                        : 0
+                                    }
+                                    onChange={(e) => {
+                                      setObat({
+                                        ...obat!,
+                                        harga: Number(e.target.value),
                                       });
                                     }}
                                     disabled={obat?.id_barang !== data.id}
