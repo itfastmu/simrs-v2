@@ -32,7 +32,7 @@ export const listGinekologi = [
   "Kanker Kandungan",
   "Operasi Kandungan",
   "Perkosaan",
-  "Post Costal Bleeding",
+  "Post Coital Bleeding",
 ];
 
 export const SubjektifOBG = ({
@@ -228,7 +228,7 @@ export const SubjektifOBG = ({
     "Kanker Kandungan",
     "Operasi Kandungan",
     "Perkosaan",
-    "Post Costal Bleeding",
+    "Post Coital Bleeding",
   ]);
 
   const [listKB] = useState([

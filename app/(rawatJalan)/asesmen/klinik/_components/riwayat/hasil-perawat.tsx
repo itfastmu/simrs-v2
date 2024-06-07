@@ -308,8 +308,7 @@ const HasilPerawat = React.forwardRef(
                       {
                         value: "Tidak ada",
                         isChecked:
-                          Boolean(data?.anamnesis?.riwayat_obat) &&
-                          data?.anamnesis?.riwayat_obat?.length === 0,
+                          !data?.anamnesis?.riwayat_obat,
                       },
                       {
                         value: "Ada",

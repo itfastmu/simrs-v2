@@ -462,7 +462,7 @@ export default function AsesmenDokter({
       if (json.status !== "Created" && json.status !== "Updated")
         throw new Error(json.message);
       toast.success("Asesmen berhasil disimpan!");
-      router.replace(`/list-pasien?user=Dokter&id=${id?.replaceAll(".", "_")}`);
+      router.replace(`/list-pasien?user=Dokter&id=${kode?.replaceAll(".", "_")}`);
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);

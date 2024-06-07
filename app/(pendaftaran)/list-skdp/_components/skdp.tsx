@@ -290,10 +290,38 @@ export default function FormSKDPDialog({
                 </Dialog.Title>
                 <form onSubmit={handleSubmit(submitHandler)}>
                   <div className="mt-2 flex flex-col gap-2">
+                    <div className="grid max-w-xs">
+                      <div className="flex items-baseline justify-between">
+                        <label
+                          htmlFor="perkiraan"
+                          className="text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Perkiraan Kontrol
+                        </label>
+                      </div>
+                      <SelectInput
+                        noOptionsMessage={(e) => "Tidak ada pilihan"}
+                        onChange={(val: any) => {
+                          const d = new Date()
+                          d.setDate(d.getDate()+Number(val.value))
+                          if(d.getDay()===7){
+                            d.setDate(d.getDate()+1)
+                          }
+                          
+                          setValue("tanggal", d.toLocaleDateString('fr-CA'));
+                        }}
+                        options={[{value:7,label:"1 Minggu"},{value:30,label:"30 Hari"}]}
+                        // value={[{value:7,data:"1 Minggu"},{value:30,data:"30 Hari"}].find(
+                        //   (c: any) => c.value === value
+                        // )}
+                        placeholder="Pilih Perkiraan"
+                      />
+                    </div>
+
                     <div
                       className={cn(
                         "grid max-w-xs",
-                        errors.tanggal && "rounded-lg bg-red-100"
+                        // errors.tanggal && "rounded-lg bg-red-100"
                       )}
                     >
                       <div className="flex items-baseline justify-between">

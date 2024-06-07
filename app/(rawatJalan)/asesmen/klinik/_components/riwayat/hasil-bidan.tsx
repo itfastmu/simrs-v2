@@ -43,7 +43,7 @@ const HasilBidan = React.forwardRef(
       "Kanker Kandungan",
       "Operasi Kandungan",
       "Perkosaan",
-      "Post Costal Bleeding",
+      "Post Coital Bleeding",
       "Tidak ada",
     ];
 

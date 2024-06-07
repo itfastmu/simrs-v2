@@ -1010,7 +1010,7 @@ export default function FormSEP() {
               )}
             >
               <label className="py-2 font-semibold dark:text-neutral-200">
-                Tunjuan Kunjungan*
+                Tujuan Kunjungan*
               </label>
               {errors?.tujuanKunj ? (
                 <p className="absolute right-1 top-0 text-red-900 dark:text-red-200">
