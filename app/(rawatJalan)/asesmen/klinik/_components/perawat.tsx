@@ -1137,9 +1137,10 @@ export const AsesmenPer = ({
                   options={katDiagPerOptions}
                   placeholder="Pilih Kategori"
                   value={selKatDiag}
-                  onChange={(option) =>
+                  onChange={(option) => {
                     setSelKatDiag(option as MyOption | null)
-                  }
+                    setSelDiagnosis(null)
+                  }}
                   maxMenuHeight={200}
                 />
                 <SelectInput
@@ -1149,9 +1150,10 @@ export const AsesmenPer = ({
                   options={subKatDiagPerOptions}
                   placeholder="Pilih Subkategori"
                   value={selSubKatDiag}
-                  onChange={(option) =>
+                  onChange={(option) => {
                     setSelSubKatDiag(option as MyOption | null)
-                  }
+                    setSelDiagnosis(null)
+                  }}
                   maxMenuHeight={200}
                 />
                 <AsyncSelectInput

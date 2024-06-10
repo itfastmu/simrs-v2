@@ -3,7 +3,7 @@
 import Image from "next/image";
 import FastabiqBiruLogo from "@/assets/img/fastabiq-biru.png";
 import Cookies from "js-cookie";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { THasilPerawat } from "../../../schema";
 
 const HasilPerawat = React.forwardRef(
@@ -121,6 +121,8 @@ const HasilPerawat = React.forwardRef(
     //     created_at: "2023-11-23T07:47:35.282Z",
     //   },
     // };
+
+    const hasilGCS = data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) || 0
 
     return (
       <div
@@ -732,39 +734,27 @@ const HasilPerawat = React.forwardRef(
                 {[
                   {
                     value: "CM (15-14)",
-                    isChecked:
-                      (data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) ||
-                        0) >= 14,
+                    isChecked: [15, 14].includes(hasilGCS)
                   },
                   {
                     value: "Apatis (13-12)",
-                    isChecked:
-                      (data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) ||
-                        99) < 14,
+                    isChecked:[13, 12].includes(hasilGCS)
                   },
                   {
                     value: "Delirium (11-10)",
-                    isChecked:
-                      (data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) ||
-                        99) < 12,
+                    isChecked:[11, 10].includes(hasilGCS)
                   },
                   {
                     value: "Somnolent (9-7)",
-                    isChecked:
-                      (data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) ||
-                        99) < 10,
+                    isChecked:[9,8,7].includes(hasilGCS)
                   },
                   {
                     value: "Stupor (6-4)",
-                    isChecked:
-                      (data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) ||
-                        99) < 7,
+                    isChecked:[6,5,4].includes(hasilGCS)
                   },
                   {
                     value: "Coma (3)",
-                    isChecked:
-                      (data?.fisik?.gcs?.reduce((acc, val) => acc + val, 0) ||
-                        99) === 3,
+                    isChecked:hasilGCS === 3
                   },
                 ].map((val, idx) => (
                   <div className="flex items-center" key={idx}>
@@ -976,31 +966,20 @@ const HasilPerawat = React.forwardRef(
             </div>
           </div>
           <p className="select-none bg-black text-center font-bold uppercase tracking-normal text-white">
-            &nbsp;
+            Catatan Tindakan Keperawatan
           </p>
           <div className="w-full text-sm">
             <table className="w-full border-b border-black text-center">
               <thead>
                 <tr className="border-b border-black px-1.5 font-semibold">
-                  <td className="border-r border-black">Tanggal/Jam</td>
                   <td className="border-r border-black">Tindakan</td>
-                  <td>Nama Perawat</td>
                 </tr>
               </thead>
               <tbody>
                 <tr className="px-1.5">
                   <td className="border-r border-black">
-                    {new Intl.DateTimeFormat("id-ID", {
-                      dateStyle: "long",
-                      timeStyle: "long",
-                    }).format(
-                      new Date(data?.keperawatan?.created_at || new Date())
-                    )}
-                  </td>
-                  <td className="border-r border-black">
                     {data?.keperawatan?.tindakan}
                   </td>
-                  <td>{data?.anamnesis.nama_user}</td>
                 </tr>
               </tbody>
             </table>

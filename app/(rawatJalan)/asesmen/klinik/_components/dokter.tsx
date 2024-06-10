@@ -1573,6 +1573,7 @@ export const InstruksiDr = ({
   isLoading: boolean;
   isUpdate: boolean;
 }) => {
+  const urlParams = useSearchParams();
   const {
     trigger,
     setValue,
@@ -1915,6 +1916,7 @@ export const InstruksiDr = ({
                 className="items-center justify-center gap-2 py-1.5 text-xs"
                 color={resepNonRacik ? "sky" : "sky700"}
                 onClick={() => setResepNonRacik(!resepNonRacik)}
+                disabled={ Number(urlParams?.get('proses')) > 5 }
               >
                 <span>
                   <FaFileMedical size="1rem" />
@@ -1930,6 +1932,7 @@ export const InstruksiDr = ({
                 className="items-center justify-center gap-2 py-1.5 text-xs"
                 color={resepRacik ? "sky" : "sky700"}
                 onClick={() => setResepRacik(!resepRacik)}
+                disabled={ Number(urlParams?.get('proses')) > 5 }
               >
                 <span>
                   <GiPestleMortar size="1rem" />
@@ -1949,6 +1952,7 @@ export const InstruksiDr = ({
               POAOptions={POAOptions}
               loadPOA={loadPOA}
               racikDispatch={racikDispatch}
+              proses={urlParams?.get('proses')}
             />
           </div>
         </div>

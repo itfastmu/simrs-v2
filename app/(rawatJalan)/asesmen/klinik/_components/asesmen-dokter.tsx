@@ -162,7 +162,6 @@ export default function AsesmenDokter({
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
       setHasilPerawat(json?.data);
-      console.log(json);
     } catch (err) {
       const error = err as Error;
       if (
@@ -184,9 +183,6 @@ export default function AsesmenDokter({
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
   const [hasilDokter, setHasilDokter] = useState<THasilDokter>();
   const loadAsesDokter = async () => {
-    const mta = "2024012320002";
-    const rhb = "2024012320003";
-    const ort = "2024012320004";
     try {
       const url = `${APIURL}/rs/rajal/assesment/dokter/${
         params.idKunjungan as string
@@ -198,7 +194,6 @@ export default function AsesmenDokter({
       const json = await resp.json();
       if (json.status !== "Ok") throw new Error(json.message);
       setHasilDokter(json?.data);
-      console.log(json);
     } catch (err) {
       const error = err as Error;
       if (

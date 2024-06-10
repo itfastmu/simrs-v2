@@ -19,6 +19,7 @@ import { Button } from "@/components/button";
 import { OptionBarang, Sediaan } from "@/app/(farmasi)/schema";
 import { APIURL } from "@/lib/connection";
 import Cookies from "js-cookie";
+import { useSearchParams } from "next/navigation";
 
 export const ResepDokter = ({
   isUpdate,
@@ -27,6 +28,7 @@ export const ResepDokter = ({
   racikDispatch,
   POAOptions,
   loadPOA,
+  proses
 }: {
   isUpdate: boolean;
   resepNonRacik: boolean;
@@ -34,8 +36,10 @@ export const ResepDokter = ({
   racikDispatch: React.Dispatch<RacikAction>;
   POAOptions: OptionBarang[];
   loadPOA: (inputText: string) => Promise<OptionBarang[]>;
+  proses: string | null
 }) => {
   const headers = new Headers();
+  const urlParams = useSearchParams();
   const [token] = useState(Cookies.get("token"));
   headers.append("Authorization", token as string);
   headers.append("Content-Type", "application/json");
@@ -496,23 +500,25 @@ export const ResepDokter = ({
                     </td>
                     <td className="text-center">
                       <div className="flex justify-center gap-1">
-                        <TbEdit
-                          className="inline text-cyan-600 hover:cursor-pointer"
-                          size="1.2rem"
-                          onClick={() => {
-                            ubahObatDispatch({
-                              type: "setUbah",
-                              ubah: {
-                                modal: true,
-                                non: true,
-                                data: {
-                                  ...non,
-                                  idx: idx,
+                        { Number(proses) < 6 && (
+                          <TbEdit
+                            className="inline text-cyan-600 hover:cursor-pointer"
+                            size="1.2rem"
+                            onClick={() => {
+                              ubahObatDispatch({
+                                type: "setUbah",
+                                ubah: {
+                                  modal: true,
+                                  non: true,
+                                  data: {
+                                    ...non,
+                                    idx: idx,
+                                  },
                                 },
-                              },
-                            });
-                          }}
-                        />
+                              });
+                            }}
+                          />
+                        )}
                         <RiDeleteBin5Line
                           className="inline text-amber-500 hover:cursor-pointer"
                           size="1.2rem"
@@ -766,6 +772,7 @@ export const ResepDokter = ({
                             Non-DTD
                           </button>
                         )} */}
+                        { Number(proses) < 6 && (
                         <TbEdit
                           className="inline text-cyan-600 hover:cursor-pointer"
                           size="1.2rem"
@@ -783,6 +790,7 @@ export const ResepDokter = ({
                             });
                           }}
                         />
+                        )}
                         <RiDeleteBin5Line
                           className="inline text-amber-500 hover:cursor-pointer"
                           size="1.2rem"
