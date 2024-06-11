@@ -822,7 +822,7 @@ export default function ListPasienAsesmen({
                                         "text-cyan-600 hover:text-cyan-700 active:text-cyan-800"
                                       )}
                                     />
-                                    {parseInt(data.id_proses) > 3 ? (
+                                    {data?.pelaksana?.some(val => ['perawat', 'bidan','fisioterapis'].includes(val)) ? (
                                       <FaCheck
                                         className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
                                         aria-hidden="true"
@@ -913,9 +913,9 @@ export default function ListPasienAsesmen({
                                       )}
                                     />
                                     {((grup === "Dokter" || grup === "Dewa") &&
-                                      parseInt(data.id_proses) > 4) ||
+                                      data?.pelaksana?.includes('dokter')) ||
                                     (grup === "Perawat Rajal" &&
-                                      parseInt(data.id_proses) > 3) ? (
+                                      data?.pelaksana?.some(val => ['perawat', 'bidan','fisioterapis'].includes(val))) ? (
                                       <FaCheck
                                         className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
                                         aria-hidden="true"

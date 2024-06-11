@@ -237,6 +237,7 @@ export type KunjunganRajal = {
   finger: number;
   tipe: number;
   billing: number;
+  pelaksana: string[];
 };
 
 export type Proses =

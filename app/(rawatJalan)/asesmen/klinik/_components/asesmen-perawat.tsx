@@ -84,6 +84,7 @@ export default function AsesmenPerawat({
   };
   const [hasilPerawat, setHasilPerawat] = useState<THasilPerawat>();
   const loadAsesPerawat = async () => {
+    
     try {
       const url = klinik.isRehab
         ? `${APIURL}/rs/rajal/assesment/fisioterapi/${
@@ -137,7 +138,7 @@ export default function AsesmenPerawat({
     },
   });
 
-  const initialized = useRef<boolean>(false);
+  const initialized = useRef<boolean>(false);  
   useEffect(() => {
     if (!initialized.current) {
       loadInfoPeserta();
@@ -364,8 +365,8 @@ export default function AsesmenPerawat({
   } = methods;
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
+    const subscription = watch((value, { name, type }) => { return; }
+      // console.log(value, name, type)
     );
     return () => subscription.unsubscribe();
   }, [watch]);

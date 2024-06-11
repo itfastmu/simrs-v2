@@ -4,7 +4,7 @@ import { getAge } from "@/lib/utils";
 import { APIURL } from "@/lib/connection";
 import AsesmenPerawat from "../_components/asesmen-perawat";
 import AsesmenDokter from "../_components/asesmen-dokter";
-import { TData } from "../../schema";
+import { KlinikAsesmen, TData } from "../../schema";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
@@ -65,9 +65,10 @@ export default function AsesmenKlinik() {
     }),
     [data]
   );
-
-  return (
-    <Suspense>
+  
+  return data 
+    ? (
+    <>
       {userGroup === "Perawat Rajal" ? (
         <AsesmenPerawat data={data} klinik={klinik} />
       ) : klinik.isPsi ? (
@@ -75,6 +76,13 @@ export default function AsesmenKlinik() {
       ) : (
         <AsesmenDokter data={data} klinik={klinik} />
       )}
-    </Suspense>
+    </>
+  ) : (
+    <div className="mx-auto flex h-full gap-2 overflow-auto px-4 pb-[68px] pt-1"
+    >
+      <div className="flex justify-center items-center w-full rounded-md bg-white p-3 shadow-md dark:bg-slate-700">
+        <p>Memuat...</p>
+      </div>
+    </div>
   );
 }
