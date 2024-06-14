@@ -442,7 +442,6 @@ export default function AsesmenPerawat({
               ]
         );
       }
-      console.log(data);
       const url = klinik.isObg
         ? `${APIURL}/rs/rajal/assesment/kebidanan`
         : klinik.isRehab

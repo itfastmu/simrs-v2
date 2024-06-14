@@ -146,7 +146,6 @@ export default function HargaObat() {
       const params = {
         page: meta.page,
         perPage: meta.perPage,
-        tanggal: memoizedTanggal,
         keyword: deferredCari,
       };
       url.search = new URLSearchParams(params as any).toString();
@@ -232,14 +231,6 @@ export default function HargaObat() {
                     },
                   })
                 }
-              />
-              <Input
-                type="date"
-                value={memoizedTanggal}
-                className="w-fit p-2 text-xs shadow-none"
-                onChange={(e) => {
-                  setTanggal(e.target.value ? new Date(e.target.value) : "");
-                }}
               />
             </div>
             <div className="flex items-baseline gap-1">
@@ -562,14 +553,17 @@ const SettingDialog = ({
   loadData,
 }: SettingDialogProps) => {
   const SettingSchema = z.object({
-    asuransi: z.number().array(),
+    asuransi: z.number({
+      required_error: "harus dipilih"
+    }).array(),
     generik: z.boolean(),
     tipe: z
       .string({
         required_error: "harus dipilih",
       })
       .array(),
-  });
+    margin: z.string().min(1, { message: "harus diisi" })
+  }).required({ margin: true });
 
   type SettingSchemaType = z.infer<typeof SettingSchema>;
 
@@ -584,7 +578,7 @@ const SettingDialog = ({
   } = useForm<SettingSchemaType>({
     resolver: zodResolver(SettingSchema),
     defaultValues: {
-      generik: true,
+      generik: false,
     },
   });
 
@@ -653,6 +647,7 @@ const SettingDialog = ({
     setValue("generik", setting.generik);
     setValue("asuransi", setting.asuransi);
     setValue("tipe", setting.tipe);
+    setValue("margin", setting.margin);
     // setValue(
     //   "detail",
     //   (setting.detail || []).map((val) => ({
@@ -671,20 +666,22 @@ const SettingDialog = ({
     if (!ubah.data) return;
   }, [ubah, tambahDialog]);
 
-  useEffect(() => {
-    console.log(errors);
-  }, [errors]);
+  // useEffect(() => {
+  //   console.log(errors);
+  // }, [errors]);
 
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
-    );
-    return () => subscription.unsubscribe();
-  }, [watch]);
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) =>
+  //     console.log(value, name, type)
+  //   );
+  //   return () => subscription.unsubscribe();
+  // }, [watch]);
 
   const submitHandler: SubmitHandler<SettingSchemaType> = async (data, e) => {
     try {
       e?.preventDefault();
+      console.log(data);
+      
       if (ubah.modal) {
         const put = await fetch(`${APIURL}/rs/obat/setting/${ubah.data?.id}`, {
           method: "PUT",
@@ -756,10 +753,9 @@ const SettingDialog = ({
                   className="mt-2 flex flex-col gap-3"
                 >
                   <div className="grid grid-cols-2 gap-4">
-                    <div
-                      className={cn(errors.asuransi && "rounded-lg bg-red-100")}
+                    <div className={cn(errors.asuransi && "rounded-lg bg-red-100")}
                     >
-                      <div className="flex items-baseline justify-between">
+                      <div className="mb-1.5 flex items-baseline justify-between">
                         <label className="text-sm font-medium text-gray-900 dark:text-white">
                           Cara Bayar
                         </label>
@@ -794,9 +790,9 @@ const SettingDialog = ({
                     </div>
 
                     <div className={cn(errors.tipe && "rounded-lg bg-red-100")}>
-                      <div className="flex items-baseline justify-between">
+                      <div className="mb-1.5 flex items-baseline justify-between">
                         <label className="text-sm font-medium text-gray-900 dark:text-white">
-                          Tipe
+                          Tipe Barang
                         </label>
                         {errors.tipe ? (
                           <p className="pr-0.5 text-xs text-red-500">
@@ -827,6 +823,26 @@ const SettingDialog = ({
                         )}
                       />
                     </div>
+                      
+                    <div className={cn(errors.margin && "rounded-lg bg-red-100")}
+                    >
+                      <div className="mb-1.5 flex items-baseline justify-between">
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          Margin Harga (%)
+                        </label>
+                        {errors.margin ? (
+                          <p className="pr-0.5 text-xs text-red-500">
+                            {errors.margin.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Input
+                        type="number"
+                        min={ 0 }
+                        max={ 100 }
+                        { ...register("margin") }
+                      />
+                    </div>
 
                     <div
                       className={cn(
@@ -834,15 +850,10 @@ const SettingDialog = ({
                         // errors.generik && "rounded-lg bg-red-100"
                       )}
                     >
-                      <label
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-white"
-                        htmlFor="generik"
-                      >
-                        Generik
-                      </label>
                       <Controller
                         control={control}
                         name="generik"
+                        defaultValue={true}
                         render={({ field: { onChange, value } }) => (
                           <input
                             type="checkbox"
@@ -853,16 +864,22 @@ const SettingDialog = ({
                           />
                         )}
                       />
+                      <label
+                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-white"
+                        htmlFor="generik"
+                      >
+                        Obat Generik
+                      </label>
                     </div>
                   </div>
-                  <div className="mt-4 flex gap-1">
+                  <div className="mt-2 flex gap-1">
                     <Button
                       type="submit"
                       color={
                         judul === "Tambah Setting" ? "green100" : "cyan100"
                       }
                     >
-                      {judul === "Tambah Setting" ? "Tambah" : "Ubah"}
+                      {judul === "Tambah Setting" ? "Simpan" : "Ubah"}
                     </Button>
                     <Button
                       className="w-fit border border-transparent text-sm font-medium focus:ring-0"

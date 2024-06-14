@@ -1,4 +1,5 @@
 import { z } from "zod";
+import RtlPulang from "./klinik/_components/rtl/rtl-pulang";
 
 export const asuransi: { [key: number]: { nama: string; cn: string } } = {
   1: {
@@ -127,7 +128,7 @@ export const AsesmenPerSchema = z.object({
       riwayat_ginekologi: z.string().array(),
       fluor_albus: z.string().optional().array().length(3),
       riwayat_kb: z.string().array(),
-      keluhan_kb: z.string(),
+      keluhan_kb: z.string().optional(),
       paritas_gpa: z
         .number({
           required_error: "harus diisi",
@@ -1029,3 +1030,58 @@ export type THasilPsikolog = {
   rencana: string;
   intervensi: string;
 };
+
+// RTL
+export const RtlPulangSchema = z.object({
+  tipe_rtl: z.string(),
+  keterangan: z.string().min(1, { message: "pilih salah satu" })
+})
+export type TRtlPulang = z.infer<typeof RtlPulangSchema>
+
+export const RtlKontrolSchema = z.object({
+  tipe_rtl: z.string(),
+  sep: z.string().optional(),
+  dokter: z.union([z.string(), z.number()]),
+  klinik: z.union([z.string(), z.number()]),
+  tanggal: z.string().date()
+})
+export type TRtlKontrol = z.infer<typeof RtlKontrolSchema>
+
+export const RtlRanapSchema = z.object({
+  tipe_rtl: z.string(),
+  id: z.string().optional(),
+  dokter: z.union([z.string(), z.number()]),
+  klinik: z.union([z.string(), z.number()]),
+  tanggal: z.string().date()
+})
+export type TRtlRanap = z.infer<typeof RtlRanapSchema>
+
+export const RtlInterSchema = z.object({
+  tipe_rtl: z.string(),
+  keterangan: z.string().min(1, { message: "pilih salah satu" }),
+  klinik: z.union([z.string(), z.number()]),
+  tanggal: z.string().date()
+})
+export type TRtlInter = z.infer<typeof RtlInterSchema>
+
+export const RtlEksterSchema = z.object({
+  tipe_rtl: z.string(),
+  sep: z.string(),
+  tgl_rencana: z.string().date(),
+  tujuan_rujuk: z.string().optional(),
+  jns_pelayanan: z.string().optional(),
+  klinik: z.union([z.string(), z.number()]),
+  diagnosa: z.string(),
+  catatan: z.string().optional(),
+})
+export type TRtlEkster = z.infer<typeof RtlEksterSchema>
+
+export const RtlPrbSchema = z.object({
+  tipe_rtl: z.string(),
+  alamat: z.string().optional(),
+  email: z.string().email(),
+  program_prb: z.string().optional(),
+  keterangan: z.string().optional(),
+  saran: z.string().optional(),
+})
+export type TRtlPrb = z.infer<typeof RtlPrbSchema>

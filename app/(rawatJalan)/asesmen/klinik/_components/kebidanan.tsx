@@ -1007,6 +1007,12 @@ export const SubjektifOBG = ({
                 </LabelButton>
               ))}
             </div>
+            <Input
+                type="hidden"
+                className="w-80 px-2 py-1 text-xs"
+                placeholder="Keluhan KB"
+                {...register("kebidanan.keluhan_kb")}
+              />
             <Transition
               show={watch("kebidanan.riwayat_kb")?.length > 0}
               as={Fragment}

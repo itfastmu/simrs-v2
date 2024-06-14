@@ -976,11 +976,11 @@ export default function ListPasienAsesmen({
                                 </Tooltip.Root>
                               </Tooltip.Provider>
 
-                              <Tooltip.Provider
+                              {/* <Tooltip.Provider
                                 delayDuration={300}
                                 disableHoverableContent
-                              >
-                                <Tooltip.Root>
+                              > 
+                                 <Tooltip.Root>
                                   <Tooltip.Trigger
                                     // disabled={parseInt(data.id_proses) < 5}
                                     className="disabled:cursor-not-allowed disabled:opacity-50"
@@ -1007,7 +1007,7 @@ export default function ListPasienAsesmen({
                                     <p>SKDP</p>
                                   </Tooltip.Content>
                                 </Tooltip.Root>
-                              </Tooltip.Provider>
+                              </Tooltip.Provider> */}
                             </>
                           ) : null}
                         </div>

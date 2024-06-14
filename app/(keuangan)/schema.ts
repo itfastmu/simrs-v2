@@ -165,6 +165,7 @@ export type THargaObat = {
   nama_asuransi: string[];
   generik: boolean;
   tipe: TipeHargaObat[];
+  margin: string;
   status: number;
 };
 

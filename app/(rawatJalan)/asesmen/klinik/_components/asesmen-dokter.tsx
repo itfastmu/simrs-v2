@@ -51,6 +51,7 @@ import HasilPerawat from "./riwayat/hasil-perawat";
 import RiwayatPemeriksaan from "./riwayat/riwayat-pemeriksaan";
 import AsesmenPsikologi from "./psikologi";
 import DataPasien from "./data-pasien";
+import { RtlDialog } from "./rtl/rtl-dialog";
 
 export default function AsesmenDokter({
   data,
@@ -470,321 +471,335 @@ export default function AsesmenDokter({
   const panelDivRef = useRef<HTMLElement>(null);
 
   const [tutupAsesmen, setTutupAsesmen] = useState<boolean>(false);
+  const [rtlDialog, setRtlDialog] = useState<boolean>(false);
 
   return (
-    <FormProvider {...methods}>
-      <form
-        onSubmit={handleSubmit(submitHandler)}
-        className="mx-auto flex h-full gap-2 overflow-auto px-4 pb-[68px] pt-1"
-      >
-        <div className="flex basis-1/4 flex-col gap-2">
-          <DataPasien
-            data={data}
-            dataPeserta={dataPeserta}
-            hasilPerawat={hasilPerawat}
-            hasilDokter={hasilDokter}
-          />
-          <RiwayatPemeriksaan />
-        </div>
-        <div className="relative flex-1 rounded-md bg-white p-3 shadow-md dark:bg-slate-700">
-          {/* {!klinik.isPsi ? ( */}
-          <Tab.Group
-            selectedIndex={tabIdx}
-            onChange={(index) => {
-              setTabIdx(index);
-              panelDivRef.current?.scrollTo(0, 0);
-            }}
-          >
-            <Tab.List className="mr-8 flex space-x-0.5 rounded-md bg-gray-900/20 p-0.5 dark:bg-slate-600">
-              {menues.map((menu) => (
-                <Tab
-                  className={cn(
-                    "w-full rounded py-1.5 text-sm leading-5 text-gray-700 focus:outline-none ui-selected:bg-white ui-selected:shadow ui-not-selected:hover:bg-white/[0.12] dark:text-slate-50 ui-selected:dark:bg-slate-800 ui-not-selected:dark:hover:bg-slate-700"
-                  )}
-                  key={menu}
-                >
-                  {menu}
-                </Tab>
-              ))}
-            </Tab.List>
-            <Tab.Panels
-              ref={panelDivRef}
-              className={cn(
-                "my-2 h-[calc(100%-40px)] overflow-y-auto",
-                css.scrollbar
-              )}
+    <>
+      <FormProvider {...methods}>
+        <form
+          onSubmit={handleSubmit(submitHandler)}
+          className="mx-auto flex h-full gap-2 overflow-auto px-4 pb-[68px] pt-1"
+        >
+          <div className="flex basis-1/4 flex-col gap-2">
+            <DataPasien
+              data={data}
+              dataPeserta={dataPeserta}
+              hasilPerawat={hasilPerawat}
+              hasilDokter={hasilDokter}
+            />
+            <RiwayatPemeriksaan />
+          </div>
+          <div className="relative flex-1 rounded-md bg-white p-3 shadow-md dark:bg-slate-700">
+            {/* {!klinik.isPsi ? ( */}
+            <Tab.Group
+              selectedIndex={tabIdx}
+              onChange={(index) => {
+                setTabIdx(index);
+                panelDivRef.current?.scrollTo(0, 0);
+              }}
             >
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                <SubjektifDr
-                  lainRiwayat={lainRiwayat}
-                  lainRiwayatKel={lainRiwayatKel}
-                  setLainRiwayat={setLainRiwayat}
-                  setLainRiwayatKel={setLainRiwayatKel}
-                  klinik={klinik}
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                {klinik.isRehab ? (
-                  <ObjektifRehabMedik
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    klinik={klinik}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : klinik.isDerma ? (
-                  <ObjektifDerma
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : klinik.isJiwa ? (
-                  <ObjektifJiwa
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                ) : (
-                  <ObjektifDr
-                    hasilPerawat={hasilPerawat}
-                    isUpdate={isUpdate}
-                    klinik={klinik}
-                    statusLokSrc={anatomiImg}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                  />
-                )}
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none">
-                {klinik.isJiwa ? (
-                  <AsesmenJiwa
-                    tabIdx={tabIdx}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                    isUpdate={isUpdate}
-                  />
-                ) : (
-                  <AsesmenDr
-                    tabIdx={tabIdx}
-                    setTabIdx={setTabIdx}
-                    panelDivRef={panelDivRef}
-                    isUpdate={isUpdate}
-                  />
-                )}
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none">
-                <PlanningTargetDr
-                  setTabIdx={setTabIdx}
-                  panelDivRef={panelDivRef}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="focus:outline-none" unmount={false}>
-                <InstruksiDr
-                  hasilDokter={hasilDokter}
-                  klinik={klinik}
-                  isLoading={isLoading}
-                  isUpdate={isUpdate}
-                />
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
-          {/* ) : (
-             <AsesmenPsikologi
-               tanggal_lahir={data?.tanggal_lahir as string | undefined}
-             />
-           )} */}
-          <Tooltip.Provider delayDuration={300} disableHoverableContent>
-            <Tooltip.Root>
-              <Tooltip.Trigger asChild>
-                <button
-                  type="button"
-                  onClick={() => setTutupAsesmen(true)}
-                  className="absolute right-3 top-[18px] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <IoCloseCircleOutline
-                    size="1.5rem"
-                    className="text-red-600 ui-not-disabled:hover:text-red-700 ui-not-disabled:active:text-red-800"
-                  />
-                </button>
-              </Tooltip.Trigger>
-              <Tooltip.Content
-                side="left"
-                sideOffset={0}
-                className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
-              >
-                <p>Keluar</p>
-              </Tooltip.Content>
-            </Tooltip.Root>
-          </Tooltip.Provider>
-
-          <Transition show={viewHasilPerawat} as={Fragment}>
-            <Dialog
-              as="div"
-              className="relative z-[1001]"
-              onClose={() => false}
-            >
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div className="fixed inset-0 bg-black bg-opacity-25" />
-              </Transition.Child>
-
-              <div className="fixed inset-0 overflow-y-auto">
-                <div className="flex h-screen items-center justify-center px-4 text-center">
-                  <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="ease-in duration-50"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
+              <Tab.List className="mr-8 flex space-x-0.5 rounded-md bg-gray-900/20 p-0.5 dark:bg-slate-600">
+                {menues.map((menu) => (
+                  <Tab
+                    className={cn(
+                      "w-full rounded py-1.5 text-sm leading-5 text-gray-700 focus:outline-none ui-selected:bg-white ui-selected:shadow ui-not-selected:hover:bg-white/[0.12] dark:text-slate-50 ui-selected:dark:bg-slate-800 ui-not-selected:dark:hover:bg-slate-700"
+                    )}
+                    key={menu}
                   >
-                    <Dialog.Panel className="flex h-full w-full max-w-4xl transform flex-col overflow-hidden rounded-2xl bg-white p-6 pt-3 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
-                      <Dialog.Title
-                        as="p"
-                        className="border-b border-slate-200 text-center font-medium leading-6 text-gray-900 dark:border-slate-300 dark:text-slate-100"
-                      >
-                        {!klinik.isObg ? "Asesmen Perawat" : "Asesmen Bidan"}
-                      </Dialog.Title>
-                      <div
-                        className={cn(
-                          "mt-2 flex-1 overflow-y-auto",
-                          css.scrollbar
-                        )}
-                      >
-                        {!klinik.isObg ? (
-                          <HasilPerawat
-                            data={hasilPerawat}
-                            cek={cek}
-                            setCek={setCek}
-                            previewDokter
-                          />
-                        ) : (
-                          <HasilBidan
-                            data={hasilPerawat}
-                            cek={cek}
-                            setCek={setCek}
-                            previewDokter
-                          />
-                        )}
-                        <div className="flex justify-center gap-1">
-                          <Button
-                            disabled={!cek}
-                            color="green"
-                            className="items-center gap-1"
-                            onClick={() => setViewHasilPerawat(false)}
+                    {menu}
+                  </Tab>
+                ))}
+              </Tab.List>
+              <Tab.Panels
+                ref={panelDivRef}
+                className={cn(
+                  "my-2 h-[calc(100%-40px)] overflow-y-auto",
+                  css.scrollbar
+                )}
+              >
+                <Tab.Panel className="focus:outline-none" unmount={false}>
+                  <SubjektifDr
+                    lainRiwayat={lainRiwayat}
+                    lainRiwayatKel={lainRiwayatKel}
+                    setLainRiwayat={setLainRiwayat}
+                    setLainRiwayatKel={setLainRiwayatKel}
+                    klinik={klinik}
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none" unmount={false}>
+                  {klinik.isRehab ? (
+                    <ObjektifRehabMedik
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      klinik={klinik}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  ) : klinik.isDerma ? (
+                    <ObjektifDerma
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      statusLokSrc={anatomiImg}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  ) : klinik.isJiwa ? (
+                    <ObjektifJiwa
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      statusLokSrc={anatomiImg}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  ) : (
+                    <ObjektifDr
+                      hasilPerawat={hasilPerawat}
+                      isUpdate={isUpdate}
+                      klinik={klinik}
+                      statusLokSrc={anatomiImg}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                    />
+                  )}
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none">
+                  {klinik.isJiwa ? (
+                    <AsesmenJiwa
+                      tabIdx={tabIdx}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                      isUpdate={isUpdate}
+                    />
+                  ) : (
+                    <AsesmenDr
+                      tabIdx={tabIdx}
+                      setTabIdx={setTabIdx}
+                      panelDivRef={panelDivRef}
+                      isUpdate={isUpdate}
+                    />
+                  )}
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none">
+                  <PlanningTargetDr
+                    setTabIdx={setTabIdx}
+                    panelDivRef={panelDivRef}
+                  />
+                </Tab.Panel>
+                <Tab.Panel className="focus:outline-none" unmount={false}>
+                  <InstruksiDr
+                    hasilDokter={hasilDokter}
+                    klinik={klinik}
+                    isLoading={isLoading}
+                    isUpdate={isUpdate}
+                  />
+                  <Button type="submit" loading={isLoading}>
+                    {!isUpdate ? "Simpan" : "Simpan Perubahan"}
+                  </Button>
+                  <Button onClick={ () => setRtlDialog(true) } className="ml-2">
+                    RTL Dialog
+                  </Button>
+                </Tab.Panel>
+              </Tab.Panels>
+            </Tab.Group>
+            {/* ) : (
+              <AsesmenPsikologi
+                tanggal_lahir={data?.tanggal_lahir as string | undefined}
+              />
+            )} */}
+            <Tooltip.Provider delayDuration={300} disableHoverableContent>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => setTutupAsesmen(true)}
+                    className="absolute right-3 top-[18px] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <IoCloseCircleOutline
+                      size="1.5rem"
+                      className="text-red-600 ui-not-disabled:hover:text-red-700 ui-not-disabled:active:text-red-800"
+                    />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Content
+                  side="left"
+                  sideOffset={0}
+                  className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
+                >
+                  <p>Keluar</p>
+                </Tooltip.Content>
+              </Tooltip.Root>
+            </Tooltip.Provider>
+
+            <Transition show={viewHasilPerawat} as={Fragment}>
+              <Dialog
+                as="div"
+                className="relative z-[1001]"
+                onClose={() => false}
+              >
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <div className="fixed inset-0 bg-black bg-opacity-25" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 overflow-y-auto">
+                  <div className="flex h-screen items-center justify-center px-4 text-center">
+                    <Transition.Child
+                      as={Fragment}
+                      enter="ease-out duration-300"
+                      enterFrom="opacity-0 scale-95"
+                      enterTo="opacity-100 scale-100"
+                      leave="ease-in duration-50"
+                      leaveFrom="opacity-100 scale-100"
+                      leaveTo="opacity-0 scale-95"
+                    >
+                      <Dialog.Panel className="flex h-full w-full max-w-4xl transform flex-col overflow-hidden rounded-2xl bg-white p-6 pt-3 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
+                        <Dialog.Title
+                          as="p"
+                          className="border-b border-slate-200 text-center font-medium leading-6 text-gray-900 dark:border-slate-300 dark:text-slate-100"
+                        >
+                          {!klinik.isObg ? "Asesmen Perawat" : "Asesmen Bidan"}
+                        </Dialog.Title>
+                        <div
+                          className={cn(
+                            "mt-2 flex-1 overflow-y-auto",
+                            css.scrollbar
+                          )}
+                        >
+                          {!klinik.isObg ? (
+                            <HasilPerawat
+                              data={hasilPerawat}
+                              cek={cek}
+                              setCek={setCek}
+                              previewDokter
+                            />
+                          ) : (
+                            <HasilBidan
+                              data={hasilPerawat}
+                              cek={cek}
+                              setCek={setCek}
+                              previewDokter
+                            />
+                          )}
+                          <div className="flex justify-center gap-1">
+                            <Button
+                              disabled={!cek}
+                              color="green"
+                              className="items-center gap-1"
+                              onClick={() => setViewHasilPerawat(false)}
+                            >
+                              <span>
+                                <RiCheckFill size="1rem" />
+                              </span>
+                              <span>Saya telah mengkaji asesmen awal</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </Dialog.Panel>
+                    </Transition.Child>
+                  </div>
+                </div>
+              </Dialog>
+            </Transition>
+
+            {/* <PermintLabDialog
+              kunjungan={params.idKunjungan as string}
+              permintLab={permintLab}
+              permintLabDispatch={permintLabDispatch}
+            />
+
+            <PermintRadDialog
+              kunjungan={params.idKunjungan as string}
+              permintRad={permintRad}
+              permintRadDispatch={permintRadDispatch}
+            /> */}
+
+            <Transition show={tutupAsesmen} as={Fragment}>
+              <Dialog
+                as="div"
+                className="relative z-[1001]"
+                onClose={() => setTutupAsesmen(false)}
+              >
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <div className="fixed inset-0 bg-black bg-opacity-25" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 overflow-y-auto">
+                  <div className="flex min-h-full items-center justify-center p-4 text-center">
+                    <Transition.Child
+                      as={Fragment}
+                      enter="ease-out duration-300"
+                      enterFrom="opacity-0 scale-95"
+                      enterTo="opacity-100 scale-100"
+                      leave="ease-in duration-50"
+                      leaveFrom="opacity-100 scale-100"
+                      leaveTo="opacity-0 scale-95"
+                    >
+                      <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
+                        <Dialog.Title
+                          as="p"
+                          className="font-medium leading-6 text-gray-900 dark:text-slate-100"
+                        >
+                          Tutup Asesmen
+                        </Dialog.Title>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Asesmen belum disimpan, apakah Anda yakin untuk
+                            menutup asesmen tanpa disimpan?
+                          </p>
+                        </div>
+                        <div className="mt-4 flex justify-end gap-1">
+                          <Link
+                            href={{
+                              pathname: "/list-pasien",
+                              query: {
+                                user: grupId != 1 ? "Dokter" : "Dewa",
+                                id: kode?.replaceAll(".", "_"),
+                              },
+                            }}
+                            onClick={() => setTutupAsesmen(false)}
+                            passHref
+                            legacyBehavior
                           >
-                            <span>
-                              <RiCheckFill size="1rem" />
-                            </span>
-                            <span>Saya telah mengkaji asesmen awal</span>
+                            <LinkButton color="red100">Tutup</LinkButton>
+                          </Link>
+                          <Button
+                            color="red"
+                            onClick={() => setTutupAsesmen(false)}
+                          >
+                            Batal
                           </Button>
                         </div>
-                      </div>
-                    </Dialog.Panel>
-                  </Transition.Child>
+                      </Dialog.Panel>
+                    </Transition.Child>
+                  </div>
                 </div>
-              </div>
-            </Dialog>
-          </Transition>
-
-          {/* <PermintLabDialog
-            kunjungan={params.idKunjungan as string}
-            permintLab={permintLab}
-            permintLabDispatch={permintLabDispatch}
-          />
-
-          <PermintRadDialog
-            kunjungan={params.idKunjungan as string}
-            permintRad={permintRad}
-            permintRadDispatch={permintRadDispatch}
-          /> */}
-
-          <Transition show={tutupAsesmen} as={Fragment}>
-            <Dialog
-              as="div"
-              className="relative z-[1001]"
-              onClose={() => setTutupAsesmen(false)}
-            >
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div className="fixed inset-0 bg-black bg-opacity-25" />
-              </Transition.Child>
-
-              <div className="fixed inset-0 overflow-y-auto">
-                <div className="flex min-h-full items-center justify-center p-4 text-center">
-                  <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="ease-in duration-50"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
-                  >
-                    <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-slate-700">
-                      <Dialog.Title
-                        as="p"
-                        className="font-medium leading-6 text-gray-900 dark:text-slate-100"
-                      >
-                        Tutup Asesmen
-                      </Dialog.Title>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-500">
-                          Asesmen belum disimpan, apakah Anda yakin untuk
-                          menutup asesmen tanpa disimpan?
-                        </p>
-                      </div>
-                      <div className="mt-4 flex justify-end gap-1">
-                        <Link
-                          href={{
-                            pathname: "/list-pasien",
-                            query: {
-                              user: grupId != 1 ? "Dokter" : "Dewa",
-                              id: kode?.replaceAll(".", "_"),
-                            },
-                          }}
-                          onClick={() => setTutupAsesmen(false)}
-                          passHref
-                          legacyBehavior
-                        >
-                          <LinkButton color="red100">Tutup</LinkButton>
-                        </Link>
-                        <Button
-                          color="red"
-                          onClick={() => setTutupAsesmen(false)}
-                        >
-                          Batal
-                        </Button>
-                      </div>
-                    </Dialog.Panel>
-                  </Transition.Child>
-                </div>
-              </div>
-            </Dialog>
-          </Transition>
-        </div>
-      </form>
-    </FormProvider>
+              </Dialog>
+            </Transition>
+          </div>
+        </form>
+      </FormProvider>
+      
+      <RtlDialog 
+        showDialog={ rtlDialog }
+        closeDialog={ setRtlDialog }
+      />
+    </>
   );
 }

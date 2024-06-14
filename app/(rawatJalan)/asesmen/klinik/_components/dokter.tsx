@@ -2070,9 +2070,6 @@ export const InstruksiDr = ({
           </div>
         ) : null}
       </div>
-      <Button type="submit" loading={isLoading}>
-        {!isUpdate ? "Simpan" : "Simpan Perubahan"}
-      </Button>
 
       <PermintLabDialog
         isUpdate={isUpdate}
