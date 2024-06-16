@@ -66,11 +66,11 @@ export type THasilSkrining = {
 export type TFormImunisasi = {
   value: string;
   name:
-    | "imunisasi.hepatitis_b"
-    | "imunisasi.bcg"
-    | "imunisasi.polio"
-    | "imunisasi.campak"
-    | "imunisasi.dpthib";
+  | "imunisasi.hepatitis_b"
+  | "imunisasi.bcg"
+  | "imunisasi.polio"
+  | "imunisasi.campak"
+  | "imunisasi.dpthib";
   list: number[];
 };
 
@@ -383,15 +383,15 @@ export type THasilPerawat = {
   };
   persalinan?: PersalinanKeb[];
   operasi:
-    | {
-        id?: number;
-        id_pasien: number;
-        operasi: string;
-        tahun: number;
-        user?: string;
-        status: number;
-      }[]
-    | null;
+  | {
+    id?: number;
+    id_pasien: number;
+    operasi: string;
+    tahun: number;
+    user?: string;
+    status: number;
+  }[]
+  | null;
   fisio?: {
     id?: number;
     id_assesment: number;
@@ -850,24 +850,24 @@ export type THasilDokter = {
     jumlah: number;
     tipe: "dtd" | "nondtd";
     detail:
-      | {
-          id: number;
-          id_resep: number;
-          sediaan: string;
-          dosis: number;
-          jumlah: number;
-          id_poa: number;
-          nama: string;
-          stok: number;
-          id_satuan: number;
-          restriksi: null | string;
-          id_zat: number;
-          id_tipe: number;
-          id_sediaan: number;
-          harga_dasar: number;
-          harga: number;
-        }[]
-      | null;
+    | {
+      id: number;
+      id_resep: number;
+      sediaan: string;
+      dosis: number;
+      jumlah: number;
+      id_poa: number;
+      nama: string;
+      stok: number;
+      id_satuan: number;
+      restriksi: null | string;
+      id_zat: number;
+      id_tipe: number;
+      id_sediaan: number;
+      harga_dasar: number;
+      harga: number;
+    }[]
+    | null;
   }[];
   orto?: {
     id: number;
@@ -1043,7 +1043,7 @@ export const RtlKontrolSchema = z.object({
   sep: z.string().optional(),
   dokter: z.union([z.string(), z.number()]),
   klinik: z.union([z.string(), z.number()]),
-  tanggal: z.string().date()
+  tanggal: z.string().min(1, "harus diisi")
 })
 export type TRtlKontrol = z.infer<typeof RtlKontrolSchema>
 
@@ -1052,7 +1052,7 @@ export const RtlRanapSchema = z.object({
   id: z.string().optional(),
   dokter: z.union([z.string(), z.number()]),
   klinik: z.union([z.string(), z.number()]),
-  tanggal: z.string().date()
+  tanggal: z.string().min(1, "harus diisi")
 })
 export type TRtlRanap = z.infer<typeof RtlRanapSchema>
 
@@ -1060,14 +1060,14 @@ export const RtlInterSchema = z.object({
   tipe_rtl: z.string(),
   keterangan: z.string().min(1, { message: "pilih salah satu" }),
   klinik: z.union([z.string(), z.number()]),
-  tanggal: z.string().date()
+  tanggal: z.string().min(1, "harus diisi")
 })
 export type TRtlInter = z.infer<typeof RtlInterSchema>
 
 export const RtlEksterSchema = z.object({
   tipe_rtl: z.string(),
   sep: z.string(),
-  tgl_rencana: z.string().date(),
+  tgl_rencana: z.string().min(1, "harus diisi"),
   tujuan_rujuk: z.string().optional(),
   jns_pelayanan: z.string().optional(),
   klinik: z.union([z.string(), z.number()]),

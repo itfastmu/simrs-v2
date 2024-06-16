@@ -138,16 +138,16 @@ export type HasilTransaksiBarang = {
   created_at: string;
   status: number;
   detail:
-    | {
-        id: number;
-        id_poa: number;
-        nama: string;
-        jumlah: number;
-        id_satuan: number;
-        satuan: string;
-        nominal: number | null;
-      }[]
-    | null;
+  | {
+    id: number;
+    id_poa: number;
+    nama: string;
+    jumlah: number;
+    id_satuan: number;
+    satuan: string;
+    nominal: number | null;
+  }[]
+  | null;
 };
 
 export type Resep = {
@@ -164,10 +164,10 @@ export type Resep = {
   klinik: string;
   asuransi: string;
   status:
-    | "Resep baru"
-    | "Resep divalidasi"
-    | "Etiket telah dibuat"
-    | "Semua obat tervalidasi";
+  | "Resep baru"
+  | "Resep divalidasi"
+  | "Etiket telah dibuat"
+  | "Semua obat tervalidasi";
 };
 
 export type ObatResep = {
@@ -193,24 +193,24 @@ export type ObatResep = {
     jumlah: number;
     tipe: "dtd" | "nondtd";
     detail:
-      | {
-          id: number;
-          id_resep: number;
-          dosis: number;
-          jumlah: number;
-          id_poa: number;
-          nama: string;
-          sediaan: null | string;
-          stok: number;
-          id_satuan: number;
-          kekuatan: null | string;
-          id_zat: number;
-          id_tipe: number;
-          id_sediaan: number;
-          harga_dasar: number;
-          harga: number;
-        }[]
-      | null;
+    | {
+      id: number;
+      id_resep: number;
+      dosis: number;
+      jumlah: number;
+      id_poa: number;
+      nama: string;
+      sediaan: null | string;
+      stok: number;
+      id_satuan: number;
+      kekuatan: null | string;
+      id_zat: number;
+      id_tipe: number;
+      id_sediaan: number;
+      harga_dasar: number;
+      harga: number;
+    }[]
+    | null;
   }[];
 };
 
@@ -244,8 +244,8 @@ export type KFAPOA = KFAPOV & {
   restriksi?: string;
   harga?: number;
   harga_beli?: string;
-  generik?:boolean;
-  tipe?:string;
+  generik?: boolean;
+  tipe?: string;
   id_pov: number;
   merk: string | null;
 };
