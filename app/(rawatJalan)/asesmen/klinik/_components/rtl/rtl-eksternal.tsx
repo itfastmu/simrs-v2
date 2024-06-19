@@ -19,14 +19,14 @@ export default function RtlEksternal() {
   });
 
   const [choiceFktl, setChoiceFktl] = useState<MyOptions>([]);
-  const loadFktl = async (searchText: string = "") => {
+  const loadFktl = async (searchText: string = ""):Promise<MyOptions> => {
     try {
       const load = await fetch_api('GET', '/rs/rujukan/referensi/fktl', { 
         params: {
           keyword: searchText
         }
       })
-      if (load.resp.data) {
+      // if (load.resp.data) {
         const choice = load.resp.data.map((v: any) => {
           const d = {
             label: v.nama,
@@ -36,14 +36,15 @@ export default function RtlEksternal() {
         })
         setChoiceFktl(choice);
         return choice;
-      }
+      // }
     } catch (error) {
       console.log(error);
+      return []
     } 
   }
 
-  const [ choiceKlinik, setChoiceKlinik] = useState([]);
-  async function loadKlinik (searchText: string) {
+  const [ choiceKlinik, setChoiceKlinik] = useState<MyOptions>([]);
+  const loadKlinik = async (searchText: string):Promise<MyOptions> =>{
     try {
       const load = await fetch_api('GET','/rs/rujukan/referensi/klinik',{
         params: {
@@ -51,7 +52,7 @@ export default function RtlEksternal() {
         }
       })
       
-      const choice: any = load.resp.data.map((v: any) => {
+      const choice = load.resp.data.map((v: any) => {
         const d = {
           label: v.nama,
           value: v.kode
@@ -62,6 +63,7 @@ export default function RtlEksternal() {
       return choice;
     } catch (error) {
       console.log(error);
+      return[]
     }
   }
 
@@ -95,7 +97,9 @@ export default function RtlEksternal() {
                 placeholder="RS Tujuan"
                 loadOptions={ loadFktl }
                 defaultOptions={choiceFktl}
-                value={value}
+                value={choiceFktl.find(
+                  (val) => val.value === value
+                )}
                 onChange={(option:any) => onChange(option?.value)}
               />
             )}
@@ -156,7 +160,9 @@ export default function RtlEksternal() {
                 placeholder="Poli Tujuan"
                 loadOptions={ loadKlinik }
                 defaultOptions={ choiceKlinik }
-                value={value}
+                value={choiceKlinik.find(
+                  (val) => val.value === value
+                )}
                 onChange={(option:any) => onChange(option?.value)}
               />
             )}
