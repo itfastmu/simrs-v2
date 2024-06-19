@@ -12,8 +12,9 @@ import RtlPRB from './rtl-prb';
 import { LuCalendarClock } from 'react-icons/lu';
 
 export const RtlDialog = ({ 
-   showDialog, closeDialog 
+   showDialog, closeDialog, infoPasien
 }: { 
+   infoPasien: { [key: string]: string },
    showDialog: boolean, 
    closeDialog: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -108,6 +109,12 @@ export const RtlDialog = ({
                      </Dialog.Title>
 
                         {/* Pilihan RTL */}
+                        <div className="my-1.5 p-2.5 text-sm border border-cyan-300 bg-cyan-100 rounded-md grid grid-cols-3 gap-y-1">
+                           <p>Nama Pasien</p>
+                           <p className="col-span-2">: { infoPasien?.nama }</p>
+                           <p>No. Kunjungan</p>
+                           <p>: { infoPasien?.id_kunjungan }</p>
+                        </div>
                         <div className="flex frex-wrap gap-2 my-2.5">
                            {
                               Object.values(rtlChoices).map(val => (

@@ -796,7 +796,11 @@ export default function AsesmenDokter({
         </form>
       </FormProvider>
       
-      <RtlDialog 
+      <RtlDialog
+        infoPasien={{
+          id_kunjungan: params.idKunjungan as string,
+          nama: data?.nama ?? ""
+        }}
         showDialog={ rtlDialog }
         closeDialog={ setRtlDialog }
       />

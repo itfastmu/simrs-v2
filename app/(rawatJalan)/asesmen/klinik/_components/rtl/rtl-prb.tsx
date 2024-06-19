@@ -16,6 +16,43 @@ export default function RtlPRB() {
     resolver: zodResolver(RtlPrbSchema)
   });
 
+  const listProgram:{value:string, label:string}[] = [{
+    "value": "01 ",
+    "label": "Diabetes Mellitus"
+  },
+  {
+    "value": "02 ",
+    "label": "Hypertensi"
+  },
+  {
+    "value": "03 ",
+    "label": "Asthma"
+  },
+  {
+    "value": "04 ",
+    "label": "Penyakit Jantung"
+  },
+  {
+    "value": "05 ",
+    "label": "PPOK (Penyakit Paru Obstruktif Kronik)"
+  },
+  {
+    "value": "06 ",
+    "label": "Schizophrenia"
+  },
+  {
+    "value": "07 ",
+    "label": "Stroke"
+  },
+  {
+    "value": "08 ",
+    "label": "Epilepsi"
+  },
+  {
+    "value": "09 ",
+    "label": "Systemic Lupus Erythematosus"
+  }]
+
   const pulangSubmitHandler: SubmitHandler<any> = (data) => {
     console.log(data);
   }
@@ -48,6 +85,7 @@ export default function RtlPRB() {
             render={({ field: { onChange, value } }) => (
               <SelectInput
                 noOptionsMessage={(e) => "Tidak ada pilihan"}
+                options={listProgram}
                 placeholder="Pilih Program"
                 onChange={(val: any) => onChange(val.value)}
               />

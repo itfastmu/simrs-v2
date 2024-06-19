@@ -1,5 +1,4 @@
 import { z } from "zod";
-import RtlPulang from "./klinik/_components/rtl/rtl-pulang";
 
 export const asuransi: { [key: number]: { nama: string; cn: string } } = {
   1: {
@@ -1070,6 +1069,7 @@ export const RtlEksterSchema = z.object({
   tgl_rencana: z.string().min(1, "harus diisi"),
   tujuan_rujuk: z.string().optional(),
   jns_pelayanan: z.string().optional(),
+  tipe_rujukan: z.string().optional(),
   klinik: z.union([z.string(), z.number()]),
   diagnosa: z.string(),
   catatan: z.string().optional(),

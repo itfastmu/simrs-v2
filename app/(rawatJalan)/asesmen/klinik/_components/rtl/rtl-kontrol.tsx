@@ -115,13 +115,6 @@ export default function RtlKontrol() {
             { ...register('tanggal') }
           />
         </div>
-        {/* sep */}
-        <div>
-          <label htmlFor="sep" className="inline-block text-sm mb-1.5">No.SEP</label>
-          <Input type="text" id="sep"
-            { ...register('sep') }
-          />
-        </div>
       </div>
       <Button type="submit" className="px-3 py-1.5" color="cyan" >
           Simpan
