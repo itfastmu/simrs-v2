@@ -1,6 +1,6 @@
 "use client"
 import { Dialog, Transition } from '@headlessui/react';
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { cn } from '@/lib/utils';
 import css from "@/assets/css/scrollbar.module.css";
 import RtlPulang from './rtl-pulang';
@@ -10,23 +10,32 @@ import RtlInternal from './rtl-internal';
 import RtlEksternal from './rtl-eksternal';
 import RtlPRB from './rtl-prb';
 import { LuCalendarClock } from 'react-icons/lu';
+import { fetch_api } from '@/lib/fetchapi';
 
 export const RtlDialog = ({ 
-   showDialog, closeDialog, infoPasien
+   showDialog, closeDialog, idKunjungan
 }: { 
-   infoPasien: { [key: string]: string },
+   idKunjungan: string | string[],
    showDialog: boolean, 
    closeDialog: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
 
-   const closeDialogHandler = () => {
-      // setRtlChange('kontrol');
-      closeDialog(false);
+   const [infoKunj, setInfoKunj] = useState<{ [key: string]: any } | null>(null);
+   async function loadInfoPemeriksaan() {
+      try {
+         const fetch = await fetch_api('GET', `/rs/kunjungan/rajal/${idKunjungan}`);
+         if (fetch.status === 200) {
+            setInfoKunj(fetch.resp.data);
+         }
+
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    const rtlChoices: {[key: string]: string }[] = [
-      { label: 'Pulang', value: 'pulang' },
       { label: 'Kontrol', value: 'kontrol' },
+      { label: 'Pulang', value: 'pulang' },
       { label: 'Inap', value: 'ranap' },
       { label: 'Rujuk Int', value: 'internal' },
       { label: 'Rujuk Eks', value: 'eksternal' },
@@ -41,7 +50,7 @@ export const RtlDialog = ({
          rtlForm = ( <RtlPulang /> )
       } break;
       case "kontrol": {
-         rtlForm = ( <RtlKontrol /> )
+         rtlForm = ( <RtlKontrol IKunjungan={ infoKunj }/> )
       } break;
       case "ranap": {
          rtlForm = ( <RtlRanap /> )
@@ -59,6 +68,14 @@ export const RtlDialog = ({
          rtlForm = ( <p className="text-center text-sm">Tentukan Rencana Tindak Lanjut Pasien</p> )
       } break;
    }
+
+   const closeDialogHandler = () => {
+      closeDialog(false);
+   }
+
+   useEffect(() => {
+      loadInfoPemeriksaan();
+   }, [])
    
    return (
       <Transition show={showDialog} as={Fragment}>
@@ -111,9 +128,9 @@ export const RtlDialog = ({
                         {/* Pilihan RTL */}
                         <div className="my-1.5 p-2.5 text-sm border border-cyan-300 bg-cyan-100 rounded-md grid grid-cols-3 gap-y-1">
                            <p>Nama Pasien</p>
-                           <p className="col-span-2">: { infoPasien?.nama }</p>
+                           {/* <p className="col-span-2">: { infoKunj. }</p> */}
                            <p>No. Kunjungan</p>
-                           <p>: { infoPasien?.id_kunjungan }</p>
+                           {/* <p>: { infoPasien?.id_kunjungan }</p> */}
                         </div>
                         <div className="flex frex-wrap gap-2 my-2.5">
                            {

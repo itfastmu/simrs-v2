@@ -26,7 +26,7 @@ export default function RtlRanap() {
       <form onSubmit={ handleSubmit(pulangSubmitHandler) }>
         <div className="grid gap-2 mb-2.5">
           <div className="flex items-center gap-2 rounded-md">
-              <input type="checkbox" className="w-4 h-4" checked/>
+              <input type="checkbox" className="w-4 h-4" defaultChecked/>
               <label className="text-sm">Dengan ini, pasien berikut akan diubah statusnya menjadi <b>Rawat Inap</b></label>
           </div>
         </div>

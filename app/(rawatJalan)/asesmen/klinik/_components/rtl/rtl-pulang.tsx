@@ -22,18 +22,20 @@ export default function RtlPulang() {
   });
 
   const pulangChoice: { [k: string]: string }[] = [
-    { label: "APS", value: "aps" },
-    { label: "APD", value: "apd" },
+    { label: "Atas Permintaan Sendiri", value: "aps" },
+    { label: "Atas Persetujuan Dokter", value: "apd" },
     { label: "Meninggal", value: "meninggal" },
   ];
 
   const pulangSubmitHandler: SubmitHandler<any> = (data) => {
-    console.log(data);
+    // console.log(data);
+    const input = {
+      status: data.tipe_rtl,
+      detail: {
+        keterangan: data.keterangan
+      }
+    }
   }
-
-  useEffect(() => {
-    console.log(errors);
-  }, [errors])
 
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) } className="w-2/3">
@@ -47,7 +49,7 @@ export default function RtlPulang() {
             <SelectInput
               noOptionsMessage={(e) => "Tidak ada pilihan"}
               placeholder="Pilih Keterangan"
-              defaultValue={{ label: "APD", value: "apd" }}
+              defaultValue={ pulangChoice[1] }
               onChange={(val: any) => onChange(val.value)}
               options={ pulangChoice }
             />

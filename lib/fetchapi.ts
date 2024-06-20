@@ -18,9 +18,12 @@ export async function fetch_api(
    signal: AbortSignal = controller.signal,
    customHost: string = APIURL
 ) {
-   const params = new URLSearchParams(options?.params).toString()
+   let params = "";
+   if (options?.params) {
+      params = '?' + new URLSearchParams(options?.params).toString()
+   }
 
-   const fetching = await fetch(customHost + url + '?' + params, {
+   const fetching = await fetch(customHost + url + params, {
       ...init,
       method: method,
       signal,

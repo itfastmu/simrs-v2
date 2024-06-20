@@ -8,6 +8,17 @@ import { fetch_api } from "@/lib/fetchapi";
 import { useEffect, useState } from "react";
 
 export default function RtlEksternal() {
+
+  const choiceTipeRujukan = [
+    { value:"0",label:"Penuh" },
+    { value:"1",label:"Parsial" }
+  ]
+
+  const choiceJenisPel = [
+    { value:"1", label:"Rawat Inap" },
+    { value:"2", label:"Rawat Jalan" }
+  ]
+
   // inisialisasi form
   const { register, control, handleSubmit,
     formState: { errors },
@@ -71,10 +82,6 @@ export default function RtlEksternal() {
     console.log(data);
   }
 
-  useEffect(() => {
-    loadFktl("");
-  }, [])
-
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) }>
       <input type="hidden" { ...register("tipe_rtl") } />
@@ -105,45 +112,6 @@ export default function RtlEksternal() {
             )}
           />
         </div>
-        {/* Jenis Pelayanan */}
-        <div>
-          <label htmlFor="jenis" className="inline-block text-sm mb-1.5">Jenis Pelayanan</label>
-          <Controller
-            control={control}
-            name="jns_pelayanan"
-            render={({ field: { onChange, value } }) => (
-              <SelectInput
-                noOptionsMessage={(e) => "Tidak ada pilihan"}
-                placeholder="Pilih Jenis"
-                onChange={(val: any) => onChange(val.value)}
-                options={[
-                  { value:"1", label:"Rawat Inap" },
-                  { value:"2", label:"Rawat Jalan" }
-                ]}
-              />
-            )}
-          />
-        </div>
-        {/* Tipe Rujukan */}
-        <div>
-          <label htmlFor="jenis" className="inline-block text-sm mb-1.5">Tipe Rujukan</label>
-          <Controller
-            control={control}
-            name="tipe_rujukan"
-            render={({ field: { onChange, value } }) => (
-              <SelectInput
-                noOptionsMessage={(e) => "Tidak ada pilihan"}
-                placeholder="Pilih Jenis"
-                onChange={(val: any) => onChange(val.value)}
-                value={value}
-                options={[
-                  { value:"0",label:"Penuh" },
-                  { value:"1",label:"Parsial" }
-                ]}
-              />
-            )}
-          />
-        </div>
         {/* Poliklinik */}
         <div>
           <label htmlFor="poli" className="inline-block text-sm mb-1.5">
@@ -164,6 +132,42 @@ export default function RtlEksternal() {
                   (val) => val.value === value
                 )}
                 onChange={(option:any) => onChange(option?.value)}
+              />
+            )}
+          />
+        </div>
+        {/* Jenis Pelayanan */}
+        <div>
+          <label htmlFor="jenis" className="inline-block text-sm mb-1.5">Jenis Pelayanan</label>
+          <Controller
+            defaultValue="2"
+            control={control}
+            name="jns_pelayanan"
+            render={({ field: { onChange, value } }) => (
+              <SelectInput
+                noOptionsMessage={(e) => "Tidak ada pilihan"}
+                placeholder="Pilih Jenis"
+                onChange={(val: any) => onChange(val.value)}
+                options={ choiceJenisPel }
+                value={ choiceJenisPel.find(f => f.value === value) }
+              />
+            )}
+          />
+        </div>
+        {/* Tipe Rujukan */}
+        <div>
+          <label htmlFor="tipe" className="inline-block text-sm mb-1.5">Tipe Rujukan</label>
+          <Controller
+            defaultValue="0"
+            control={control}
+            name="tipe_rujukan"
+            render={({ field: { onChange, value } }) => (
+              <SelectInput
+                noOptionsMessage={(e) => "Tidak ada pilihan"}
+                placeholder="Pilih Jenis"
+                onChange={(val: any) => onChange(val.value)}
+                options={ choiceTipeRujukan }
+                value={ choiceTipeRujukan.find(f => f.value === value) }
               />
             )}
           />

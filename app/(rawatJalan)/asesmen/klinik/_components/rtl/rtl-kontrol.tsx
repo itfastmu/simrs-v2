@@ -1,7 +1,7 @@
 "use client"
 
 import { Input } from "@/components/form";
-import { SelectInput } from "@/components/select";
+import { MyOption, SelectInput } from "@/components/select";
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { Button } from '@/components/button';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,11 @@ import { RtlKontrolSchema, TRtlKontrol } from "../../../schema";
 import { useEffect, useState } from "react";
 import { load_klinik, load_dokter } from "./rtl-models";
 
-export default function RtlKontrol() {
+export default function RtlKontrol({
+  IKunjungan
+}: {
+  IKunjungan: { [key: string]: any } | null
+}) {
   
   // inisialisasi klinik
   const [optsKlinik, setOptsKlinik] = useState([]);
@@ -20,12 +24,11 @@ export default function RtlKontrol() {
         const klinikmap = getKlinik.data.map((d: any) => {
           const map = {
             label: d.nama,
-            value: d.id
+            value: d.id,
           }
           return map;
         })
         setOptsKlinik(klinikmap);
-      
       }
     } catch (error) {
       console.log(error);
@@ -80,6 +83,7 @@ export default function RtlKontrol() {
         <div>
           <label htmlFor="dokter" className="inline-block text-sm mb-1.5">Dokter</label>
           <Controller
+            defaultValue={ IKunjungan?.id_pegawai }
             control={control}
             name="dokter"
             render={({ field: { onChange, value } }) => (
@@ -88,6 +92,7 @@ export default function RtlKontrol() {
                 placeholder="Pilih Dokter"
                 onChange={(val: any) => onChange(val.value)}
                 options={ optsDokter }
+                value={ optsDokter.find((f: any) => f.value === value) }
               />
             )}
           />
@@ -96,6 +101,7 @@ export default function RtlKontrol() {
         <div>
           <label htmlFor="poli" className="inline-block text-sm mb-1.5">Klinik</label>
           <Controller
+            defaultValue={ IKunjungan?.id_klinik }
             control={control}
             name="klinik"
             render={({ field: { onChange, value } }) => (
@@ -104,6 +110,7 @@ export default function RtlKontrol() {
                 placeholder="Pilih Klinik"
                 onChange={(val: any) => onChange(val.value)}
                 options={ optsKlinik }
+                value={ optsKlinik.find((f: any) => f.value === value) }
               />
             )}
           />
@@ -111,7 +118,7 @@ export default function RtlKontrol() {
         {/* Poliklinik */}
         <div>
           <label htmlFor="poli" className="inline-block text-sm mb-1.5">Perkiraan Kontrol(Optional)</label>
-          <SelectInput
+              <SelectInput
                 noOptionsMessage={(e) => "Tidak ada pilihan"}
                 onChange={(val: any) => {
                   const d = new Date()
@@ -123,10 +130,10 @@ export default function RtlKontrol() {
                   setValue("tanggal", d.toLocaleDateString('fr-CA'));
                   return val.value
                 }}
-                options={[{value:7,label:"1 Minggu"},{value:30,label:"30 Hari"}]}
-                // value={[{value:7,data:"1 Minggu"},{value:30,data:"30 Hari"}].find(
-                //   (c) => c.value === value
-                // )}
+                options={[
+                  {value:7,label:"1 Minggu"},
+                  {value:30,label:"30 Hari"}
+                ]}
                 placeholder="Pilih Perkiraan"
               />
         </div>

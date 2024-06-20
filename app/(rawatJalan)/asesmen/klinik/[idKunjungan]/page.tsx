@@ -35,6 +35,7 @@ export default function AsesmenKlinik() {
       klinik: searchParams.get("klinik") || "",
       kode_klinik: searchParams.get("kode_klinik") || "BED",
       dokter: searchParams.get("dokter") || "",
+      kode_dokter: searchParams.get("kode") || "",
       jam_periksa: jam,
     });
   };

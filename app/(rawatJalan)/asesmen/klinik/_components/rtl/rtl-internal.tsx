@@ -68,6 +68,7 @@ export default function RtlInternal() {
         <div>
           <label htmlFor="ket" className="inline-block text-sm mb-1.5">Keterangan</label>
           <Controller
+            defaultValue="konsul"
             control={control}
             name="keterangan"
             render={({ field: { onChange, value } }) => (
@@ -76,6 +77,7 @@ export default function RtlInternal() {
                 placeholder="Pilih Keterangan"
                 onChange={(val: any) => onChange(val.value)}
                 options={ ketChoice }
+                value={ ketChoice.find(f => f.value === value) }
               />
             )}
           />
