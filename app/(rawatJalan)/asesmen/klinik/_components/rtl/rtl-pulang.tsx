@@ -47,6 +47,7 @@ export default function RtlPulang() {
             <SelectInput
               noOptionsMessage={(e) => "Tidak ada pilihan"}
               placeholder="Pilih Keterangan"
+              defaultValue={{ label: "APD", value: "apd" }}
               onChange={(val: any) => onChange(val.value)}
               options={ pulangChoice }
             />

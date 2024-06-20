@@ -53,7 +53,7 @@ export default function RtlKontrol() {
   } 
   
   // inisialisasi form
-  const { register, control, handleSubmit,
+  const { register, control, handleSubmit, setValue,
     formState: { errors },
   } = useForm<TRtlKontrol>({
     defaultValues: {
@@ -107,6 +107,28 @@ export default function RtlKontrol() {
               />
             )}
           />
+        </div>
+        {/* Poliklinik */}
+        <div>
+          <label htmlFor="poli" className="inline-block text-sm mb-1.5">Perkiraan Kontrol(Optional)</label>
+          <SelectInput
+                noOptionsMessage={(e) => "Tidak ada pilihan"}
+                onChange={(val: any) => {
+                  const d = new Date()
+                  d.setDate(d.getDate()+Number(val.value))
+                  if(d.getDay()===7){
+                    d.setDate(d.getDate()+1)
+                  }
+                  
+                  setValue("tanggal", d.toLocaleDateString('fr-CA'));
+                  return val.value
+                }}
+                options={[{value:7,label:"1 Minggu"},{value:30,label:"30 Hari"}]}
+                // value={[{value:7,data:"1 Minggu"},{value:30,data:"30 Hari"}].find(
+                //   (c) => c.value === value
+                // )}
+                placeholder="Pilih Perkiraan"
+              />
         </div>
         {/* Tanggal */}
         <div>

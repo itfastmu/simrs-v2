@@ -20,7 +20,7 @@ export const RtlDialog = ({
 }) => {
 
    const closeDialogHandler = () => {
-      setRtlChange(null);
+      // setRtlChange('kontrol');
       closeDialog(false);
    }
 
@@ -34,7 +34,7 @@ export const RtlDialog = ({
    ]
 
    // form rtl ketika dipilih
-   const [rtlChange, setRtlChange] = useState<string | null>(null);
+   const [rtlChange, setRtlChange] = useState<string | null>('kontrol');
    let rtlForm: JSX.Element = (<></>); 
    switch (rtlChange) {
       case "pulang": {
@@ -120,8 +120,12 @@ export const RtlDialog = ({
                               Object.values(rtlChoices).map(val => (
                                  <div className="flex items-center" key={val.value}>
                                     <input 
-                                       type="radio" id={'id-'+val.value} name="tipe" value={ val.value } 
-                                       className="hidden peer"
+                                       type="radio" 
+                                       id={'id-'+val.value} 
+                                       name="tipe" 
+                                       value={ val.value } 
+                                       className="hidden peer" 
+                                       checked={rtlChange === val.value}
                                        onChange={ () => setRtlChange(val.value) }
                                     />
                                     <label htmlFor={'id-'+val.value} className="text-xs tracking-wide bg-sky-700 hover:bg-sky-800 text-white py-1.5 px-2.5 border border-sky-800 rounded peer-checked:bg-blue-500 peer-checked:border-blue-200 peer-checked:border-2">
