@@ -3,10 +3,11 @@ import { cn } from "@/lib/utils";
 
 type InputProps = {
   className?: string;
+  isError?: boolean;
 } & React.ComponentProps<"input">;
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, isError = false, ...props }, ref) => {
     return (
       <input
         ref={ref}
@@ -16,6 +17,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           "transition-all duration-150 ease-linear",
           "dark:border-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:hover:border-gray-300 dark:focus:border-blue-500 dark:focus:ring-blue-500",
           "disabled:bg-gray-100 disabled:hover:border-gray-300 disabled:dark:bg-gray-700 disabled:hover:dark:border-gray-500",
+          isError && "border-red-400 border-2 focus:border-red-400 focus:border-2",
           className
         )}
         {...props}

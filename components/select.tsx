@@ -10,6 +10,7 @@ type SelectProps = {
   size?: "sm" | "md";
   withSpan?: boolean;
   inputCenter?: boolean;
+  isError?: boolean
 } & Props;
 
 export interface MyOption {
@@ -23,6 +24,7 @@ export function SelectInput({
   size = "md",
   withSpan = false,
   inputCenter = false,
+  isError = false,
   ...props
 }: SelectProps) {
   const { theme } = useTheme();
@@ -52,14 +54,15 @@ export function SelectInput({
           ...base,
           width: "100%",
           borderRadius: "0.5rem",
+          borderWidth: isError ? '2px' : '1px',
           borderColor:
             theme === "dark"
               ? props.isFocused
-                ? "rgb(59 130 246)" //blue-500
-                : "rgb(107 114 128)" //gray-500
+                ? (isError ? "rgb(248 113 113 / 1)" : "rgb(59 130 246)") //blue-500
+                : (isError ? "rgb(248 113 113 / 1)" : "rgb(107 114 128)") //gray-500
               : props.isFocused
-              ? "rgb(6 182 212)" //cyan-500
-              : "rgb(209 213 219)", //gray-300
+                ? (isError ? "rgb(248 113 113 / 1)" : "rgb(6 182 212)") //cyan-500
+                : (isError ? "rgb(248 113 113 / 1)" : "rgb(209 213 219)"), //gray-300
           backgroundColor:
             theme === "dark"
               ? "rgb(55 65 81)"
@@ -370,13 +373,14 @@ export function CreatableSelectInput<
 export function AsyncSelectInput<
   Option,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
->({
+  Group extends GroupBase<Option> = GroupBase<Option>,
+  >({
   noOptionsMessage,
   size = "md",
   withSpan,
+  isError = false,
   ...props
-}: { size?: "sm" | "md"; withSpan?: boolean } & AsyncProps<
+}: { size?: "sm" | "md"; withSpan?: boolean, isError?: boolean } & AsyncProps<
   Option,
   IsMulti,
   Group
@@ -408,14 +412,15 @@ export function AsyncSelectInput<
           ...base,
           width: "100%",
           borderRadius: "0.5rem",
+          borderWidth: isError ? '2px' : '1px',
           borderColor:
             theme === "dark"
-              ? props.isFocused
-                ? "rgb(59 130 246)" //blue-500
-                : "rgb(107 114 128)" //gray-500
-              : props.isFocused
-              ? "rgb(6 182 212)" //cyan-500
-              : "rgb(209 213 219)", //gray-300
+            ? props.isFocused
+              ? (isError ? "rgb(248 113 113 / 1)" : "rgb(59 130 246)") //blue-500
+              : (isError ? "rgb(248 113 113 / 1)" : "rgb(107 114 128)") //gray-500
+            : props.isFocused
+              ? (isError ? "rgb(248 113 113 / 1)" : "rgb(6 182 212)") //cyan-500
+              : (isError ? "rgb(248 113 113 / 1)" : "rgb(209 213 219)"), //gray-300
           backgroundColor:
             theme === "dark"
               ? "rgb(55 65 81)"

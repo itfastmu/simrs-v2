@@ -219,7 +219,7 @@ export default function BillingDialog({
                     <p>{billing.data?.id_kunjungan}</p>
                   </div>
                   <div>
-                    <p className="mb-1 text-center text-sm">Tindakan</p>
+                    <p className="mb-1 text-center text-sm">Tindakan Dokter</p>
                     <div
                       className={cn(
                         "mt-1 w-full overflow-hidden rounded text-sm shadow"
@@ -234,7 +234,13 @@ export default function BillingDialog({
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {listTindakan.map((tdx, idx) => (
+                          { listTindakan.length === 0 
+                            ? (
+                              <tr className="bg-red-100">
+                                <td colSpan={3} className="text-center py-2.5">Tidak ada tindakan</td>
+                              </tr>
+                            )
+                            : listTindakan.map((tdx, idx) => (
                             <tr
                               className="bg-white hover:text-sky-600 dark:bg-slate-900"
                               key={idx}
@@ -250,7 +256,7 @@ export default function BillingDialog({
                                 {tdx.id_icd9 + " - " + tdx.deskripsi_panjang}
                               </td>
                             </tr>
-                          ))}
+                          )) }
                         </tbody>
                       </table>
                     </div>
@@ -265,22 +271,24 @@ export default function BillingDialog({
                             <thead>
                               <tr className="divide-x divide-slate-50 bg-slate-100 dark:bg-gray-700">
                                 <td className={cn("px-4 py-2")}>No.</td>
-                                <td className={cn("px-4 py-2")}>Kode</td>
                                 <td className={cn("px-4 py-2")}>Tindakan</td>
                                 <td className={cn("px-4 py-2")}>*</td>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                              {watch("detail").map((val, idx) => (
+                              { watch("detail").length === 0
+                                ? (
+                                  <tr className="bg-red-100">
+                                    <td colSpan={3} className="text-center py-2.5">Tidak ada tindakan</td>
+                                  </tr>
+                                )
+                                : watch("detail").map((val, idx) => (
                                 <tr
                                   className="bg-white text-xs hover:text-sky-600 dark:bg-slate-900"
                                   key={idx}
                                 >
                                   <td className="whitespace-pre-wrap px-4 py-2">
                                     {idx + 1 + "."}
-                                  </td>
-                                  <td className="whitespace-pre-wrap px-4 py-2">
-                                    {val.id_tarif}
                                   </td>
                                   <td className="whitespace-pre-wrap px-4 py-2">
                                     {val.tarif}

@@ -1048,10 +1048,6 @@ export type TRtlKontrol = z.infer<typeof RtlKontrolSchema>
 
 export const RtlRanapSchema = z.object({
   tipe_rtl: z.string(),
-  id: z.string().optional(),
-  dokter: z.union([z.string(), z.number()]),
-  klinik: z.union([z.string(), z.number()]),
-  tanggal: z.string().min(1, "harus diisi")
 })
 export type TRtlRanap = z.infer<typeof RtlRanapSchema>
 
@@ -1065,13 +1061,10 @@ export type TRtlInter = z.infer<typeof RtlInterSchema>
 
 export const RtlEksterSchema = z.object({
   tipe_rtl: z.string(),
-  sep: z.string(),
-  tgl_rencana: z.string().min(1, "harus diisi"),
-  tujuan_rujuk: z.string().optional(),
+  tujuan: z.string(),
   jns_pelayanan: z.string().optional(),
   tipe_rujukan: z.string().optional(),
-  klinik: z.union([z.string(), z.number()]),
-  diagnosa: z.string(),
+  poli: z.union([z.string(), z.number()]),
   catatan: z.string().optional(),
 })
 export type TRtlEkster = z.infer<typeof RtlEksterSchema>

@@ -6,8 +6,13 @@ import { RtlEksterSchema, TRtlEkster } from "../../../schema";
 import { Input, InputArea } from "@/components/form";
 import { fetch_api } from "@/lib/fetchapi";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
-export default function RtlEksternal() {
+export default function RtlEksternal({
+  IKunjungan
+}: {
+  IKunjungan: { [key: string]: any } | null
+}) {
 
   const choiceTipeRujukan = [
     { value:"0",label:"Penuh" },
@@ -26,7 +31,7 @@ export default function RtlEksternal() {
     defaultValues: {
       tipe_rtl: "eksternal",
     },
-    resolver: zodResolver(RtlEksterSchema)
+    resolver: zodResolver(RtlEksterSchema),
   });
 
   const [choiceFktl, setChoiceFktl] = useState<MyOptions>([]);
@@ -78,14 +83,58 @@ export default function RtlEksternal() {
     }
   }
 
-  const pulangSubmitHandler: SubmitHandler<any> = (data) => {
-    console.log(data);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
+    const inputExt = IKunjungan 
+      ? Object.fromEntries(
+      Object.entries(IKunjungan).filter(([i, v]) => (
+        v != null && ['id_kunjungan', 'sep', 'id_klinik', 'no_rm', 'noka'].includes(i)
+      )))
+      : {}
+
+    const input = {
+      status: data.tipe_rtl,
+      detail: {
+        ...inputExt,
+        tujuan: data.tujuan,
+        poli: data.poli,
+        jns_pelayanan: data.jns_pelayanan,
+        tipe_rujukan: data.tipe_rujukan,
+        catatan: data.catatan,
+      }
+    }
+
+    console.log(input); return;
+
+    try {
+      setIsLoading(true);
+      const insert = await fetch_api("POST", "/kunjungan/rtl");
+      switch (insert?.status) {
+        case 201: {
+          toast.success("Berhasil disimpan")
+        } break;
+        case 500: {
+          throw new Error(String(insert?.status))
+        }
+      }
+    
+    } catch (error) { 
+      switch (error) {
+        case "500": {
+          toast.error("Terjadi kesalahan saat pemrosesan data");
+        } break;
+      }
+    
+    } finally {
+      setIsLoading(false)
+    }
   }
+
+  useEffect(() => console.log(errors), [errors])
 
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) }>
       <input type="hidden" { ...register("tipe_rtl") } />
-      <input type="hidden" { ...register("sep") } />
       <p className="text-xs my-2.5">
         <span className="text-red-500">*</span>
         <span className="text-slate-500">) Pencairan minimal 3 karakter</span>
@@ -96,7 +145,7 @@ export default function RtlEksternal() {
           <label htmlFor="tujuan" className="inline-block text-sm mb-1.5">Tujuan Rujuk <span className="text-red-500"> * </span></label>
           <Controller
             control={control}
-            name="tujuan_rujuk"
+            name="tujuan"
             render={({ field: { onChange, value } }) => (
               <AsyncSelectInput
                 cacheOptions
@@ -108,6 +157,7 @@ export default function RtlEksternal() {
                   (val) => val.value === value
                 )}
                 onChange={(option:any) => onChange(option?.value)}
+                isError={ !!errors.tujuan }
               />
             )}
           />
@@ -120,7 +170,7 @@ export default function RtlEksternal() {
           </label>
           <Controller
             control={control}
-            name="klinik"
+            name="poli"
             render={({ field: { onChange, value } }) => (
               <AsyncSelectInput
                 cacheOptions
@@ -132,6 +182,7 @@ export default function RtlEksternal() {
                   (val) => val.value === value
                 )}
                 onChange={(option:any) => onChange(option?.value)}
+                isError={ !!errors.poli }
               />
             )}
           />
@@ -179,7 +230,10 @@ export default function RtlEksternal() {
           ></InputArea>
         </div>
       </div>
-      <Button type="submit" className="px-3 py-1.5" color="cyan" >
+      <Button type="submit" className="px-3 py-1.5" color="cyan" 
+        disabled={ isLoading }
+        loading={ isLoading }
+      >
           Simpan
       </Button>
     </form>

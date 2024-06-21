@@ -6,8 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RtlInterSchema, TRtlInter } from "../../../schema";
 import { useEffect, useState } from "react";
 import { load_klinik } from "./rtl-models";
+import { toast } from "react-toastify";
+import { fetch_api } from "@/lib/fetchapi";
 
-export default function RtlInternal() {
+export default function RtlInternal({
+  IKunjungan
+}: {
+  IKunjungan: { [key: string]: any } | null
+}) {
   const ketChoice = [
     { label: 'Konsul', value: 'konsul' },
     { label: 'Alih Rawat', value: 'alih' },
@@ -45,13 +51,56 @@ export default function RtlInternal() {
     resolver: zodResolver(RtlInterSchema)
   });
 
-  const pulangSubmitHandler: SubmitHandler<any> = (data) => {
-    console.log(data);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
+    const inputExt = IKunjungan 
+      ? Object.fromEntries(
+      Object.entries(IKunjungan).filter(([i, v]) => (
+        v != null && ['id_kunjungan', 'sep', 'id_klinik', 'no_rm', 'noka'].includes(i)
+      )))
+      : {}
+
+    const input = {
+      status: data.tipe_rtl,
+      detail: {
+        ...inputExt,
+        keterangan: data.keterangan,
+        id_klinik: data.klinik,
+        tanggal: data.tanggal,
+      }
+    }
+
+    console.log(input); return;
+
+    try {
+      setIsLoading(true);
+      const insert = await fetch_api("POST", "/kunjungan/rtl");
+      switch (insert?.status) {
+        case 201: {
+          toast.success("Berhasil disimpan")
+        } break;
+        case 500: {
+          throw new Error(String(insert?.status))
+        }
+      }
+    
+    } catch (error) { 
+      switch (error) {
+        case "500": {
+          toast.error("Terjadi kesalahan saat pemrosesan data");
+        } break;
+      }
+    
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
     loadKlinik();
   }, [])
+
+  useEffect(() => console.log(errors), [errors])
 
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) }>
@@ -94,12 +143,16 @@ export default function RtlInternal() {
                 placeholder="Pilih Klinik"
                 onChange={(val: any) => onChange(val.value)}
                 options={ optsKlinik }
+                isError={ !!errors.klinik }
               />
             )}
           />
         </div>
       </div>
-      <Button type="submit" className="px-3 py-1.5" color="cyan" >
+      <Button type="submit" className="px-3 py-1.5" color="cyan" 
+        disabled={ isLoading }
+        loading={ isLoading }
+      >
           Simpan
       </Button>
     </form>

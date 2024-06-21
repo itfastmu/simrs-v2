@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RtlKontrolSchema, TRtlKontrol } from "../../../schema";
 import { useEffect, useState } from "react";
 import { load_klinik, load_dokter } from "./rtl-models";
+import { fetch_api } from "@/lib/fetchapi";
+import { toast } from "react-toastify";
 
 export default function RtlKontrol({
   IKunjungan
@@ -66,9 +68,52 @@ export default function RtlKontrol({
     resolver: zodResolver(RtlKontrolSchema)
   });
 
-  const pulangSubmitHandler: SubmitHandler<any> = (data) => {
-    console.log(data);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
+    const inputExt = IKunjungan 
+      ? Object.fromEntries(
+      Object.entries(IKunjungan).filter(([i, v]) => (
+        v != null && ['id_kunjungan', 'sep', 'id_klinik', 'no_rm', 'noka'].includes(i)
+      )))
+      : {}
+
+    const input = {
+      status: data.tipe_rtl,
+      detail: {
+        ...inputExt,
+        id_klinik: data.klinik,
+        id_dokter: data.dokter,
+        tanggal: data.tanggal,
+      }
+    }
+    console.log(input); return;
+
+    try {
+      setIsLoading(true);
+      const insert = await fetch_api("POST", "/kunjungan/rtl");
+      switch (insert?.status) {
+        case 201: {
+          toast.success("Berhasil disimpan")
+        } break;
+        case 500: {
+          throw new Error(String(insert?.status))
+        }
+      }
+    
+    } catch (error) { 
+      switch (error) {
+        case "500": {
+          toast.error("Terjadi kesalahan saat pemrosesan data");
+        } break;
+      }
+    
+    } finally {
+      setIsLoading(false)
+    }
+    
   }
+
+  useEffect(() => console.log(errors), [errors])
 
   useEffect(() => {
     loadKlinik();
@@ -93,6 +138,7 @@ export default function RtlKontrol({
                 onChange={(val: any) => onChange(val.value)}
                 options={ optsDokter }
                 value={ optsDokter.find((f: any) => f.value === value) }
+                isError={ !!errors.dokter }
               />
             )}
           />
@@ -111,6 +157,7 @@ export default function RtlKontrol({
                 onChange={(val: any) => onChange(val.value)}
                 options={ optsKlinik }
                 value={ optsKlinik.find((f: any) => f.value === value) }
+                isError={ !!errors.klinik }
               />
             )}
           />
@@ -141,11 +188,15 @@ export default function RtlKontrol({
         <div>
           <label htmlFor="tanggal" className="inline-block text-sm mb-1.5">Tanggal</label>
           <Input type="date" id="tanggal"
+            isError={ !!errors.tanggal }
             { ...register('tanggal') }
           />
         </div>
       </div>
-      <Button type="submit" className="px-3 py-1.5" color="cyan" >
+      <Button type="submit" className="px-3 py-1.5" color="cyan" 
+        disabled={ isLoading }
+        loading={ isLoading }
+      >
           Simpan
       </Button>
     </form>

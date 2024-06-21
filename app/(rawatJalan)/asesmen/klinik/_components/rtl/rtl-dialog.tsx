@@ -47,22 +47,22 @@ export const RtlDialog = ({
    let rtlForm: JSX.Element = (<></>); 
    switch (rtlChange) {
       case "pulang": {
-         rtlForm = ( <RtlPulang /> )
+         rtlForm = ( <RtlPulang IKunjungan={ infoKunj }/> )
       } break;
       case "kontrol": {
          rtlForm = ( <RtlKontrol IKunjungan={ infoKunj }/> )
       } break;
       case "ranap": {
-         rtlForm = ( <RtlRanap /> )
+         rtlForm = ( <RtlRanap IKunjungan={ infoKunj }/> )
       } break;
       case "internal": {
-         rtlForm = ( <RtlInternal /> )
+         rtlForm = ( <RtlInternal IKunjungan={ infoKunj }/> )
       } break;
       case "eksternal": {
-         rtlForm = ( <RtlEksternal /> )
+         rtlForm = ( <RtlEksternal IKunjungan={ infoKunj }/> )
       } break;
       case "prb": {
-         rtlForm = ( <RtlPRB /> )
+         rtlForm = ( <RtlPRB IKunjungan={ infoKunj }/> )
       } break;
       default: {
          rtlForm = ( <p className="text-center text-sm">Tentukan Rencana Tindak Lanjut Pasien</p> )

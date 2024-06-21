@@ -11,8 +11,8 @@
 // "http://192.168.100.31:4000";
 // "http://192.168.20.174:4000";
 // "http://192.168.20.174:4001";
-// export const APIURL = "http://192.168.20.2:1200";
-export const APIURL = "https://apiv2-dev.fastabiqsehat.com:8443";
+export const APIURL = "http://192.168.20.2:1200";
+// export const APIURL = "https://apiv2-dev.fastabiqsehat.com:8443";
 // export const APIURL = "http://192.168.20.126:4000";
 // export const APIURL = "http://192.168.20.61:3000/";
 // export const APIURL = "http://localhost:4000";
