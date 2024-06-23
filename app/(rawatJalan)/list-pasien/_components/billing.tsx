@@ -12,6 +12,7 @@ import { RiCheckLine, RiDeleteBin5Line } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { BillingAction, BillingState } from "./list-pasien";
 import { Billing, BillingSchema, ListTarif } from "@/app/(keuangan)/schema";
+import { fetch_api } from "@/lib/fetchapi";
 
 export default function BillingDialog({
   billing,
@@ -73,6 +74,7 @@ export default function BillingDialog({
 
   useEffect(() => {
     if (!billing.modal) return;
+    loadBilling(billing.data?.billing)
     loadTindakanPasien();
     setValue("id_kunjungan", billing.data?.id_kunjungan!);
   }, [billing]);
@@ -118,6 +120,15 @@ export default function BillingDialog({
       console.error(error);
     }
   };
+  const loadBilling = async (id: any)=>{
+    console.log(id)
+    const bill = await fetch_api("GET",`/rs/billing/${id}`);
+    const tarif = bill.resp.data.detail.map((val:any)=>{
+      return {id:val.id,id_tarif:val.id_tarif,tarif:val.nama_tarif}
+    })
+    setValue("detail", tarif);
+
+  }
   useEffect(() => {
     if (!billing.modal) return;
     loadTarifUnit();
