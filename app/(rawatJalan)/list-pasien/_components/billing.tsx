@@ -40,6 +40,7 @@ export default function BillingDialog({
     });
     setListTindakan([]);
     setListTarif([]);
+    setIsBilling(false);
   };
 
   type TindakanPasien = {
@@ -74,7 +75,7 @@ export default function BillingDialog({
 
   useEffect(() => {
     if (!billing.modal) return;
-    loadBilling(billing.data?.billing)
+    if (billing.data?.billing) loadBilling(billing.data?.billing);
     loadTindakanPasien();
     setValue("id_kunjungan", billing.data?.id_kunjungan!);
   }, [billing]);
@@ -120,15 +121,25 @@ export default function BillingDialog({
       console.error(error);
     }
   };
-  const loadBilling = async (id: any)=>{
-    console.log(id)
-    const bill = await fetch_api("GET",`/rs/billing/${id}`);
-    const tarif = bill.resp.data.detail.map((val:any)=>{
-      return {id:val.id,id_tarif:val.id_tarif,tarif:val.nama_tarif}
-    })
-    setValue("detail", tarif);
 
+  const [isBilling, setIsBilling] = useState<boolean>(false);
+  const loadBilling = async (id: any) => {
+    const bill = await fetch_api("GET",`/rs/billing/${id}`);
+    
+    if (bill.resp.data) {
+      setIsBilling(true);
+      const tarif = bill.resp.data.detail.map((val:any)=> {
+        return {
+          id: val.id,
+          id_tarif: val.id_tarif,
+          tarif: val.nama_tarif,
+          tipe: billing.data?.tipe
+        }
+      })
+      setValue("detail", tarif);
+    }
   }
+
   useEffect(() => {
     if (!billing.modal) return;
     loadTarifUnit();
@@ -317,9 +328,11 @@ export default function BillingDialog({
                           </table>
                         </div>
                         <div className="mt-4 flex justify-end gap-1">
-                          <Button type="submit" color="green100">
-                            Simpan
-                          </Button>
+                          { !isBilling && (
+                            <Button type="submit" color="green100">
+                              Simpan
+                            </Button>
+                          )}
                           <Button color="red" onClick={tutup}>
                             Keluar
                           </Button>
@@ -331,7 +344,7 @@ export default function BillingDialog({
                           value={cari}
                           onChange={(e) => setCari(e.target.value)}
                         />
-                        <div className="flex gap-1">
+                        {/* <div className="flex gap-1">
                           {[
                             "Rawat Jalan",
                             "Rawat Inap",
@@ -361,7 +374,7 @@ export default function BillingDialog({
                               <span>{val}</span>
                             </button>
                           ))}
-                        </div>
+                        </div> */}
                         <div
                           className={cn(
                             "flex max-h-[400px] flex-col gap-2 overflow-y-auto rounded bg-slate-100 p-2 pt-0 dark:bg-gray-800",

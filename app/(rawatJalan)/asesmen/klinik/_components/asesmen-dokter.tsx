@@ -598,7 +598,7 @@ export default function AsesmenDokter({
                     {!isUpdate ? "Simpan" : "Simpan Perubahan"}
                   </Button>
                   <Button onClick={ () => setRtlDialog(true) } className="ml-2">
-                    RTL Dialog
+                    Rencana Tindak Lanjut
                   </Button>
                 </Tab.Panel>
               </Tab.Panels>

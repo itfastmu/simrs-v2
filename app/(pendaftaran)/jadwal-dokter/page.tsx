@@ -208,6 +208,7 @@ export default function JadwalDokter() {
         perPage: meta.perPage,
         // cari: deferredCari,
         keyword: deferredCari,
+        tanggal: memoizedTanggal
       };
       url.search = new URLSearchParams(params as any).toString();
       const data = await fetch(url, { method: "GET", headers: headers });
@@ -243,11 +244,17 @@ export default function JadwalDokter() {
     }
   };
 
+  const [tanggal, setTanggal] = useState<Date | string>(new Date());
+  const memoizedTanggal = useMemo(
+    () => (tanggal instanceof Date ? tanggal?.toLocaleDateString("fr-CA") : ""),
+    [tanggal]
+  );
+
   useEffect(() => {
     loadData();
     // console.log(meta);
     // console.log(filter);
-  }, [meta.page, meta.perPage, deferredCari]);
+  }, [meta.page, meta.perPage, deferredCari, memoizedTanggal]);
 
   const tableDivRef = useRef<HTMLDivElement>(null);
 
@@ -267,19 +274,29 @@ export default function JadwalDokter() {
             </div>
           </div>
           <div className="mt-2 flex items-center justify-between pb-3">
-            <PerPage
-              value={meta.perPage}
-              onChange={(e) =>
-                metaDispatch({
-                  type: "setMeta",
-                  setMeta: {
-                    ...meta,
-                    page: 1,
-                    perPage: parseInt(e.target.value),
-                  },
-                })
-              }
-            />
+          <div className="flex items-center gap-2">
+              <PerPage
+                value={meta.perPage}
+                onChange={(e) =>
+                  metaDispatch({
+                    type: "setMeta",
+                    setMeta: {
+                      ...meta,
+                      page: 1,
+                      perPage: parseInt(e.target.value),
+                    },
+                  })
+                }
+              />
+              <Input
+                type="date"
+                value={memoizedTanggal}
+                className="w-fit p-2 text-xs shadow-none"
+                onChange={(e) => {
+                  setTanggal(e.target.value ? new Date(e.target.value) : "");
+                }}
+              />
+            </div>
             <div className="flex items-baseline gap-1">
               <div className="flex gap-1">
                 <Button

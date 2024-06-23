@@ -49,11 +49,11 @@ export default function RtlPulang({
         keterangan: data.keterangan
       }
     }
-    console.log(input); return;
+    // console.log(input); return;
 
     try {
       setIsLoading(true);
-      const insert = await fetch_api("POST", "/kunjungan/rtl");
+      const insert = await fetch_api("POST", "/rs/rs/kunjungan/rtl");
       switch (insert?.status) {
         case 201: {
           toast.success("Berhasil disimpan")
@@ -63,8 +63,8 @@ export default function RtlPulang({
         }
       }
     
-    } catch (error) { 
-      switch (error) {
+    } catch (error: any) {           
+      switch (error.message) {
         case "500": {
           toast.error("Terjadi kesalahan saat pemrosesan data");
         } break;
