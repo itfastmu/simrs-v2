@@ -44,6 +44,8 @@ import BillingDialog from "./billing";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/button";
 import { LinkButton } from "@/components/button";
+import { LuCalendarClock } from "react-icons/lu";
+import { RtlDialog } from "./rtl";
 
 export type BillingState = {
   modal: boolean;
@@ -344,6 +346,29 @@ export default function ListPasienAsesmen({
       setIsMutating(false);
     }
   };
+
+  type RtlState = {
+    dialog: boolean;
+    data?: KunjunganRajal;
+  };
+  type RtlAction = {
+    type: "setDialog";
+    dialog: RtlState
+  };
+  const initRtlState = {
+    dialog: false,
+    data: undefined,
+  };
+  const rtlActs = (state: RtlState, action: RtlAction) => {
+    switch (action.type) {
+      case "setDialog": {
+        return {
+          ...action.dialog,
+        };
+      }
+    }
+  };
+  const [rtl, rtlDispatch] = useReducer(rtlActs, initRtlState);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -738,7 +763,8 @@ export default function ListPasienAsesmen({
                             </>
                           ) : null}
 
-                          <Tooltip.Provider
+                          {/* Edukasi */}
+                          {/* <Tooltip.Provider
                             delayDuration={300}
                             disableHoverableContent
                           >
@@ -767,12 +793,12 @@ export default function ListPasienAsesmen({
                                   size="1.5rem"
                                   className="text-cyan-700 hover:text-cyan-800 active:text-cyan-900 dark:text-cyan-500 dark:hover:text-cyan-600 dark:active:text-cyan-700"
                                 />
-                                {/* {parseInt(data.id_proses) > 3 ? (
+                                {parseInt(data.id_proses) > 3 ? (
                                   <FaCheck
                                     className="absolute -right-1 -top-1 h-3 w-3 text-green-500"
                                     aria-hidden="true"
                                   />
-                                ) : null} */}
+                                ) : null}
                               </Tooltip.Trigger>
                               <Tooltip.Content
                                 side="left"
@@ -782,7 +808,7 @@ export default function ListPasienAsesmen({
                                 <p>Edukasi</p>
                               </Tooltip.Content>
                             </Tooltip.Root>
-                          </Tooltip.Provider>
+                          </Tooltip.Provider> */}
 
                           {grup === "Dewa" ? (
                             <Tooltip.Provider
@@ -974,6 +1000,33 @@ export default function ListPasienAsesmen({
                                     <p>Billing</p>
                                   </Tooltip.Content>
                                 </Tooltip.Root>
+                                <Tooltip.Root>
+                                  { data.rtl && (
+                                    <Tooltip.Trigger
+                                      // disabled={parseInt(data.id_proses) < 5}
+                                      onClick={() => rtlDispatch({
+                                        type: "setDialog",
+                                        dialog: {
+                                          dialog: true,
+                                          data: data
+                                        }
+                                      })}
+                                      className="relative disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                      <LuCalendarClock
+                                        size="1.5rem"
+                                        className="text-rose-600 ui-not-disabled:hover:text-rose-700 ui-not-disabled:active:text-rose-800"
+                                      />
+                                    </Tooltip.Trigger>
+                                  )}
+                                  <Tooltip.Content
+                                    side="left"
+                                    sideOffset={0}
+                                    className="border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-700 dark:text-slate-200"
+                                  >
+                                    <p>RTL</p>
+                                  </Tooltip.Content>
+                                </Tooltip.Root>
                               </Tooltip.Provider>
 
                               {/* <Tooltip.Provider
@@ -1051,6 +1104,11 @@ export default function ListPasienAsesmen({
         ubah={skdp}
         ubahDispatch={skdpDispatch}
         loadData={loadData}
+      />
+
+      <RtlDialog 
+        dialog={ rtl.dialog }
+        setDialog={ rtlDispatch }
       />
 
       <Transition show={psikologiDialog.modal} as={React.Fragment}>

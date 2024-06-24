@@ -436,7 +436,8 @@ export default function RiwayatPemeriksaan() {
               ))}
             </>
           ) : null}
-          <div className="relative flex flex-col gap-0.5 border border-gray-300 bg-gray-50 px-2 py-1.5 pr-24 text-left shadow hover:-translate-y-0.5 dark:border-slate-400 dark:bg-slate-700">
+          {/* Example Riwayat Psikologi */}
+          {/* <div className="relative flex flex-col gap-0.5 border border-gray-300 bg-gray-50 px-2 py-1.5 pr-24 text-left shadow hover:-translate-y-0.5 dark:border-slate-400 dark:bg-slate-700">
             <p className="mb-1 text-sm font-semibold">
               {new Intl.DateTimeFormat("id-ID", {
                 dateStyle: "long",
@@ -445,12 +446,13 @@ export default function RiwayatPemeriksaan() {
             <p>Rawat Jalan</p>
             <p>Klinik Psikologi</p>
             {/* <p>{val.dokter}</p> */}
-            <div className="absolute right-2 flex flex-col items-center justify-center gap-1">
+            {/*<div className="absolute right-2 flex flex-col items-center justify-center gap-1">
               <Button
                 // disabled={parseInt(val.proses) < 5}
                 onClick={() =>
                   riwPsikologDispatch({
-                    modal: true /* data: val */,
+                    modal: true ,
+                    /* data: val
                   })
                 }
                 className="w-20 justify-center py-1.5 text-xs"
@@ -459,7 +461,7 @@ export default function RiwayatPemeriksaan() {
                 Psikolog
               </Button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

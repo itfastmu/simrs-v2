@@ -90,7 +90,9 @@ export default function RtlKontrol({
 
     try {
       setIsLoading(true);
-      const insert = await fetch_api("POST", "/rs/kunjungan/rtl");
+      const insert = await fetch_api("POST", "/rs/kunjungan/rtl", {
+        body: JSON.stringify(input)
+      });
       switch (insert?.status) {
         case 201: {
           toast.success("Berhasil disimpan")

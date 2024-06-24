@@ -68,6 +68,7 @@ export const BillingSchema = z.object({
       id_tarif: z.number(),
       tarif: z.string(),
       tipe: z.number(),
+      saved: z.boolean().optional()
     })
     .array()
     .min(1, "diisi minimal satu"),

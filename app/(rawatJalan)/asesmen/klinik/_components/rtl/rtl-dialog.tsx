@@ -128,9 +128,9 @@ export const RtlDialog = ({
                         {/* Pilihan RTL */}
                         <div className="my-1.5 p-2.5 text-sm border border-cyan-300 bg-cyan-100 rounded-md grid grid-cols-3 gap-y-1">
                            <p>Nama Pasien</p>
-                           {/* <p className="col-span-2">: { infoKunj. }</p> */}
+                           <p className="col-span-2">: { infoKunj?.nama }</p>
                            <p>No. Kunjungan</p>
-                           {/* <p>: { infoPasien?.id_kunjungan }</p> */}
+                           <p>: { idKunjungan }</p>
                         </div>
                         <div className="flex frex-wrap gap-2 my-2.5">
                            {

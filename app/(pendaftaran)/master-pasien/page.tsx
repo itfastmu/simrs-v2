@@ -238,7 +238,7 @@ export default function MasterPasien() {
     } catch (err) {
       const error = err as Error;
       if (error.name === "AbortError") return;
-      if (error.message === "Tidak ada pasien") return setIsMutating(false);
+      if (error.message === "Tidak ada pasien") { setDataList([]) }
       console.error(error);
       metaDispatch({
         type: "setMeta",
@@ -249,6 +249,7 @@ export default function MasterPasien() {
           total: 0,
         },
       });
+    } finally {
       setIsMutating(false);
     }
   };

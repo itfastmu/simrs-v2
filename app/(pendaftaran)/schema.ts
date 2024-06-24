@@ -232,6 +232,7 @@ export type KunjunganRajal = {
   mulai: string;
   selesai: string;
   noka: string;
+  id_rtl: number | null;
   rtl: string | null;
   sep: string;
   finger: number;

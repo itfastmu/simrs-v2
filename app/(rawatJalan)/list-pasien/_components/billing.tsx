@@ -133,7 +133,8 @@ export default function BillingDialog({
           id: val.id,
           id_tarif: val.id_tarif,
           tarif: val.nama_tarif,
-          tipe: billing.data?.tipe
+          tipe: billing.data?.tipe,
+          saved: true
         }
       })
       setValue("detail", tarif);
@@ -182,6 +183,7 @@ export default function BillingDialog({
   const submitHandler: SubmitHandler<Billing> = async (data, e) => {
     try {
       e?.preventDefault();
+      data.detail = data.detail.filter(val=> !!val.saved === false)
       const post = await fetch(`${APIURL}/rs/billing`, {
         method: "POST",
         headers: headers,
