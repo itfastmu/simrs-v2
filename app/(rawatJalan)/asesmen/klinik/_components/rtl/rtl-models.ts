@@ -1,5 +1,6 @@
 import Cookies from "js-cookie"
 import { APIURL } from "@/lib/connection"
+import { fetch_api } from "@/lib/fetchapi";
 
 const token = Cookies.get("token")
 const init: RequestInit = {
@@ -23,4 +24,12 @@ export async function load_klinik() {
       method: 'GET'
    });
    return fetchDokter.json();
+}
+
+export async function load_jadwal(query: any) {
+   const fetch = await fetch_api("GET", '/rs/jadwal', {
+      params: query
+   });
+
+   return fetch;
 }

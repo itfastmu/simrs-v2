@@ -8,6 +8,7 @@ import { RtlPulangSchema, TRtlPulang } from "../../../schema";
 import { useEffect, useState } from "react";
 import { fetch_api } from "@/lib/fetchapi";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function RtlPulang({
   IKunjungan
@@ -34,6 +35,7 @@ export default function RtlPulang({
   ];
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
   const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
     const inputExt = IKunjungan 
     ? Object.fromEntries(
@@ -59,6 +61,7 @@ export default function RtlPulang({
       switch (insert?.status) {
         case 201: {
           toast.success("Berhasil disimpan")
+          router.replace(`/list-pasien?user=Dokter&id=${IKunjungan?.id_pegawai.replaceAll(".", "_")}`);
         } break;
         case 500: {
           throw new Error(String(insert?.status))
@@ -76,8 +79,6 @@ export default function RtlPulang({
       setIsLoading(false)
     }
   }
-
-  useEffect(() => console.log(errors), [errors])
 
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) } className="w-2/3">

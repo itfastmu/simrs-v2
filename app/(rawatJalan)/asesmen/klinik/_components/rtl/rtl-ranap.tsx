@@ -7,6 +7,7 @@ import { RtlRanapSchema, TRtlRanap } from "../../../schema";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { fetch_api } from "@/lib/fetchapi";
+import { useRouter } from "next/navigation";
 
 export default function RtlRanap({
   IKunjungan
@@ -25,6 +26,7 @@ export default function RtlRanap({
     });
   
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const router = useRouter();
     const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
       const inputExt = IKunjungan 
         ? Object.fromEntries(
@@ -47,6 +49,7 @@ export default function RtlRanap({
           switch (insert?.status) {
             case 201: {
               toast.success("Berhasil disimpan")
+              router.replace(`/list-pasien?user=Dokter&id=${IKunjungan?.id_pegawai.replaceAll(".", "_")}`);
             } break;
             case 500: {
               throw new Error(String(insert?.status))
@@ -64,8 +67,6 @@ export default function RtlRanap({
           setIsLoading(false)
         }
     }
-
-    useEffect(() => console.log(errors), [errors])
   
     return (
       <form onSubmit={ handleSubmit(pulangSubmitHandler) }>

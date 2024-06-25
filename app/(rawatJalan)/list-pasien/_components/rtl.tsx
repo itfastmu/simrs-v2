@@ -14,7 +14,9 @@ export const RtlDialog = ({
 }) => {
 
    const closeDialogHandler = () => {
-      setDialog(false);
+      setDialog({ dialog: {
+         dialog: false
+      }});
    }
    
    return (

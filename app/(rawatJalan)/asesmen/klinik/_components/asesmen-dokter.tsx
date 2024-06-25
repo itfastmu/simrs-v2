@@ -458,7 +458,12 @@ export default function AsesmenDokter({
       if (json.status !== "Created" && json.status !== "Updated")
         throw new Error(json.message);
       toast.success("Asesmen berhasil disimpan!");
-      router.replace(`/list-pasien?user=Dokter&id=${kode?.replaceAll(".", "_")}`);
+      if (isUpdate === false) {
+        setIsUpdate(true);
+        setRtlDialog(true);
+      } else {
+        router.replace(`/list-pasien?user=Dokter&id=${kode?.replaceAll(".", "_")}`);
+      }
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);
@@ -596,9 +601,6 @@ export default function AsesmenDokter({
                   />
                   <Button type="submit" loading={isLoading}>
                     {!isUpdate ? "Simpan" : "Simpan Perubahan"}
-                  </Button>
-                  <Button onClick={ () => setRtlDialog(true) } className="ml-2">
-                    Rencana Tindak Lanjut
                   </Button>
                 </Tab.Panel>
               </Tab.Panels>
@@ -773,11 +775,10 @@ export default function AsesmenDokter({
                                 id: kode?.replaceAll(".", "_"),
                               },
                             }}
-                            onClick={() => setTutupAsesmen(false)}
                             passHref
                             legacyBehavior
                           >
-                            <LinkButton color="red100">Tutup</LinkButton>
+                            <LinkButton color="red100" onClick={() => setTutupAsesmen(false)}>Tutup</LinkButton>
                           </Link>
                           <Button
                             color="red"

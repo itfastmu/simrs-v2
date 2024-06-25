@@ -7,6 +7,7 @@ import { Input, InputArea } from "@/components/form";
 import { fetch_api } from "@/lib/fetchapi";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function RtlEksternal({
   IKunjungan
@@ -84,6 +85,7 @@ export default function RtlEksternal({
   }
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
   const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
     const inputExt = IKunjungan 
       ? Object.fromEntries(
@@ -104,7 +106,7 @@ export default function RtlEksternal({
       }
     }
 
-    console.log(input); return;
+    // console.log(input); return;
 
     try {
       setIsLoading(true);
@@ -112,6 +114,7 @@ export default function RtlEksternal({
       switch (insert?.status) {
         case 201: {
           toast.success("Berhasil disimpan")
+          router.replace(`/list-pasien?user=Dokter&id=${IKunjungan?.id_pegawai.replaceAll(".", "_")}`);
         } break;
         case 500: {
           throw new Error(String(insert?.status))
@@ -129,8 +132,6 @@ export default function RtlEksternal({
       setIsLoading(false)
     }
   }
-
-  useEffect(() => console.log(errors), [errors])
 
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) }>

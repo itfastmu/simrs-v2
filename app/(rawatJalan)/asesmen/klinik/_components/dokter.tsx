@@ -1866,8 +1866,8 @@ export const InstruksiDr = ({
                       {ajukanLab ? "(Terajukan)" : ""}
                     </p>
                     <ul className="list-disc pl-5">
-                      {listPermintaanLab.map((val) => (
-                        <li key={val.nama}>{val.nama}</li>
+                      {listPermintaanLab.map((val, i) => (
+                        <li key={i}>{val.nama}</li>
                       ))}
                     </ul>
                   </div>
@@ -1903,8 +1903,8 @@ export const InstruksiDr = ({
                   <div className="flex flex-col rounded bg-slate-100 p-2 dark:bg-gray-900">
                     <p>List Permintaan Pemeriksaan Radiologi</p>
                     <ul className="list-disc pl-5">
-                      {listPermintaanRad.map((val) => (
-                        <li key={val.nama}>{val.nama}</li>
+                      {listPermintaanRad.map((val, i) => (
+                        <li key={i}>{val.nama}</li>
                       ))}
                     </ul>
                   </div>

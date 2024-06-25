@@ -1042,7 +1042,8 @@ export const RtlKontrolSchema = z.object({
   sep: z.string().optional(),
   dokter: z.union([z.string(), z.number()]),
   klinik: z.union([z.string(), z.number()]),
-  tanggal: z.string().min(1, "harus diisi")
+  tanggal: z.string().min(1, "harus diisi"),
+  jadwal: z.union([z.string(), z.number()]),
 })
 export type TRtlKontrol = z.infer<typeof RtlKontrolSchema>
 

@@ -2,6 +2,7 @@ import React from "react";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { MdChatBubble } from "react-icons/md";
 import { useTheme } from "next-themes";
+import NotificationIcon from "./notification";
 
 export default function Theme() {
   const { theme, setTheme } = useTheme();
@@ -46,6 +47,7 @@ export default function Theme() {
             size="1.8rem"
             className="inline fill-amber-500 hover:cursor-pointer hover:fill-amber-400"
           />
+          <NotificationIcon />
         </div>
       </div>
     </div>

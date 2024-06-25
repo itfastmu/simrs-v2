@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { load_klinik } from "./rtl-models";
 import { toast } from "react-toastify";
 import { fetch_api } from "@/lib/fetchapi";
+import { useRouter } from "next/navigation";
 
 export default function RtlInternal({
   IKunjungan
@@ -45,13 +46,13 @@ export default function RtlInternal({
     formState: { errors },
   } = useForm<TRtlInter>({
     defaultValues: {
-      tipe_rtl: "internal",
-      tanggal: new Date().toLocaleDateString('fr-CA')
+      tipe_rtl: "internal"
     },
     resolver: zodResolver(RtlInterSchema)
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
   const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
     const inputExt = IKunjungan 
       ? Object.fromEntries(
@@ -66,7 +67,6 @@ export default function RtlInternal({
         ...inputExt,
         keterangan: data.keterangan,
         id_klinik: data.klinik,
-        tanggal: data.tanggal,
       }
     }
 
@@ -80,6 +80,7 @@ export default function RtlInternal({
       switch (insert?.status) {
         case 201: {
           toast.success("Berhasil disimpan")
+          router.replace(`/list-pasien?user=Dokter&id=${IKunjungan?.id_pegawai.replaceAll(".", "_")}`);
         } break;
         case 500: {
           throw new Error(String(insert?.status))
@@ -102,19 +103,10 @@ export default function RtlInternal({
     loadKlinik();
   }, [])
 
-  useEffect(() => console.log(errors), [errors])
-
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) }>
       <input type="hidden" { ...register("tipe_rtl") } />
       <div className="grid grid-cols-2 gap-2 mb-2.5">
-        {/* Tanggal */}
-        <div>
-          <label htmlFor="tanggal" className="inline-block text-sm mb-1.5">Tanggal</label>
-          <Input type="date" id="tanggal"
-            { ...register('tanggal') }
-          />
-        </div>
         {/* Keterangan */}
         <div>
           <label htmlFor="ket" className="inline-block text-sm mb-1.5">Keterangan</label>

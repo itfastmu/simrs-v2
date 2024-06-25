@@ -352,7 +352,6 @@ export default function ListPasienAsesmen({
     data?: KunjunganRajal;
   };
   type RtlAction = {
-    type: "setDialog";
     dialog: RtlState
   };
   const initRtlState = {
@@ -360,13 +359,9 @@ export default function ListPasienAsesmen({
     data: undefined,
   };
   const rtlActs = (state: RtlState, action: RtlAction) => {
-    switch (action.type) {
-      case "setDialog": {
-        return {
-          ...action.dialog,
-        };
-      }
-    }
+    return {
+      ...action.dialog,
+    };
   };
   const [rtl, rtlDispatch] = useReducer(rtlActs, initRtlState);
 
@@ -1005,7 +1000,6 @@ export default function ListPasienAsesmen({
                                     <Tooltip.Trigger
                                       // disabled={parseInt(data.id_proses) < 5}
                                       onClick={() => rtlDispatch({
-                                        type: "setDialog",
                                         dialog: {
                                           dialog: true,
                                           data: data

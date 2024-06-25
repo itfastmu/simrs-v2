@@ -13,7 +13,9 @@ import { LuCalendarClock } from 'react-icons/lu';
 import { fetch_api } from '@/lib/fetchapi';
 
 export const RtlDialog = ({ 
-   showDialog, closeDialog, idKunjungan
+   idKunjungan,
+   showDialog, 
+   closeDialog,
 }: { 
    idKunjungan: string | string[],
    showDialog: boolean, 
@@ -69,17 +71,13 @@ export const RtlDialog = ({
       } break;
    }
 
-   const closeDialogHandler = () => {
-      closeDialog(false);
-   }
-
    useEffect(() => {
       loadInfoPemeriksaan();
    }, [])
    
    return (
       <Transition show={showDialog} as={Fragment}>
-         <Dialog as="div" className="relative z-[1001]" onClose={closeDialogHandler}>
+         <Dialog as="div" className="relative z-[1001]" onClose={() => {}}>
             <Transition.Child
                as={Fragment}
                enter="ease-out duration-300"
