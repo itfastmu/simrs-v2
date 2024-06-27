@@ -415,6 +415,9 @@ export default function AsesmenDokter({
   const [lainRiwayat, setLainRiwayat] = useState("");
   const [lainRiwayatKel, setLainRiwayatKel] = useState("");
 
+  // data assesmen saat disimpan
+  const [dataAss, setDataAss] = useState<{ [key: string]: any } | null>(null)
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitHandler: SubmitHandler<TAsesmenDok> = async (data, e) => {
     try {
@@ -460,6 +463,7 @@ export default function AsesmenDokter({
       toast.success("Asesmen berhasil disimpan!");
       if (isUpdate === false) {
         setIsUpdate(true);
+        setDataAss(data);
         setRtlDialog(true);
       } else {
         router.replace(`/list-pasien?user=Dokter&id=${kode?.replaceAll(".", "_")}`);
@@ -601,6 +605,9 @@ export default function AsesmenDokter({
                   />
                   <Button type="submit" loading={isLoading}>
                     {!isUpdate ? "Simpan" : "Simpan Perubahan"}
+                  </Button>
+                  <Button onClick={ () => setRtlDialog(true) }>
+                    RTL
                   </Button>
                 </Tab.Panel>
               </Tab.Panels>
@@ -799,6 +806,7 @@ export default function AsesmenDokter({
       
       <RtlDialog
         idKunjungan={ params.idKunjungan }
+        dataAss={ dataAss }
         showDialog={ rtlDialog }
         closeDialog={ setRtlDialog }
       />

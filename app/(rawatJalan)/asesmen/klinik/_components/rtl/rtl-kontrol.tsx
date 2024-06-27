@@ -71,7 +71,7 @@ export default function RtlKontrol({
       });
       
       switch(jadwal.status) {
-        case 200: {
+        case 201: {
           setOptsJadwal(jadwal.resp.data);
           if (jadwal.resp.data.length === 1) {
             setValue('jadwal', jadwal.resp.data[0].id);
@@ -123,7 +123,7 @@ export default function RtlKontrol({
         tanggal: data.tanggal
       }
     }
-    console.log(input); return;
+    // console.log(input); return;
 
     try {
       setIsLoading(true);

@@ -10,9 +10,10 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 export default function RtlEksternal({
-  IKunjungan
+  IKunjungan = null, diagnosa = null
 }: {
-  IKunjungan: { [key: string]: any } | null
+  IKunjungan: { [key: string]: any } | null,
+  diagnosa: { [key: string]: any } | null,
 }) {
 
   const choiceTipeRujukan = [
@@ -176,7 +177,7 @@ export default function RtlEksternal({
               <AsyncSelectInput
                 cacheOptions
                 noOptionsMessage={(e) => "Data tidak ditemukan"}
-                placeholder="Poli Tujuan"
+                placeholder="Klinik Spesialis Tujuan"
                 loadOptions={ loadKlinik }
                 defaultOptions={ choiceKlinik }
                 value={choiceKlinik.find(
@@ -216,7 +217,7 @@ export default function RtlEksternal({
             render={({ field: { onChange, value } }) => (
               <SelectInput
                 noOptionsMessage={(e) => "Tidak ada pilihan"}
-                placeholder="Pilih Jenis"
+                placeholder="Pilih Tipe"
                 onChange={(val: any) => onChange(val.value)}
                 options={ choiceTipeRujukan }
                 value={ choiceTipeRujukan.find(f => f.value === value) }
@@ -224,9 +225,10 @@ export default function RtlEksternal({
             )}
           />
         </div>
-        <div>
-          <label htmlFor="catatan" className="inline-block text-sm mb-1.5">Catatan</label>
+        <div className="col-span-2">
+          <label htmlFor="catatan" className="inline-block text-sm mb-1.5">Rekomendasi/Intruksi</label>
           <InputArea id="catatan"
+            placeholder="Tuliskan rencana asuhan yg dibutuhkan difaskes rujukan"
             { ...register('catatan') }
           ></InputArea>
         </div>

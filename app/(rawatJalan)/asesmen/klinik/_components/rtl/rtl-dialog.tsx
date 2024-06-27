@@ -14,10 +14,12 @@ import { fetch_api } from '@/lib/fetchapi';
 
 export const RtlDialog = ({ 
    idKunjungan,
+   dataAss = null,
    showDialog, 
    closeDialog,
 }: { 
    idKunjungan: string | string[],
+   dataAss: { [key: string]: any } | null
    showDialog: boolean, 
    closeDialog: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -61,7 +63,7 @@ export const RtlDialog = ({
          rtlForm = ( <RtlInternal IKunjungan={ infoKunj }/> )
       } break;
       case "eksternal": {
-         rtlForm = ( <RtlEksternal IKunjungan={ infoKunj }/> )
+         rtlForm = ( <RtlEksternal IKunjungan={ infoKunj } diagnosa={ dataAss?.diagnosis }/> )
       } break;
       case "prb": {
          rtlForm = ( <RtlPRB IKunjungan={ infoKunj }/> )

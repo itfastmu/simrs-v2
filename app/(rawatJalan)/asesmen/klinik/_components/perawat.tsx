@@ -1055,13 +1055,14 @@ export const AsesmenPer = ({
   const [selDiagnosis, setSelDiagnosis] = useState<MyOption | null>(null);
   const loadDiagnosisPer = async (inputSearch: string) => {
     try {
-      const url = new URL(
-        `${APIURL}/rs/diagnosa/perawat/${selSubKatDiag?.value || ""}`
-      );
-      const params = {
-        keyword: inputSearch?.trimStart(),
-      };
-      url.search = new URLSearchParams(params as any).toString();
+      const url = new URL(`${APIURL}/rs/diagnosa/perawat/${selSubKatDiag?.value || ""}`);
+
+      if (inputSearch.trim() !== "") {
+        const params = {
+          keyword: inputSearch?.trimStart(),
+        };
+        url.search = new URLSearchParams(params as any).toString();
+      }
       const resp = await fetch(url, {
         method: "GET",
         headers: headers,
@@ -1156,17 +1157,19 @@ export const AsesmenPer = ({
                   }}
                   maxMenuHeight={200}
                 />
-                <AsyncSelectInput
+                <SelectInput
                   noOptionsMessage={(e) => "Pilih diagnosis"}
                   className="w-full flex-1"
                   size="sm"
-                  loadOptions={loadDiagnosisPer}
-                  // options={diagPerOptions}
+                  options={diagPerOptions}
                   placeholder="Pilih Diagnosis"
                   value={selDiagnosis}
                   onChange={(option) =>
                     setSelDiagnosis(option as MyOption | null)
                   }
+                  onInputChange={(v) => {
+                    loadDiagnosisPer(v)
+                  } }
                   maxMenuHeight={200}
                 />
                 <button type="button" onClick={addDiagnosis}>
