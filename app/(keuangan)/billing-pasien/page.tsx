@@ -434,12 +434,13 @@ const BillingDialog = ({
         headers: headers,
       });
       const json = await resp.json();
-      if (json.status !== "Ok") throw new Error(json.message);
+      if (resp.status === 500) throw new Error("500");
+      if (resp.status === 404) throw new Error("400")
       setBillingPasien(json?.data);
     } catch (err) {
       const error = err as Error;
-      // if (error.message === "Data tidak ditemukan") return;
-      toast.error(error.message);
+      if (error.message === "400") { toast.error("Detail billing kosong !") }
+      if (error.message === "500") { toast.error("Terjadi kesalahan saat pemrosesan data !") }
       console.error(error);
     } finally {
       setIsMutating(false);
@@ -1067,10 +1068,10 @@ const BillingDialog = ({
                   {billing.data?.status === 1 ? (
                     <Button
                       color="green"
-                      disabled={isEditing}
+                      disabled={isEditing === true || !!billingPasien === false}
                       onClick={bayarBilling}
                     >
-                      Bayar
+                      Terbayar
                     </Button>
                   ) : null}
                   {billing.data?.status !== 2 ? (

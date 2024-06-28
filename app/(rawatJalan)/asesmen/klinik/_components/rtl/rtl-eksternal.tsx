@@ -85,6 +85,34 @@ export default function RtlEksternal({
     }
   }
 
+  // load list icd10
+  const loadIcd10 = async (search: string) => {
+    try {
+      const load = await fetch_api("GET", '/rs/icd/10', {
+        params: {
+          keyword: search,
+          perPage: 25
+        }
+      })
+
+      let choice: any = [];
+      load.resp?.data.map((v: any) => {
+        const m = {
+          label: v.deskripsi,
+          value: v.id,
+          primer: false,
+          extend: true
+        }
+
+        choice.push(m);
+      })
+      return choice;
+
+    } catch (error) { return [] }
+  }
+
+  const [diagState, setDiagState] = useState<{ [k: string]: any }[] | []>([]);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   const pulangSubmitHandler: SubmitHandler<any> = async (data) => {
@@ -133,6 +161,23 @@ export default function RtlEksternal({
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (diagnosa && Array.isArray(diagnosa)) {
+      let diagInit = [];
+      for (const v of diagnosa) {
+        const ob = {
+          label: v.icd10.nama,
+          value: v.icd10.id,
+          primer: v.primer,
+          extend: false
+        }
+        diagInit.push(ob);
+      }
+      setDiagState(diagInit);
+    }
+  }, [])
+  
 
   return (
     <form onSubmit={ handleSubmit(pulangSubmitHandler) }>
@@ -232,6 +277,43 @@ export default function RtlEksternal({
             { ...register('catatan') }
           ></InputArea>
         </div>
+        <div className="col-span-2">
+          <label htmlFor="diagnosa" className="inline-block text-sm mb-1.5">Diagnosa</label>
+          <AsyncSelectInput 
+            loadOptions={ loadIcd10 }
+            placeholder="Pilih Diagnosa"
+            onChange={ (op) => {
+              if (op) {
+                setDiagState([...diagState, op]);              
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="my-2.5">
+        { diagState?.length === 0 
+          ? <p className="text-center text-xs text-red-800 p-1.5 bg-red-100 border border-red-300 rounded-md">
+            Tidak ada diagnosa
+          </p>
+          : <table className="w-full"> 
+              <thead className="bg-slate-200 tracking-wide">
+                <tr>
+                  <th className="text-xs py-1 text-center">Kode</th>
+                  <th className="text-xs text-center">Deskripsi</th>
+                </tr>
+              </thead>
+              <tbody>
+                { diagState?.map((v: any, i) => (
+                  <tr key={i} className="bg-slate-50 text-sm text-center">
+                    <td className="py-1 px-1.5">{ v.value }</td>
+                    <td>{ v.label }</td>
+                  </tr>
+                )) }
+              </tbody>
+            </table>
+        }
+        
       </div>
       <Button type="submit" className="px-3 py-1.5" color="cyan" 
         disabled={ isLoading }

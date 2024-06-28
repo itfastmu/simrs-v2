@@ -226,10 +226,16 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
           //   href: "/tarif-bhp",
           //   icon: GiMedicalDrip,
           // },
-          // {
-          //   judul: "KFA Mapping POA",
-          //   href: "/kfa-mapping-poa",
-          // },
+          {
+            judul: "Master KFA",
+            icon: GiMedicines,
+            href: "/master-kfa",
+          },
+          {
+            judul: "KFA Mapping POA",
+            icon: GiMedicines,
+            href: "/kfa-mapping-poa",
+          },
         ],
       },
       {
@@ -283,11 +289,6 @@ const MenuModal = forwardRef<HTMLDivElement, MenuType>(
             judul: "List Supplier",
             icon: TfiDropbox,
             href: "/list-supplier",
-          },
-          {
-            judul: "Master KFA",
-            icon: GiMedicines,
-            href: "/master-kfa",
           },
         ],
       },
