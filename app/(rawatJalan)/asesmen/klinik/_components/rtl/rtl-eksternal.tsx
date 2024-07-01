@@ -8,6 +8,7 @@ import { fetch_api } from "@/lib/fetchapi";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { TbTrash } from "react-icons/tb";
 
 export default function RtlEksternal({
   IKunjungan = null, diagnosa = null
@@ -38,13 +39,42 @@ export default function RtlEksternal({
 
   const [choiceFktl, setChoiceFktl] = useState<MyOptions>([]);
   const loadFktl = async (searchText: string = ""):Promise<MyOptions> => {
-    try {
-      const load = await fetch_api('GET', '/rs/rujukan/referensi/fktl', { 
-        params: {
-          keyword: searchText
-        }
-      })
-      // if (load.resp.data) {
+    if (searchText.length > 2) {
+      try {
+        const load = await fetch_api('GET', '/rs/rujukan/referensi/fktl', { 
+          params: {
+            keyword: searchText
+          }
+        })
+        // if (load.resp.data) {
+          const choice = load.resp.data.map((v: any) => {
+            const d = {
+              label: v.nama,
+              value: v.kode
+            }
+            return d;
+          })
+          setChoiceFktl(choice);
+          return choice;
+        // }
+      } catch (error) {
+        console.log(error);
+        return []
+      } 
+
+    } else return [];
+  }
+
+  const [ choiceKlinik, setChoiceKlinik] = useState<MyOptions>([]);
+  const loadKlinik = async (searchText: string):Promise<MyOptions> => {
+    if (searchText.length > 2) {
+      try {
+        const load = await fetch_api('GET','/rs/rujukan/referensi/klinik',{
+          params: {
+            keyword: searchText
+          }
+        })
+        
         const choice = load.resp.data.map((v: any) => {
           const d = {
             label: v.nama,
@@ -52,37 +82,14 @@ export default function RtlEksternal({
           }
           return d;
         })
-        setChoiceFktl(choice);
+        setChoiceKlinik(choice);
         return choice;
-      // }
-    } catch (error) {
-      console.log(error);
-      return []
-    } 
-  }
-
-  const [ choiceKlinik, setChoiceKlinik] = useState<MyOptions>([]);
-  const loadKlinik = async (searchText: string):Promise<MyOptions> =>{
-    try {
-      const load = await fetch_api('GET','/rs/rujukan/referensi/klinik',{
-        params: {
-          keyword: searchText
-        }
-      })
-      
-      const choice = load.resp.data.map((v: any) => {
-        const d = {
-          label: v.nama,
-          value: v.kode
-        }
-        return d;
-      })
-      setChoiceKlinik(choice);
-      return choice;
-    } catch (error) {
-      console.log(error);
-      return[]
-    }
+      } catch (error) {
+        console.log(error);
+        return[]
+      }
+    
+    } else return [];
   }
 
   // load list icd10
@@ -112,6 +119,41 @@ export default function RtlEksternal({
   }
 
   const [diagState, setDiagState] = useState<{ [k: string]: any }[] | []>([]);
+  const diagStateAdd = (op: { [k: string]: any } | null) => {
+    if (op && diagState.length > 0) {
+      const prm = diagState.some((s) => s.primer === true);
+      
+      if (prm) {
+        setDiagState([...diagState, op])
+      
+      } else {
+        const newop = { ...op, primer: true };
+        setDiagState([...diagState, newop]);
+      }              
+    } else {
+      setDiagState([...diagState, { ...op, primer: true }]);
+    }
+    
+  }
+
+  const diagStateDel = (code: string) => {
+    const flt = diagState.filter((f) => f.value !== code);
+    const prm = flt.some((s) => s.primer === true);
+
+    if (prm) {
+      setDiagState(flt);
+    
+    } else {
+      if (flt.length > 0) {
+        flt[0].primer = true;
+        setDiagState(flt);
+
+      } else {
+        setDiagState([])
+      }
+    }
+    
+  }
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -123,6 +165,10 @@ export default function RtlEksternal({
       )))
       : {}
 
+    // diagnosa
+    const diag: any = [];
+    diagState.map(v => v.primer ? diag.unshift(v.value) : diag.push(v.value));
+
     const input = {
       status: data.tipe_rtl,
       detail: {
@@ -132,6 +178,7 @@ export default function RtlEksternal({
         jns_pelayanan: data.jns_pelayanan,
         tipe_rujukan: data.tipe_rujukan,
         catatan: data.catatan,
+        diagnosa: diag
       }
     }
 
@@ -282,15 +329,12 @@ export default function RtlEksternal({
           <AsyncSelectInput 
             loadOptions={ loadIcd10 }
             placeholder="Pilih Diagnosa"
-            onChange={ (op) => {
-              if (op) {
-                setDiagState([...diagState, op]);              
-              }
-            }}
+            onChange={ (op) => diagStateAdd(op ?? null) }
           />
         </div>
       </div>
 
+      {/* List Diagnosa */}
       <div className="my-2.5">
         { diagState?.length === 0 
           ? <p className="text-center text-xs text-red-800 p-1.5 bg-red-100 border border-red-300 rounded-md">
@@ -301,6 +345,8 @@ export default function RtlEksternal({
                 <tr>
                   <th className="text-xs py-1 text-center">Kode</th>
                   <th className="text-xs text-center">Deskripsi</th>
+                  <th className="text-xs text-center">Primer</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -308,6 +354,12 @@ export default function RtlEksternal({
                   <tr key={i} className="bg-slate-50 text-sm text-center">
                     <td className="py-1 px-1.5">{ v.value }</td>
                     <td>{ v.label }</td>
+                    <td>{ v.primer ? (<span className="text-green-500">&#10003;</span>) : "" }</td>
+                    <td>
+                      <button type="button" onClick={() => diagStateDel(v.value) }>
+                        <TbTrash className="text-md text-red-500 mx-1.5"/>
+                      </button>
+                    </td>
                   </tr>
                 )) }
               </tbody>

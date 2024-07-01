@@ -200,7 +200,7 @@ export default function StokOpnameDialog({
   const loadObatDepo = async () => {
     try {
       const url = new URL(
-        `${APIURL}/rs/farmasi/stock_opname/list_barang/${obatDepo.data?.id}`
+        `${APIURL}/rs/farmasi/stock_opname/list_barang/`
       );
       // const params = {
       //   page: 1,

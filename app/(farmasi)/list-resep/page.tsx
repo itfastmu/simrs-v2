@@ -848,13 +848,14 @@ const TelaahDialog = ({
   const [cari, setCari] = useState<string>("");
   const deferredCari = useDeferredValue(cari);
   const [isMutating, setIsMutating] = useState<boolean>(false);
-  const [listObat, setListObat] = useState<KFAPOA[]>();
+  const [listObat, setListObat] = useState<(KFAPOA & {stok?:number})[]>();
 
   const loadObat = async () => {
     try {
       setIsMutating(true);
       const url = new URL(`${APIURL}/rs/kfa/poa`);
       const params = {
+        depo: 2,
         page: meta.page,
         perPage: meta.perPage,
         // cari: deferredCari,
@@ -1796,6 +1797,9 @@ const TelaahDialog = ({
                               <ThDiv>Restriksi</ThDiv>
                             </Th>
                             <Th>
+                              Stok
+                            </Th>
+                            <Th>
                               <ThDiv>Jumlah</ThDiv>
                             </Th>
                           </tr>
@@ -1926,6 +1930,23 @@ const TelaahDialog = ({
                                   }
                                 >
                                   <p>{/* data.restriksi */}</p>
+                                </td>
+                                <td
+                                  className={cn(
+                                    "max-w-36 border-b border-slate-200 dark:border-gray-700",
+                                    "cursor-pointer"
+                                  )}
+                                  onClick={() =>
+                                    obat?.id_poa === data.id
+                                      ? setObat(null)
+                                      : setObat({
+                                          id_poa: data.id,
+                                          nama: data.nama,
+                                          jumlah: 1,
+                                        })
+                                  }
+                                >
+                                  <p>{data.stok}</p>
                                 </td>
                                 <td className="border-b border-slate-200 p-2 text-center dark:border-gray-700">
                                   <Input
